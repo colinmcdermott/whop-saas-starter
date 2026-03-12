@@ -1,6 +1,6 @@
 # Whop SaaS Starter
 
-A production-ready SaaS starter template built with **Next.js 15**, **Whop** (for auth and payments), **Prisma** (PostgreSQL), and **Tailwind CSS**.
+A production-ready SaaS starter template built with **Next.js 16**, **Whop** (for auth and payments), **Prisma 7** (PostgreSQL), and **Tailwind CSS v4**.
 
 Everything you need to launch a SaaS product — authentication, payments, subscription management, and a clean dashboard — wired up and ready to go.
 
@@ -137,7 +137,7 @@ whop-saas-starter/
 │   └── utils.ts                        # Utility functions
 ├── prisma/
 │   └── schema.prisma                   # Database schema
-├── middleware.ts                        # Route protection
+├── proxy.ts                            # Route protection (Next.js 16 proxy)
 ├── .env.example                        # Environment variable template
 └── README.md                           # This file
 ```
@@ -269,7 +269,7 @@ Edit `lib/constants.ts` to modify plan names, prices, and features. Add or remov
 
 ### Add new pages
 
-Protected pages go in `app/dashboard/`. Unprotected pages go in `app/(marketing)/`. The middleware automatically protects all `/dashboard/*` routes.
+Protected pages go in `app/dashboard/`. Unprotected pages go in `app/(marketing)/`. The proxy (`proxy.ts`) automatically protects all `/dashboard/*` routes.
 
 ### Change the look
 
@@ -281,9 +281,9 @@ Edit `app/api/webhooks/whop/route.ts` to handle additional Whop webhook events. 
 
 ## Tech Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org) (App Router)
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router)
 - **Auth & Payments**: [Whop](https://whop.com) (OAuth 2.1 + PKCE)
-- **Database**: PostgreSQL with [Prisma](https://prisma.io)
+- **Database**: PostgreSQL with [Prisma 7](https://prisma.io)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com)
 - **Sessions**: JWT via [jose](https://github.com/panva/jose)
 - **Hosting**: [Vercel](https://vercel.com) (recommended)

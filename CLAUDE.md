@@ -21,7 +21,7 @@ pnpm db:migrate   # Run migrations
 - OAuth 2.1 + PKCE — no client_secret needed
 - PKCE state stored in httpOnly cookie (not in URL state param like whop-ecom)
 - Session = JWT in httpOnly cookie, 7-day TTL, signed with SESSION_SECRET
-- Middleware checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
+- Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
 
 ### Payments
 - Whop embedded checkout via loader script (`https://js.whop.com/static/checkout/loader.js`)
@@ -38,8 +38,8 @@ pnpm db:migrate   # Run migrations
 - `POST /api/webhooks/whop` — Whop webhook handler
 
 ## Tech Stack
-- **Next.js 15** (App Router), **TypeScript**, **Tailwind CSS v4**
-- **Prisma 6** + PostgreSQL (standard setup, no driver adapter)
+- **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS v4**
+- **Prisma 7** + PostgreSQL (pg driver adapter via `@prisma/adapter-pg`)
 - **jose** for JWT signing/verification
 - **No @whop/sdk** — direct fetch to `https://api.whop.com`
 
@@ -78,8 +78,9 @@ lib/
 ├── db.ts                   # Prisma client singleton
 ├── constants.ts            # Plan configuration
 └── utils.ts                # cn(), formatDate()
-middleware.ts               # Protects /dashboard/* routes
+proxy.ts                   # Protects /dashboard/* routes (Next.js 16 proxy)
 prisma/schema.prisma        # User model with plan field
+prisma.config.ts            # Prisma 7 configuration
 ```
 
 ## Pre-Commit Checklist

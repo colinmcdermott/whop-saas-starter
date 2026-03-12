@@ -1,8 +1,5 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "node:path";
 import type { NextConfig } from "next";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
@@ -13,8 +10,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Ensures build tracing is scoped to this project
-  outputFileTracingRoot: __dirname,
+  // Ensure Turbopack resolves the workspace root to this project
+  turbopack: { root: resolve(".") },
 
   // Security headers for all routes
   async headers() {
