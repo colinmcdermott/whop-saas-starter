@@ -2,6 +2,22 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { getPlanFromWhopPlanId } from "@/lib/constants";
+import { verifyWebhookSignature } from "@/lib/whop";
+
+// ---------------------------------------------------------------------------
+// Webhook payload types
+// ---------------------------------------------------------------------------
+
+interface WebhookEvent {
+  type: string;
+  data: WebhookMembershipData;
+}
+
+interface WebhookMembershipData {
+  id?: string;
+  user_id?: string;
+  plan_id?: string;
+}
 
 /**
  * POST /api/webhooks/whop
@@ -23,17 +39,17 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
 
   // Verify the webhook signature
-  const isValid = await verifySignature(body, request.headers);
+  const isValid = await verifyWebhookSignature(body, {
+    "webhook-id": request.headers.get("webhook-id"),
+    "webhook-signature": request.headers.get("webhook-signature"),
+    "webhook-timestamp": request.headers.get("webhook-timestamp"),
+  });
   if (!isValid) {
     console.error("[Webhook] Invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  const event = JSON.parse(body) as {
-    type: string;
-    data: Record<string, unknown>;
-  };
-
+  const event: WebhookEvent = JSON.parse(body);
   const eventType = event.type;
   console.log(`[Webhook] Received event: ${eventType}`);
 
@@ -53,7 +69,6 @@ export async function POST(request: NextRequest) {
 
       case "payment.succeeded":
       case "payment_succeeded": {
-        // Payment received — you can add logging or notifications here
         console.log("[Webhook] Payment succeeded:", event.data);
         break;
       }
@@ -77,110 +92,40 @@ export async function POST(request: NextRequest) {
 // Event handlers
 // ---------------------------------------------------------------------------
 
-async function handleMembershipValid(data: Record<string, unknown>) {
-  const userId = data.user_id as string | undefined;
-  const planId = data.plan_id as string | undefined;
-
-  if (!userId) {
+async function handleMembershipValid(data: WebhookMembershipData) {
+  if (!data.user_id) {
     console.error("[Webhook] membership.went_valid missing user_id");
     return;
   }
 
-  const plan = planId ? getPlanFromWhopPlanId(planId) : "pro";
+  const plan = data.plan_id ? getPlanFromWhopPlanId(data.plan_id) : "pro";
 
-  // Upsert user — they may have purchased before creating an account
   await prisma.user.upsert({
-    where: { whopUserId: userId },
+    where: { whopUserId: data.user_id },
     update: {
       plan,
-      whopMembershipId: (data.id as string) ?? null,
+      whopMembershipId: data.id ?? null,
     },
     create: {
-      whopUserId: userId,
+      whopUserId: data.user_id,
       plan,
-      whopMembershipId: (data.id as string) ?? null,
+      whopMembershipId: data.id ?? null,
     },
   });
 
-  console.log(`[Webhook] User ${userId} upgraded to ${plan}`);
+  console.log(`[Webhook] User ${data.user_id} upgraded to ${plan}`);
 }
 
-async function handleMembershipInvalid(data: Record<string, unknown>) {
-  const userId = data.user_id as string | undefined;
-
-  if (!userId) {
+async function handleMembershipInvalid(data: WebhookMembershipData) {
+  if (!data.user_id) {
     console.error("[Webhook] membership.went_invalid missing user_id");
     return;
   }
 
   await prisma.user.updateMany({
-    where: { whopUserId: userId },
+    where: { whopUserId: data.user_id },
     data: { plan: "free", whopMembershipId: null },
   });
 
-  console.log(`[Webhook] User ${userId} downgraded to free`);
-}
-
-// ---------------------------------------------------------------------------
-// Webhook signature verification
-// ---------------------------------------------------------------------------
-
-function base64url(bytes: Uint8Array) {
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-async function verifySignature(
-  body: string,
-  headers: Headers
-): Promise<boolean> {
-  const secret = process.env.WHOP_WEBHOOK_SECRET;
-  if (!secret) {
-    console.error("[Webhook] WHOP_WEBHOOK_SECRET not configured");
-    return false;
-  }
-
-  const msgId = headers.get("webhook-id");
-  const signature = headers.get("webhook-signature");
-  const timestamp = headers.get("webhook-timestamp");
-
-  if (!msgId || !signature || !timestamp) {
-    console.error("[Webhook] Missing required webhook headers");
-    return false;
-  }
-
-  // Reject old webhooks (replay protection, 5 min tolerance)
-  const now = Math.floor(Date.now() / 1000);
-  const ts = parseInt(timestamp, 10);
-  if (Math.abs(now - ts) > 300) {
-    console.error("[Webhook] Timestamp too old or too far in the future");
-    return false;
-  }
-
-  // The secret needs to be base64-encoded before use as HMAC key
-  const secretBytes = Uint8Array.from(atob(btoa(secret)), (c) =>
-    c.charCodeAt(0)
-  );
-
-  const toSign = `${msgId}.${timestamp}.${body}`;
-  const key = await crypto.subtle.importKey(
-    "raw",
-    secretBytes,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  const sig = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(toSign)
-  );
-
-  const expected = `v1,${base64url(new Uint8Array(sig))}`;
-
-  // Whop may send multiple signatures separated by spaces
-  return signature.split(" ").some((s) => s === expected);
+  console.log(`[Webhook] User ${data.user_id} downgraded to free`);
 }

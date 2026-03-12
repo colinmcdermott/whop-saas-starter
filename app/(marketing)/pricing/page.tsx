@@ -4,7 +4,7 @@ import { PricingCards } from "@/components/landing/pricing-cards";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Pricing - SaaS Starter",
+  title: "Pricing",
   description: "Simple, transparent pricing for every stage of your business.",
 };
 
@@ -13,12 +13,12 @@ export default function PricingPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
-        <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+        <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
+          <div className="text-center mb-12">
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               Pricing
             </h1>
-            <p className="mt-4 text-lg text-[var(--muted)]">
+            <p className="mt-2 text-sm text-[var(--muted)]">
               Start free. Upgrade when you&apos;re ready. Cancel anytime.
             </p>
           </div>
@@ -26,12 +26,12 @@ export default function PricingPage() {
         </section>
 
         {/* FAQ */}
-        <section className="border-t border-[var(--border)] bg-[var(--card)]">
-          <div className="mx-auto max-w-3xl px-4 py-24 sm:px-6">
-            <h2 className="text-2xl font-bold text-center mb-12">
+        <section className="border-t border-[var(--border)]">
+          <div className="mx-auto max-w-2xl px-4 py-24 sm:px-6">
+            <h2 className="text-lg font-semibold text-center mb-10">
               Frequently asked questions
             </h2>
-            <div className="space-y-8">
+            <div className="space-y-6">
               {[
                 {
                   q: "Can I cancel my subscription?",
@@ -39,7 +39,7 @@ export default function PricingPage() {
                 },
                 {
                   q: "What payment methods do you accept?",
-                  a: "We accept all major credit cards and PayPal through our payment partner Whop.",
+                  a: "All major credit cards and PayPal through Whop.",
                 },
                 {
                   q: "Is there a free trial?",
@@ -47,12 +47,12 @@ export default function PricingPage() {
                 },
                 {
                   q: "Can I change plans?",
-                  a: "Yes, you can upgrade or downgrade at any time. Changes take effect immediately.",
+                  a: "Yes, upgrade or downgrade at any time. Changes take effect immediately.",
                 },
               ].map((faq) => (
                 <div key={faq.q}>
-                  <h3 className="font-semibold">{faq.q}</h3>
-                  <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+                  <h3 className="text-sm font-semibold">{faq.q}</h3>
+                  <p className="mt-1 text-sm text-[var(--muted)] leading-relaxed">
                     {faq.a}
                   </p>
                 </div>

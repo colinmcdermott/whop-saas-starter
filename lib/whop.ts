@@ -155,10 +155,8 @@ export async function verifyWebhookSignature(
   const webhookTimestamp = parseInt(timestamp, 10);
   if (Math.abs(now - webhookTimestamp) > 300) return false;
 
-  // Whop's webhook secret needs base64 encoding for the HMAC key
-  const secretBytes = Uint8Array.from(atob(btoa(secret)), (c) =>
-    c.charCodeAt(0)
-  );
+  // Convert secret string to bytes for HMAC key
+  const secretBytes = new TextEncoder().encode(secret);
 
   const toSign = `${msgId}.${timestamp}.${body}`;
   const key = await crypto.subtle.importKey(

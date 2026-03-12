@@ -40,7 +40,24 @@ export async function createSessionToken(session: Session): Promise<string> {
 export async function verifySessionToken(token: string): Promise<Session | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
-    return payload as unknown as Session;
+
+    // Validate that the JWT contains the required session fields
+    if (
+      typeof payload.userId !== "string" ||
+      typeof payload.whopUserId !== "string" ||
+      typeof payload.plan !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      userId: payload.userId,
+      whopUserId: payload.whopUserId,
+      email: (payload.email as string) ?? null,
+      name: (payload.name as string) ?? null,
+      profileImageUrl: (payload.profileImageUrl as string) ?? null,
+      plan: payload.plan,
+    };
   } catch {
     return null;
   }

@@ -5,10 +5,10 @@ import { PLANS, type PlanKey } from "@/lib/constants";
 function CheckIcon() {
   return (
     <svg
-      className="h-4 w-4 text-[var(--accent)] shrink-0"
+      className="h-3.5 w-3.5 text-[var(--foreground)] shrink-0 mt-0.5"
       fill="none"
       viewBox="0 0 24 24"
-      strokeWidth={2.5}
+      strokeWidth={2}
       stroke="currentColor"
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -18,10 +18,10 @@ function CheckIcon() {
 
 export function PricingCards() {
   const planKeys = Object.keys(PLANS) as PlanKey[];
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-3">
+    <div className="mx-auto grid max-w-4xl gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] lg:grid-cols-3">
       {planKeys.map((key) => {
         const plan = PLANS[key];
         const highlighted = plan.highlighted;
@@ -30,69 +30,67 @@ export function PricingCards() {
         return (
           <div
             key={key}
-            className={`relative flex flex-col rounded-xl border p-8 ${
+            className={`relative flex flex-col p-6 ${
               highlighted
-                ? "border-[var(--accent)] shadow-lg shadow-[var(--accent)]/10"
-                : "border-[var(--border)]"
+                ? "bg-[var(--surface)]"
+                : "bg-[var(--card)]"
             }`}
           >
             {highlighted && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--accent)] px-3 py-0.5 text-xs font-medium text-[var(--accent-foreground)]">
-                Most Popular
-              </div>
+              <div className="absolute top-0 left-0 right-0 h-px bg-[var(--accent)]" />
             )}
 
-            <div>
-              <h3 className="text-lg font-semibold">{plan.name}</h3>
-              <p className="mt-1 text-sm text-[var(--muted)]">{plan.description}</p>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold">{plan.name}</h3>
+              {highlighted && (
+                <span className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
+                  Popular
+                </span>
+              )}
             </div>
+            <p className="mt-1 text-xs text-[var(--muted)]">{plan.description}</p>
 
-            <div className="mt-6">
-              <span className="text-4xl font-bold">
+            <div className="mt-4">
+              <span className="text-3xl font-semibold tracking-tight">
                 ${plan.priceMonthly}
               </span>
               {plan.priceMonthly > 0 && (
-                <span className="text-sm text-[var(--muted)]">/month</span>
+                <span className="text-xs text-[var(--muted)] ml-0.5">/mo</span>
               )}
             </div>
 
-            <ul className="mt-8 flex flex-col gap-3 flex-1">
+            <div className="mt-5">
+              {key === "free" ? (
+                <a
+                  href="/api/auth/login?next=/dashboard"
+                  className="block w-full rounded-lg border border-[var(--border)] bg-[var(--card)] py-2 text-center text-sm font-medium transition-colors hover:bg-[var(--surface)]"
+                >
+                  Get Started
+                </a>
+              ) : whopPlanId ? (
+                <div
+                  data-whop-checkout-plan-id={whopPlanId}
+                  data-whop-checkout-return-url={`${appUrl}/checkout/success?plan=${key}`}
+                  data-whop-color-scheme="system"
+                  className="cursor-pointer rounded-lg bg-[var(--foreground)] py-2 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                >
+                  Subscribe
+                </div>
+              ) : (
+                <span className="block w-full rounded-lg border border-[var(--border)] py-2 text-center text-xs text-[var(--muted)]">
+                  Configure plan ID
+                </span>
+              )}
+            </div>
+
+            <ul className="mt-5 flex flex-col gap-2 flex-1">
               {plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-sm">
+                <li key={feature} className="flex items-start gap-2 text-xs text-[var(--muted)]">
                   <CheckIcon />
                   <span>{feature}</span>
                 </li>
               ))}
             </ul>
-
-            <div className="mt-8">
-              {key === "free" ? (
-                <a
-                  href="/api/auth/login?next=/dashboard"
-                  className="block w-full rounded-lg border border-[var(--border)] py-2.5 text-center text-sm font-medium hover:bg-[var(--card-border)] transition-colors"
-                >
-                  Get Started Free
-                </a>
-              ) : whopPlanId ? (
-                /* Whop embedded checkout — the loader script detects this data attribute
-                   and attaches click-to-checkout behavior automatically */
-                <div
-                  data-whop-checkout-plan-id={whopPlanId}
-                  data-whop-checkout-return-url={`${appUrl}/checkout/success?plan=${key}`}
-                  className={`cursor-pointer rounded-lg py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90 ${
-                    highlighted
-                      ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                      : "bg-[var(--foreground)] text-[var(--background)]"
-                  }`}
-                >
-                  Subscribe
-                </div>
-              ) : (
-                <span className="block w-full rounded-lg border border-[var(--border)] py-2.5 text-center text-sm text-[var(--muted)]">
-                  Configure plan ID
-                </span>
-              )}
-            </div>
           </div>
         );
       })}

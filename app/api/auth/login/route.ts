@@ -10,6 +10,13 @@ import { buildAuthorizationUrl } from "@/lib/whop";
  * Stores the PKCE code_verifier and redirect path in a secure cookie.
  */
 export async function GET(request: NextRequest) {
+  // Check that required env vars are configured
+  if (!process.env.NEXT_PUBLIC_WHOP_APP_ID) {
+    const url = new URL("/auth-error", request.url);
+    url.searchParams.set("error", "missing_config");
+    return NextResponse.redirect(url);
+  }
+
   // Where to redirect after login
   let next = request.nextUrl.searchParams.get("next") ?? "/dashboard";
   if (!next.startsWith("/") || next.startsWith("//")) {

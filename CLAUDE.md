@@ -66,6 +66,8 @@ app/                        # Pages and API routes
 ├── (marketing)/            # Pricing (unprotected)
 ├── dashboard/              # Protected area (layout calls requireSession)
 ├── checkout/success/       # Post-payment redirect
+├── not-found.tsx           # Global 404 page
+├── error.tsx               # Global error boundary
 └── api/auth/, api/webhooks/
 components/
 ├── landing/                # Hero, features, pricing cards, header, footer

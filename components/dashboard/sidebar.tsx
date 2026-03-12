@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { APP_NAME } from "@/lib/constants";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: HomeIcon },
@@ -11,40 +13,83 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <aside className="hidden w-60 shrink-0 border-r border-[var(--border)] lg:block">
-      <div className="flex h-16 items-center border-b border-[var(--border)] px-6">
-        <Link href="/" className="text-lg font-bold">
-          SaaS Starter
-        </Link>
-      </div>
+    <>
+      {/* Mobile menu button */}
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        className="fixed left-4 top-4 z-40 inline-flex items-center justify-center rounded-lg p-1.5 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors lg:hidden"
+        aria-label="Open sidebar"
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+        </svg>
+      </button>
 
-      <nav className="p-4 space-y-1">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(item.href);
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                isActive
-                  ? "bg-[var(--accent)]/10 text-[var(--accent)] font-medium"
-                  : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--card-border)]"
-              )}
-            >
-              <item.icon />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-    </aside>
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-56 shrink-0 border-r border-[var(--border)] bg-[var(--background)] transition-transform duration-200 lg:static lg:translate-x-0",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex h-14 items-center justify-between border-b border-[var(--border)] px-5">
+          <Link href="/" className="text-sm font-semibold tracking-tight">
+            {APP_NAME}
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMobileOpen(false)}
+            className="inline-flex items-center justify-center rounded-lg p-1 text-[var(--muted)] hover:text-[var(--foreground)] lg:hidden"
+            aria-label="Close sidebar"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <nav className="p-2 space-y-0.5">
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+                  isActive
+                    ? "bg-[var(--surface)] text-[var(--foreground)] font-medium"
+                    : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+                )}
+              >
+                <item.icon />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }
 
