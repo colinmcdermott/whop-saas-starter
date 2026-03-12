@@ -21,7 +21,7 @@ Everything you need to launch a SaaS product — authentication, payments, subsc
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-org/whop-saas-starter.git
+git clone https://github.com/colinmcdermott/whop-saas-starter.git
 cd whop-saas-starter
 pnpm install
 ```
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
 
 ### One-click deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/whop-saas-starter&env=DATABASE_URL,NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,WHOP_WEBHOOK_SECRET,SESSION_SECRET,NEXT_PUBLIC_WHOP_PRO_PLAN_ID,NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID,NEXT_PUBLIC_APP_URL)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/colinmcdermott/whop-saas-starter&env=DATABASE_URL,NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,WHOP_WEBHOOK_SECRET,SESSION_SECRET,NEXT_PUBLIC_WHOP_PRO_PLAN_ID,NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID,NEXT_PUBLIC_APP_URL)
 
 ### Manual deploy
 
@@ -258,6 +258,10 @@ pnpm db:studio    # Open Prisma Studio (visual DB browser)
 ```
 
 ## Customization Guide
+
+### Rename your app
+
+Edit `lib/constants.ts` — change `APP_NAME`, `APP_DESCRIPTION`, and `LINKS` at the top of the file. These are used across the header, sidebar, login page, footer, and metadata. One file, one change.
 
 ### Change the plans
 

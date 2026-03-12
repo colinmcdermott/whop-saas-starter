@@ -1,3 +1,25 @@
+// ---------------------------------------------------------------------------
+// App configuration — edit these to customize your SaaS
+// ---------------------------------------------------------------------------
+
+/** Your app's name — shown in the header, sidebar, login page, and metadata */
+export const APP_NAME = "SaaS Starter";
+
+/** Your app's description — used in metadata and the landing page */
+export const APP_DESCRIPTION =
+  "A modern SaaS starter built with Next.js and Whop";
+
+/** External links — update these before launching */
+export const LINKS = {
+  github: "https://github.com/colinmcdermott/whop-saas-starter",
+  terms: "/terms", // TODO: Add your terms of service page
+  privacy: "/privacy", // TODO: Add your privacy policy page
+} as const;
+
+// ---------------------------------------------------------------------------
+// Plan configuration
+// ---------------------------------------------------------------------------
+
 /** Plan configuration for your SaaS */
 export const PLANS = {
   free: {
