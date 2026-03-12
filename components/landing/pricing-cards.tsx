@@ -18,6 +18,7 @@ function CheckIcon() {
 
 export function PricingCards() {
   const planKeys = Object.keys(PLANS) as PlanKey[];
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
 
   return (
     <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-3">
@@ -73,17 +74,19 @@ export function PricingCards() {
                   Get Started Free
                 </a>
               ) : whopPlanId ? (
-                <a
-                  href={`/checkout/success?plan=${key}`}
+                /* Whop embedded checkout — the loader script detects this data attribute
+                   and attaches click-to-checkout behavior automatically */
+                <div
                   data-whop-checkout-plan-id={whopPlanId}
-                  className={`block w-full rounded-lg py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90 ${
+                  data-whop-checkout-return-url={`${appUrl}/checkout/success?plan=${key}`}
+                  className={`cursor-pointer rounded-lg py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90 ${
                     highlighted
                       ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
                       : "bg-[var(--foreground)] text-[var(--background)]"
                   }`}
                 >
                   Subscribe
-                </a>
+                </div>
               ) : (
                 <span className="block w-full rounded-lg border border-[var(--border)] py-2.5 text-center text-sm text-[var(--muted)]">
                   Configure plan ID

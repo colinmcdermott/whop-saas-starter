@@ -24,9 +24,11 @@ pnpm db:migrate   # Run migrations
 - Middleware checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
 
 ### Payments
-- Users subscribe via Whop checkout (plan IDs configured in env vars)
+- Whop embedded checkout via loader script (`https://js.whop.com/static/checkout/loader.js`)
+- Pricing buttons use `data-whop-checkout-plan-id` + `data-whop-checkout-return-url` attributes
+- Loader script auto-attaches checkout behavior to elements with these data attributes
 - Webhooks (`membership.went_valid` / `membership.went_invalid`) update user plan in DB
-- No SDK — direct `fetch` calls to Whop API for transparency
+- Docs: https://docs.whop.com/payments/checkout-embed
 
 ### Key Endpoints
 - `GET /api/auth/login?next=/dashboard` — initiate OAuth

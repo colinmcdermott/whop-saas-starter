@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {/* Whop embedded checkout loader — activates any element with data-whop-checkout-plan-id */}
+        <Script
+          src="https://js.whop.com/static/checkout/loader.js"
+          strategy="lazyOnload"
+        />
+      </body>
     </html>
   );
 }
