@@ -35,7 +35,7 @@ You need a PostgreSQL database. Recommended providers:
 
 ### 3. Create a Whop app
 
-1. Go to the [Whop Developer Dashboard](https://whop.com/developer)
+1. Go to the [Whop Developer Dashboard](https://whop.com/dashboard/developer)
 2. Click **Create App**
 3. Note your **App ID** (starts with `app_`) and **API Key** (starts with `sk_`)
 4. Under **OAuth**, add your redirect URI:
