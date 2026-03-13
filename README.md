@@ -37,8 +37,9 @@ You need a PostgreSQL database. Recommended providers:
 
 1. Go to the [Whop Developer Dashboard](https://whop.com/dashboard/developer)
 2. Click **Create App**
-3. Note your **Client ID** (starts with `app_`) and **API Key / Client Secret** (starts with `apik_`)
-4. Under **OAuth**, add your redirect URI:
+3. Note your **Client ID** (starts with `app_`) and **API Key** (starts with `apik_`)
+4. Under **OAuth**, set the client mode to **Public** (PKCE only, no client_secret needed)
+5. Add your redirect URI:
    - Development: `http://localhost:3000/api/auth/callback`
    - Production: `https://your-domain.com/api/auth/callback`
 
