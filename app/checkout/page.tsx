@@ -9,11 +9,14 @@ import {
 } from "@whop/checkout/react";
 import { APP_NAME, type PlanKey, type BillingInterval } from "@/lib/constants";
 import type { PlansConfig } from "@/lib/config";
+import { COUNTRIES } from "@/lib/countries";
 
-function LockIcon() {
+// ── Icons ────────────────────────────────────────────────────────────────────
+
+function LockIcon({ className = "h-3.5 w-3.5" }: { className?: string }) {
   return (
     <svg
-      className="h-3.5 w-3.5"
+      className={className}
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={2}
@@ -28,25 +31,63 @@ function LockIcon() {
   );
 }
 
-function CheckoutEmbed() {
+function CheckIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5 text-[var(--foreground)] shrink-0 mt-0.5"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 12.75l6 6 9-13.5"
+      />
+    </svg>
+  );
+}
+
+// ── Shared input class ───────────────────────────────────────────────────────
+
+const inputClass =
+  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus:border-[var(--accent)]";
+
+const inputErrorClass =
+  "w-full rounded-lg border border-red-400 dark:border-red-500 bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus:border-red-400";
+
+// ── Main checkout ────────────────────────────────────────────────────────────
+
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const checkoutControlsRef = useCheckoutEmbedControls();
+  const paymentRef = useRef<HTMLDivElement>(null);
 
   const planKey = searchParams.get("plan") as PlanKey | null;
   const interval =
     (searchParams.get("interval") as BillingInterval) ?? "monthly";
 
+  // Data loading
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [sessionName, setSessionName] = useState<string | null>(null);
   const [emailLoaded, setEmailLoaded] = useState(false);
   const [plans, setPlans] = useState<PlansConfig | null>(null);
 
-  // Native form state
+  // Billing form state
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [apartment, setApartment] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [country, setCountry] = useState("US");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Checkout embed state
+  // Payment state — embed only mounts after "Continue to Payment"
+  const [showPayment, setShowPayment] = useState(false);
   const [checkoutReady, setCheckoutReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -54,10 +95,7 @@ function CheckoutEmbed() {
   // Theme detection
   const [theme, setTheme] = useState<"light" | "dark">("light");
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    // Also check the HTML class for our class-based theme
-    const isDark =
-      document.documentElement.classList.contains("dark") || mq.matches;
+    const isDark = document.documentElement.classList.contains("dark");
     setTheme(isDark ? "dark" : "light");
     const observer = new MutationObserver(() => {
       setTheme(
@@ -80,7 +118,10 @@ function CheckoutEmbed() {
           setSessionEmail(data.email);
           setEmail(data.email);
         }
-        if (data?.name) setSessionName(data.name);
+        if (data?.name) {
+          setSessionName(data.name);
+          setName(data.name);
+        }
       })
       .catch(() => {})
       .finally(() => setEmailLoaded(true));
@@ -100,7 +141,6 @@ function CheckoutEmbed() {
       ? plan.whopPlanIdYearly
       : plan.whopPlanId
     : "";
-
   const isLoggedIn = !!sessionEmail;
   const price = plan
     ? interval === "yearly"
@@ -108,7 +148,8 @@ function CheckoutEmbed() {
       : plan.priceMonthly
     : 0;
 
-  // Invalid plan
+  // ── Invalid plan ─────────────────────────────────────────────────────────
+
   if (plans && (!plan || !whopPlanId)) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
@@ -129,27 +170,62 @@ function CheckoutEmbed() {
     );
   }
 
-  function validateEmail(value: string): boolean {
-    if (!value.trim()) {
-      setEmailError("Email is required");
-      return false;
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  function clearFieldError(field: string) {
+    if (formErrors[field]) {
+      setFormErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      setEmailError("Enter a valid email address");
-      return false;
-    }
-    setEmailError(null);
-    return true;
+  }
+
+  function validateForm(): boolean {
+    const errors: Record<string, string> = {};
+
+    if (!email.trim()) errors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      errors.email = "Enter a valid email address";
+
+    if (!name.trim()) errors.name = "Name is required";
+    if (!address.trim()) errors.address = "Address is required";
+    if (!city.trim()) errors.city = "City is required";
+    if (!postalCode.trim()) errors.postalCode = "Postal code is required";
+    if (!country) errors.country = "Country is required";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  function handleContinueToPayment() {
+    if (!validateForm()) return;
+    setShowPayment(true);
+    // Scroll to payment after embed renders
+    setTimeout(() => {
+      paymentRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 150);
   }
 
   async function handleSubmitPayment() {
-    if (!validateEmail(email)) return;
-
     setIsProcessing(true);
     setPaymentError(null);
 
     try {
       await checkoutControlsRef.current?.setEmail(email);
+      await checkoutControlsRef.current?.setAddress({
+        name,
+        line1: address,
+        line2: apartment || undefined,
+        city,
+        state: state || "",
+        postalCode,
+        country,
+      });
       await checkoutControlsRef.current?.submit();
     } catch (err) {
       console.error("Payment submission failed:", err);
@@ -164,7 +240,9 @@ function CheckoutEmbed() {
     );
   }
 
-  const loading = !plan || !emailLoaded;
+  const dataLoading = !plan || !emailLoaded;
+
+  // ── Render ──────────────────────────────────────────────────────────────
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -183,9 +261,9 @@ function CheckoutEmbed() {
 
       <div className="flex flex-1 items-start justify-center px-4 py-10">
         <div className="w-full max-w-[960px] flex flex-col lg:flex-row lg:gap-12">
-          {/* Left column — Form + Payment */}
+          {/* ── Left column: Form + Payment ─────────────────────────────── */}
           <div className="flex-1 max-w-lg mx-auto lg:mx-0 order-2 lg:order-1">
-            {loading ? (
+            {dataLoading ? (
               <div className="flex min-h-[400px] items-center justify-center">
                 <p className="text-sm text-[var(--muted)]">
                   Loading checkout...
@@ -193,7 +271,7 @@ function CheckoutEmbed() {
               </div>
             ) : (
               <div className="animate-slide-up space-y-6">
-                {/* Contact section */}
+                {/* ── Contact ──────────────────────────────────────────── */}
                 <div>
                   <h2 className="text-sm font-semibold mb-3">Contact</h2>
                   <div>
@@ -202,21 +280,16 @@ function CheckoutEmbed() {
                       value={email}
                       onChange={(e) => {
                         setEmail(e.target.value);
-                        if (emailError) validateEmail(e.target.value);
+                        clearFieldError("email");
                       }}
-                      onBlur={() => email && validateEmail(email)}
                       placeholder="Email address"
                       disabled={isLoggedIn}
                       autoComplete="email"
-                      className={`w-full rounded-lg border bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] ${
-                        emailError
-                          ? "border-red-400 dark:border-red-500"
-                          : "border-[var(--border)] focus:border-[var(--accent)]"
-                      } ${isLoggedIn ? "opacity-70 cursor-not-allowed" : ""}`}
+                      className={`${formErrors.email ? inputErrorClass : inputClass} ${isLoggedIn ? "opacity-70 cursor-not-allowed" : ""}`}
                     />
-                    {emailError && (
+                    {formErrors.email && (
                       <p className="mt-1.5 text-xs text-red-500">
-                        {emailError}
+                        {formErrors.email}
                       </p>
                     )}
                     {isLoggedIn && (
@@ -227,69 +300,245 @@ function CheckoutEmbed() {
                   </div>
                 </div>
 
-                {/* Payment section */}
+                {/* ── Billing address ──────────────────────────────────── */}
                 <div>
-                  <h2 className="text-sm font-semibold mb-3">Payment</h2>
-                  <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
-                    <WhopCheckoutEmbed
-                      ref={checkoutControlsRef}
-                      planId={whopPlanId}
-                      hideEmail
-                      hideSubmitButton
-                      hidePrice
-                      skipRedirect
-                      onStateChange={(state) =>
-                        setCheckoutReady(state === "ready")
-                      }
-                      onComplete={handleComplete}
-                      onAddressValidationError={(error) => {
-                        console.error("Address validation error:", error);
-                        setPaymentError(error.error_message);
-                        setIsProcessing(false);
-                      }}
-                      prefill={{ email }}
-                      theme={theme}
-                      styles={{
-                        container: { paddingTop: 0, paddingBottom: 0 },
-                      }}
-                      fallback={
-                        <div className="flex h-32 items-center justify-center">
-                          <p className="text-xs text-[var(--muted)]">
-                            Loading payment form...
-                          </p>
-                        </div>
-                      }
+                  <h2 className="text-sm font-semibold mb-3">
+                    Billing address
+                  </h2>
+                  <div className="space-y-3">
+                    {/* Country */}
+                    <div>
+                      <select
+                        value={country}
+                        onChange={(e) => {
+                          setCountry(e.target.value);
+                          clearFieldError("country");
+                        }}
+                        className={
+                          formErrors.country ? inputErrorClass : inputClass
+                        }
+                      >
+                        <option value="" disabled>
+                          Select country
+                        </option>
+                        {COUNTRIES.map((c) => (
+                          <option key={c.code} value={c.code}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      {formErrors.country && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {formErrors.country}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Full name */}
+                    <div>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          clearFieldError("name");
+                        }}
+                        placeholder="Full name"
+                        autoComplete="name"
+                        className={
+                          formErrors.name ? inputErrorClass : inputClass
+                        }
+                      />
+                      {formErrors.name && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {formErrors.name}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Address line 1 */}
+                    <div>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => {
+                          setAddress(e.target.value);
+                          clearFieldError("address");
+                        }}
+                        placeholder="Address"
+                        autoComplete="address-line1"
+                        className={
+                          formErrors.address ? inputErrorClass : inputClass
+                        }
+                      />
+                      {formErrors.address && (
+                        <p className="mt-1 text-xs text-red-500">
+                          {formErrors.address}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Apartment (optional) */}
+                    <input
+                      type="text"
+                      value={apartment}
+                      onChange={(e) => setApartment(e.target.value)}
+                      placeholder="Apartment, suite, etc. (optional)"
+                      autoComplete="address-line2"
+                      className={inputClass}
                     />
+
+                    {/* City / State / Postal code */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={(e) => {
+                            setCity(e.target.value);
+                            clearFieldError("city");
+                          }}
+                          placeholder="City"
+                          autoComplete="address-level2"
+                          className={
+                            formErrors.city ? inputErrorClass : inputClass
+                          }
+                        />
+                        {formErrors.city && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {formErrors.city}
+                          </p>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        placeholder="State"
+                        autoComplete="address-level1"
+                        className={inputClass}
+                      />
+                      <div>
+                        <input
+                          type="text"
+                          value={postalCode}
+                          onChange={(e) => {
+                            setPostalCode(e.target.value);
+                            clearFieldError("postalCode");
+                          }}
+                          placeholder="Postal code"
+                          autoComplete="postal-code"
+                          className={
+                            formErrors.postalCode ? inputErrorClass : inputClass
+                          }
+                        />
+                        {formErrors.postalCode && (
+                          <p className="mt-1 text-xs text-red-500">
+                            {formErrors.postalCode}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Error display */}
-                {paymentError && (
-                  <p className="text-xs text-red-500">{paymentError}</p>
-                )}
+                {/* ── Payment section ──────────────────────────────────── */}
+                <div ref={paymentRef}>
+                  <h2 className="text-sm font-semibold mb-3">Payment</h2>
 
-                {/* Submit button */}
-                <button
-                  type="button"
-                  onClick={handleSubmitPayment}
-                  disabled={isProcessing || !checkoutReady}
-                  className="w-full rounded-lg bg-[var(--foreground)] py-3 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {isProcessing ? "Processing..." : `Pay $${price}`}
-                </button>
+                  {!showPayment ? (
+                    <>
+                      {/* "Continue to Payment" button — shown before embed */}
+                      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                        <button
+                          type="button"
+                          onClick={handleContinueToPayment}
+                          className="w-full rounded-lg bg-[var(--foreground)] py-3 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                        >
+                          Continue to Payment
+                        </button>
+                      </div>
+                      <div className="mt-3 flex items-center justify-center gap-1.5 text-[var(--muted)]">
+                        <LockIcon />
+                        <span className="text-[11px]">
+                          Secure checkout powered by Whop
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Card input embed */}
+                      <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
+                        <WhopCheckoutEmbed
+                          ref={checkoutControlsRef}
+                          planId={whopPlanId}
+                          hideEmail
+                          hideAddressForm
+                          hideSubmitButton
+                          hidePrice
+                          skipRedirect
+                          onStateChange={(state) =>
+                            setCheckoutReady(state === "ready")
+                          }
+                          onComplete={handleComplete}
+                          onAddressValidationError={(error) => {
+                            console.error(
+                              "Address validation error:",
+                              error
+                            );
+                            setPaymentError(error.error_message);
+                            setIsProcessing(false);
+                          }}
+                          prefill={{ email }}
+                          theme={theme}
+                          styles={{
+                            container: {
+                              paddingTop: 0,
+                              paddingBottom: 0,
+                            },
+                          }}
+                          fallback={
+                            <div className="flex h-32 items-center justify-center">
+                              <p className="text-xs text-[var(--muted)]">
+                                Loading payment form...
+                              </p>
+                            </div>
+                          }
+                        />
+                      </div>
 
-                {/* Security note */}
-                <div className="flex items-center justify-center gap-1.5 text-[var(--muted)]">
-                  <LockIcon />
-                  <span className="text-[11px]">
-                    Secure checkout powered by Whop
-                  </span>
+                      {/* Error display */}
+                      {paymentError && (
+                        <p className="mt-3 text-xs text-red-500">
+                          {paymentError}
+                        </p>
+                      )}
+
+                      {/* Submit payment button */}
+                      <button
+                        type="button"
+                        onClick={handleSubmitPayment}
+                        disabled={isProcessing || !checkoutReady}
+                        className="mt-4 w-full rounded-lg bg-[var(--foreground)] py-3 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {isProcessing ? "Processing..." : `Pay $${price}`}
+                      </button>
+
+                      {/* Security note */}
+                      <div className="mt-3 flex items-center justify-center gap-1.5 text-[var(--muted)]">
+                        <LockIcon />
+                        <span className="text-[11px]">
+                          Secure checkout powered by Whop
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Right column — Order summary (desktop) */}
+          {/* ── Right column: Order summary (desktop) ───────────────────── */}
           {plan && (
             <div className="hidden lg:block lg:w-[320px] lg:shrink-0 order-3 lg:order-2">
               <div className="sticky top-10 animate-slide-up delay-100">
@@ -324,7 +573,7 @@ function CheckoutEmbed() {
                     )}
                   </div>
 
-                  {/* Features preview */}
+                  {/* Features */}
                   <div className="mt-5 border-t border-[var(--border)] pt-4">
                     <p className="text-[11px] font-medium text-[var(--muted)] uppercase tracking-wider mb-2">
                       What&apos;s included
@@ -335,19 +584,7 @@ function CheckoutEmbed() {
                           key={feature}
                           className="flex items-start gap-2 text-xs text-[var(--muted)]"
                         >
-                          <svg
-                            className="h-3.5 w-3.5 text-[var(--foreground)] shrink-0 mt-0.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M4.5 12.75l6 6 9-13.5"
-                            />
-                          </svg>
+                          <CheckIcon />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -358,7 +595,7 @@ function CheckoutEmbed() {
             </div>
           )}
 
-          {/* Mobile order summary (shown above form on small screens) */}
+          {/* ── Mobile order summary ─────────────────────────────────── */}
           {plan && (
             <div className="mb-6 lg:hidden order-1">
               <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
@@ -396,7 +633,7 @@ export default function CheckoutPage() {
         </div>
       }
     >
-      <CheckoutEmbed />
+      <CheckoutContent />
     </Suspense>
   );
 }
