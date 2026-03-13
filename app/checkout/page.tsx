@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { PLANS, type PlanKey } from "@/lib/constants";
 import { APP_NAME } from "@/lib/constants";
@@ -11,6 +11,16 @@ function CheckoutEmbed() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planKey = searchParams.get("plan") as PlanKey | null;
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.email) setUserEmail(data.email);
+      })
+      .catch(() => {});
+  }, []);
 
   const plan = planKey && planKey in PLANS ? PLANS[planKey] : null;
   const whopPlanId = plan?.whopPlanId;
@@ -65,6 +75,9 @@ function CheckoutEmbed() {
           <WhopCheckoutEmbed
             planId={whopPlanId}
             skipRedirect
+            {...(userEmail
+              ? { prefill: { email: userEmail }, disableEmail: true }
+              : {})}
             onComplete={(plan_id, receipt_id) => {
               router.push(
                 `/checkout/success?plan=${planKey}&receipt=${receipt_id ?? ""}`

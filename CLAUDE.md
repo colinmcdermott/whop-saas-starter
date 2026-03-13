@@ -18,7 +18,7 @@ pnpm db:migrate   # Run migrations
 ## Architecture
 
 ### Auth Flow
-- OAuth 2.1 + PKCE — no client_secret needed
+- OAuth 2.1 + PKCE — Public client mode (no client_secret needed)
 - PKCE state stored in httpOnly cookie (not in URL state param like whop-ecom)
 - Session = JWT in httpOnly cookie, 7-day TTL, signed with SESSION_SECRET
 - Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
@@ -26,6 +26,7 @@ pnpm db:migrate   # Run migrations
 ### Payments
 - Whop embedded checkout via `@whop/checkout` React component (`WhopCheckoutEmbed`)
 - Pricing buttons link to `/checkout?plan={key}`, which renders the embed with `planId`
+- Checkout pre-fills email for logged-in users (fetches from /api/auth/me)
 - Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
 - Additional webhook handlers for `payment_succeeded`, `payment_failed`, `refund_created`, `dispute_created`
 
