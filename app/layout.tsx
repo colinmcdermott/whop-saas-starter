@@ -37,12 +37,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // Read accent color from DB/env (returns null if not set → CSS default used)
-  let accentStyle: string | undefined;
+  let accentCss: string | undefined;
   try {
     const accent = await getConfig("accent_color");
     if (accent && /^#[0-9a-fA-F]{6}$/.test(accent)) {
       const lightVariant = lightenHex(accent);
-      accentStyle = `--accent:${accent};--accent-dark:${lightVariant}`;
+      accentCss = `:root{--accent:${accent} !important;--accent-dark:${lightVariant} !important}.dark{--accent:${lightVariant} !important}`;
     }
   } catch {
     // Config/DB not ready yet (first build) — use CSS defaults
@@ -62,12 +62,10 @@ export default async function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem("theme");var d=document.documentElement;d.classList.remove("light","dark");if(t==="dark"||t==="light"){d.classList.add(t)}else{d.classList.add(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}}catch(e){}})()`,
           }}
         />
-        {accentStyle && (
+        {accentCss && (
           <style
             id="accent-override"
-            dangerouslySetInnerHTML={{
-              __html: `:root{${accentStyle}}.dark{--accent:var(--accent-dark)}`,
-            }}
+            dangerouslySetInnerHTML={{ __html: accentCss }}
           />
         )}
       </head>
