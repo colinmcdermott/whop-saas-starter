@@ -1,14 +1,15 @@
 "use client";
 
-import Script from "next/script";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { PLANS, type PlanKey } from "@/lib/constants";
 import { APP_NAME } from "@/lib/constants";
 
 function CheckoutEmbed() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const planKey = searchParams.get("plan") as PlanKey | null;
 
   const plan = planKey && planKey in PLANS ? PLANS[planKey] : null;
@@ -20,7 +21,8 @@ function CheckoutEmbed() {
         <div className="w-full max-w-xs text-center">
           <h1 className="text-sm font-semibold">Invalid Plan</h1>
           <p className="mt-2 text-xs text-[var(--muted)]">
-            The plan you selected doesn&apos;t exist or hasn&apos;t been configured.
+            The plan you selected doesn&apos;t exist or hasn&apos;t been
+            configured.
           </p>
           <Link
             href="/pricing"
@@ -33,10 +35,6 @@ function CheckoutEmbed() {
     );
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (typeof window !== "undefined" ? window.location.origin : "");
-
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
@@ -46,7 +44,7 @@ function CheckoutEmbed() {
         </Link>
         <Link
           href="/pricing"
-          className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          className="text-xs text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
         >
           Back to Pricing
         </Link>
@@ -64,16 +62,21 @@ function CheckoutEmbed() {
             </p>
           </div>
 
-          {/* Whop embedded checkout renders here */}
-          <div
-            data-whop-checkout-plan-id={whopPlanId}
-            data-whop-checkout-return-url={`${appUrl}/checkout/success?plan=${planKey}`}
-            className="min-h-[400px] rounded-xl border border-[var(--border)] overflow-hidden"
-          />
-
-          <Script
-            src="https://js.whop.com/static/checkout/loader.js"
-            strategy="afterInteractive"
+          <WhopCheckoutEmbed
+            planId={whopPlanId}
+            skipRedirect
+            onComplete={(plan_id, receipt_id) => {
+              router.push(
+                `/checkout/success?plan=${planKey}&receipt=${receipt_id ?? ""}`
+              );
+            }}
+            fallback={
+              <div className="flex min-h-[400px] items-center justify-center rounded-xl border border-[var(--border)]">
+                <p className="text-sm text-[var(--muted)]">
+                  Loading checkout...
+                </p>
+              </div>
+            }
           />
         </div>
       </div>
@@ -86,7 +89,9 @@ export default function CheckoutPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
-          <div className="text-sm text-[var(--muted)]">Loading checkout...</div>
+          <div className="text-sm text-[var(--muted)]">
+            Loading checkout...
+          </div>
         </div>
       }
     >

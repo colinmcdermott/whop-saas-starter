@@ -24,11 +24,10 @@ pnpm db:migrate   # Run migrations
 - Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
 
 ### Payments
-- Whop embedded checkout via loader script (`https://js.whop.com/static/checkout/loader.js`)
-- Pricing buttons use `data-whop-checkout-plan-id` + `data-whop-checkout-return-url` attributes
-- Loader script auto-attaches checkout behavior to elements with these data attributes
+- Whop embedded checkout via `@whop/checkout` React component (`WhopCheckoutEmbed`)
+- Pricing buttons link to `/checkout?plan={key}`, which renders the embed with `planId`
 - Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
-- Docs: https://docs.whop.com/payments/checkout-embed
+- Additional webhook handlers for `payment_succeeded`, `payment_failed`, `refund_created`, `dispute_created`
 
 ### Key Endpoints
 - `GET /api/auth/login?next=/dashboard` — initiate OAuth
@@ -41,7 +40,7 @@ pnpm db:migrate   # Run migrations
 - **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS v4**
 - **Prisma 7** + PostgreSQL (pg driver adapter via `@prisma/adapter-pg`)
 - **jose** for JWT signing/verification
-- **No @whop/sdk** — direct fetch to `https://api.whop.com`
+- **@whop/checkout** for embedded checkout; direct fetch to `https://api.whop.com` for auth/API
 
 ## Important Patterns
 - `getSession()` — get current session or null (server components, API routes)
@@ -65,6 +64,7 @@ app/                        # Pages and API routes
 ├── (auth)/                 # Login, auth error (unprotected)
 ├── (marketing)/            # Pricing (unprotected)
 ├── dashboard/              # Protected area (layout calls requireSession)
+├── checkout/               # Embedded Whop checkout (WhopCheckoutEmbed)
 ├── checkout/success/       # Post-payment redirect
 ├── not-found.tsx           # Global 404 page
 ├── error.tsx               # Global error boundary

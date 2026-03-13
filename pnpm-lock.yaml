@@ -14,6 +14,9 @@ importers:
       '@prisma/client':
         specifier: ^7.5.0
         version: 7.5.0(prisma@7.5.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3)
+      '@whop/checkout':
+        specifier: ^0.0.52
+        version: 0.0.52(react@19.2.4)
       jose:
         specifier: ^6.0.0
         version: 6.2.1
@@ -797,6 +800,14 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@whop/checkout@0.0.52':
+    resolution: {integrity: sha512-bbaJUWyzdraYYiTBzSe1w/oNB98ZlIA138KlCljSGOtzt96ByBJvWEPteX0UUvMYvWu/BKfHNTi+IVZD8FRY0g==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -3068,6 +3079,10 @@ snapshots:
 
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
+
+  '@whop/checkout@0.0.52(react@19.2.4)':
+    optionalDependencies:
+      react: 19.2.4
 
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:

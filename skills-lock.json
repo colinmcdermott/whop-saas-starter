@@ -20,6 +20,11 @@
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "computedHash": "afeca00ac2f492d88fdd010e73d91719a5b57c564bb4a73325b0bd77e11323ab"
+    },
+    "whop-dev": {
+      "source": "steve-cooks/skills",
+      "sourceType": "github",
+      "computedHash": "4d585c50281ef997834376072f38b19a9be668598197c5a3e31462ea87295a19"
     }
   }
 }
