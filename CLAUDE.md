@@ -17,25 +17,44 @@ pnpm db:migrate   # Run migrations
 
 ## Architecture
 
+### Setup & Configuration
+- Zero-config deploy: only `DATABASE_URL` needed (auto-set by Vercel Postgres)
+- In-app setup wizard (`/setup`) guides through Whop config on first visit
+- All config stored in `SystemConfig` DB table via `lib/config.ts`
+- Env vars work as fallback for power users (checked before DB)
+- First user to sign in via OAuth becomes admin (`isAdmin` on User model)
+
+### Config System (`lib/config.ts`)
+- `getConfig(key)` / `setConfig(key, value)` — DB-backed with env var fallback and in-memory cache
+- `getPlansConfig()` — merges static plan metadata from `constants.ts` with dynamic plan IDs from DB/env
+- `isSetupComplete()` — checks if app is configured (setup_complete flag or whop_app_id exists)
+- All config keys: whop_app_id, whop_api_key, whop_webhook_secret, plan IDs, setup_complete
+
 ### Auth Flow
 - OAuth 2.1 + PKCE — Public client mode (no client_secret needed)
 - PKCE state stored in httpOnly cookie (not in URL state param like whop-ecom)
-- Session = JWT in httpOnly cookie, 7-day TTL, signed with SESSION_SECRET
+- Session = JWT in httpOnly cookie, 7-day TTL, signed with SESSION_SECRET (auto-generated)
+- Session includes `isAdmin` flag for admin-only features
 - Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
 
 ### Payments
 - Whop embedded checkout via `@whop/checkout` React component (`WhopCheckoutEmbed`)
-- Pricing buttons link to `/checkout?plan={key}`, which renders the embed with `planId`
+- Pricing buttons link to `/checkout?plan={key}&interval={monthly|yearly}`
+- Billing intervals: monthly/yearly toggle on pricing page; each paid tier has two Whop plan IDs
 - Checkout pre-fills email for logged-in users (fetches from /api/auth/me)
+- Plans fetched from `/api/config/plans` for client components
 - Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
-- Additional webhook handlers for `payment_succeeded`, `payment_failed`, `refund_created`, `dispute_created`
 
 ### Key Endpoints
 - `GET /api/auth/login?next=/dashboard` — initiate OAuth
-- `GET /api/auth/callback` — OAuth callback, creates session
+- `GET /api/auth/callback` — OAuth callback, creates session, first-user-is-admin
 - `GET /api/auth/logout` — clear session
 - `GET /api/auth/me` — current user (for client-side checks)
+- `POST /api/auth/delete-account` — delete user account (requires confirmation)
 - `POST /api/webhooks/whop` — Whop webhook handler
+- `GET/POST /api/setup` — read/write config during setup (open pre-setup, admin-only after)
+- `POST /api/setup/complete` — mark setup as done (admin-only)
+- `GET /api/config/plans` — plan config for client components
 
 ## Tech Stack
 - **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS v4**
@@ -46,10 +65,11 @@ pnpm db:migrate   # Run migrations
 ## Important Patterns
 - `getSession()` — get current session or null (server components, API routes)
 - `requireSession()` — get session or redirect to `/login` (protected pages)
+- `getConfig(key)` — read config value (cache → env → DB)
+- `getPlansConfig()` — server-side plan config (use in server components, pass to client as props)
 - Plan gating: check `session.plan` ("free" | "pro" | "enterprise")
-- Plans configured in `lib/constants.ts` — map Whop plan IDs to local tiers
-- Billing intervals: monthly/yearly toggle on pricing page; each paid tier has two Whop plan IDs
-- `SESSION_SECRET` auto-generates and persists in `SystemConfig` table if env var not set
+- Static plan metadata in `lib/constants.ts`; dynamic plan IDs via `lib/config.ts`
+- Client components get plan config as props from server parents, or fetch `/api/config/plans`
 
 ## Whop API Endpoints Used
 - `https://api.whop.com/oauth/authorize` — OAuth authorization
@@ -66,23 +86,30 @@ pnpm db:migrate   # Run migrations
 app/                        # Pages and API routes
 ├── (auth)/                 # Login, auth error (unprotected)
 ├── (marketing)/            # Pricing (unprotected)
+├── setup/                  # Setup wizard (shown on first visit)
 ├── dashboard/              # Protected area (layout calls requireSession)
 ├── checkout/               # Embedded Whop checkout (WhopCheckoutEmbed)
 ├── checkout/success/       # Post-payment redirect
 ├── not-found.tsx           # Global 404 page
 ├── error.tsx               # Global error boundary
-└── api/auth/, api/webhooks/
+└── api/
+    ├── auth/               # login, callback, logout, me, delete-account
+    ├── setup/              # Config read/write + completion
+    ├── config/plans/       # Plan config for client components
+    └── webhooks/whop/      # Whop webhook handler
 components/
 ├── landing/                # Hero, features, pricing cards, header, footer
-└── dashboard/              # Sidebar, header, upgrade banner
+├── dashboard/              # Sidebar, header, upgrade banner, delete account
+└── setup/                  # Setup wizard
 lib/
-├── auth.ts                 # JWT session management
+├── auth.ts                 # JWT session management (isAdmin included)
+├── config.ts               # DB-backed config system (getConfig, getPlansConfig)
 ├── whop.ts                 # Whop OAuth + webhook helpers
 ├── db.ts                   # Prisma client singleton
-├── constants.ts            # Plan configuration
+├── constants.ts            # Static plan metadata, APP_NAME, types
 └── utils.ts                # cn(), formatDate()
 proxy.ts                   # Protects /dashboard/* routes (Next.js 16 proxy)
-prisma/schema.prisma        # User model with plan field
+prisma/schema.prisma        # User (with isAdmin) + SystemConfig models
 prisma.config.ts            # Prisma 7 configuration
 ```
 

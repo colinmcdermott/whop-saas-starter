@@ -17,26 +17,28 @@ export const LINKS = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Plan configuration
+// Plan types and static metadata
 // ---------------------------------------------------------------------------
 
+export type PlanKey = "free" | "pro" | "enterprise";
 export type BillingInterval = "monthly" | "yearly";
 
-/** Plan configuration for your SaaS */
-export const PLANS = {
+/**
+ * Static plan metadata — names, descriptions, prices, features.
+ * Dynamic plan IDs come from the DB/env via lib/config.ts.
+ */
+export const PLAN_METADATA = {
   free: {
     name: "Free",
     description: "Get started with the basics",
     priceMonthly: 0,
     priceYearly: 0,
-    whopPlanId: process.env.NEXT_PUBLIC_WHOP_FREE_PLAN_ID ?? "",
-    whopPlanIdYearly: process.env.NEXT_PUBLIC_WHOP_FREE_PLAN_ID ?? "",
     features: [
       "Up to 3 projects",
       "Basic analytics",
       "Community support",
       "1 GB storage",
-    ],
+    ] as readonly string[],
     highlighted: false,
   },
   pro: {
@@ -44,8 +46,6 @@ export const PLANS = {
     description: "For growing teams and businesses",
     priceMonthly: 29,
     priceYearly: 290, // ~$24/mo — save ~17%
-    whopPlanId: process.env.NEXT_PUBLIC_WHOP_PRO_PLAN_ID ?? "",
-    whopPlanIdYearly: process.env.NEXT_PUBLIC_WHOP_PRO_PLAN_ID_YEARLY ?? "",
     features: [
       "Unlimited projects",
       "Advanced analytics",
@@ -53,7 +53,7 @@ export const PLANS = {
       "100 GB storage",
       "Custom integrations",
       "Team collaboration",
-    ],
+    ] as readonly string[],
     highlighted: true,
   },
   enterprise: {
@@ -61,8 +61,6 @@ export const PLANS = {
     description: "For large-scale operations",
     priceMonthly: 99,
     priceYearly: 990, // ~$82.50/mo — save ~17%
-    whopPlanId: process.env.NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID ?? "",
-    whopPlanIdYearly: process.env.NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY ?? "",
     features: [
       "Everything in Pro",
       "Unlimited storage",
@@ -71,25 +69,7 @@ export const PLANS = {
       "SSO & advanced security",
       "Audit logs",
       "API access",
-    ],
+    ] as readonly string[],
     highlighted: false,
   },
 } as const;
-
-export type PlanKey = keyof typeof PLANS;
-
-/** Get the Whop plan ID for a given plan and billing interval */
-export function getWhopPlanId(key: PlanKey, interval: BillingInterval): string {
-  const plan = PLANS[key];
-  return interval === "yearly" ? plan.whopPlanIdYearly : plan.whopPlanId;
-}
-
-/** Map Whop plan IDs to our plan keys */
-export function getPlanFromWhopPlanId(whopPlanId: string): PlanKey {
-  for (const [key, plan] of Object.entries(PLANS)) {
-    if (plan.whopPlanId === whopPlanId || plan.whopPlanIdYearly === whopPlanId) {
-      return key as PlanKey;
-    }
-  }
-  return "free";
-}

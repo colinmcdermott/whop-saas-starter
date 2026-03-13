@@ -14,6 +14,7 @@ model User {
   profileImageUrl String?
   plan            String   @default("free") // "free" | "pro" | "enterprise"
   whopMembershipId String?
+  isAdmin         Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

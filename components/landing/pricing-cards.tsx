@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { PLANS, type PlanKey, type BillingInterval } from "@/lib/constants";
+import type { PlanKey, BillingInterval } from "@/lib/constants";
+import type { PlansConfig } from "@/lib/config";
 
 function CheckIcon() {
   return (
@@ -63,9 +64,9 @@ function BillingToggle({
   );
 }
 
-export function PricingCards() {
+export function PricingCards({ plans }: { plans: PlansConfig }) {
   const [interval, setInterval] = useState<BillingInterval>("monthly");
-  const planKeys = Object.keys(PLANS) as PlanKey[];
+  const planKeys = Object.keys(plans) as PlanKey[];
 
   return (
     <div>
@@ -73,7 +74,7 @@ export function PricingCards() {
 
       <div className="mx-auto grid max-w-4xl gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] lg:grid-cols-3">
         {planKeys.map((key) => {
-          const plan = PLANS[key];
+          const plan = plans[key];
           const highlighted = plan.highlighted;
           const price =
             interval === "yearly" ? plan.priceYearly : plan.priceMonthly;

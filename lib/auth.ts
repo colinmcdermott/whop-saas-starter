@@ -14,6 +14,7 @@ export interface Session {
   name: string | null;
   profileImageUrl: string | null;
   plan: string;
+  isAdmin: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -111,6 +112,7 @@ export async function verifySessionToken(token: string): Promise<Session | null>
       name: (payload.name as string) ?? null,
       profileImageUrl: (payload.profileImageUrl as string) ?? null,
       plan: payload.plan,
+      isAdmin: (payload.isAdmin as boolean) ?? false,
     };
   } catch {
     return null;
@@ -193,6 +195,7 @@ export async function refreshSession(whopUserId: string): Promise<Session | null
     name: user.name,
     profileImageUrl: user.profileImageUrl,
     plan: user.plan,
+    isAdmin: user.isAdmin,
   };
 
   await setSessionCookie(session);

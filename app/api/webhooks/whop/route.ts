@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { getPlanFromWhopPlanId } from "@/lib/constants";
+import { getPlanKeyFromWhopId, getConfig } from "@/lib/config";
 import { verifyWebhookSignature } from "@/lib/whop";
 
 // ---------------------------------------------------------------------------
@@ -37,16 +37,24 @@ interface WebhookData {
  * 1. In your Whop app settings, add a webhook endpoint pointing to:
  *    https://your-domain.com/api/webhooks/whop
  * 2. Copy the webhook secret to WHOP_WEBHOOK_SECRET in your .env.local
+ *    or enter it during the setup wizard
  */
 export async function POST(request: NextRequest) {
   const body = await request.text();
 
+  // Get webhook secret from config (DB or env)
+  const webhookSecret = await getConfig("whop_webhook_secret");
+
   // Verify the webhook signature
-  const isValid = await verifyWebhookSignature(body, {
-    "webhook-id": request.headers.get("webhook-id"),
-    "webhook-signature": request.headers.get("webhook-signature"),
-    "webhook-timestamp": request.headers.get("webhook-timestamp"),
-  });
+  const isValid = await verifyWebhookSignature(
+    body,
+    {
+      "webhook-id": request.headers.get("webhook-id"),
+      "webhook-signature": request.headers.get("webhook-signature"),
+      "webhook-timestamp": request.headers.get("webhook-timestamp"),
+    },
+    webhookSecret ?? undefined,
+  );
   if (!isValid) {
     console.error("[Webhook] Invalid signature");
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
@@ -114,7 +122,7 @@ async function handleMembershipActivated(data: WebhookData) {
     return;
   }
 
-  const plan = data.plan_id ? getPlanFromWhopPlanId(data.plan_id) : "pro";
+  const plan = data.plan_id ? await getPlanKeyFromWhopId(data.plan_id) : "pro";
 
   await prisma.user.upsert({
     where: { whopUserId: data.user_id },

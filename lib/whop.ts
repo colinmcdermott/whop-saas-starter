@@ -32,10 +32,14 @@ export async function sha256(str: string) {
 
 /**
  * Build the Whop OAuth authorization URL with PKCE.
+ * @param redirectUri - The OAuth callback URL
+ * @param clientId - Whop App ID (from config or env)
  */
-export async function buildAuthorizationUrl(redirectUri: string) {
-  const clientId = process.env.NEXT_PUBLIC_WHOP_APP_ID;
-  if (!clientId) throw new Error("NEXT_PUBLIC_WHOP_APP_ID is required");
+export async function buildAuthorizationUrl(redirectUri: string, clientId?: string) {
+  if (!clientId) {
+    clientId = process.env.NEXT_PUBLIC_WHOP_APP_ID;
+  }
+  if (!clientId) throw new Error("Whop App ID is not configured");
 
   const codeVerifier = randomString(32);
   const codeChallenge = await sha256(codeVerifier);
@@ -66,8 +70,12 @@ export async function buildAuthorizationUrl(redirectUri: string) {
 export async function exchangeCodeForTokens(
   code: string,
   codeVerifier: string,
-  redirectUri: string
+  redirectUri: string,
+  clientId?: string,
 ) {
+  if (!clientId) {
+    clientId = process.env.NEXT_PUBLIC_WHOP_APP_ID;
+  }
   const res = await fetch(`${WHOP_API_BASE}/oauth/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -75,7 +83,7 @@ export async function exchangeCodeForTokens(
       grant_type: "authorization_code",
       code,
       redirect_uri: redirectUri,
-      client_id: process.env.NEXT_PUBLIC_WHOP_APP_ID,
+      client_id: clientId,
       code_verifier: codeVerifier,
     }),
   });
@@ -143,10 +151,11 @@ export async function verifyWebhookSignature(
     "webhook-id"?: string | null;
     "webhook-signature"?: string | null;
     "webhook-timestamp"?: string | null;
-  }
+  },
+  webhookSecret?: string,
 ): Promise<boolean> {
-  const secret = process.env.WHOP_WEBHOOK_SECRET;
-  if (!secret) throw new Error("WHOP_WEBHOOK_SECRET is required");
+  const secret = webhookSecret ?? process.env.WHOP_WEBHOOK_SECRET;
+  if (!secret) throw new Error("Webhook secret is not configured");
 
   const msgId = headers["webhook-id"];
   const signature = headers["webhook-signature"];

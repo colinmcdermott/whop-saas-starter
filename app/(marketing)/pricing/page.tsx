@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import { Header } from "@/components/landing/header";
 import { PricingCards } from "@/components/landing/pricing-cards";
 import { Footer } from "@/components/landing/footer";
+import { getPlansConfig } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description: "Simple, transparent pricing for every stage of your business.",
 };
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const plans = await getPlansConfig();
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -22,7 +25,7 @@ export default function PricingPage() {
               Start free. Upgrade when you&apos;re ready. Cancel anytime.
             </p>
           </div>
-          <PricingCards />
+          <PricingCards plans={plans} />
         </section>
 
         {/* FAQ */}

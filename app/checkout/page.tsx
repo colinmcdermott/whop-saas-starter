@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
-import { PLANS, type PlanKey, type BillingInterval, getWhopPlanId } from "@/lib/constants";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, type PlanKey, type BillingInterval } from "@/lib/constants";
+import type { PlansConfig } from "@/lib/config";
 
 function CheckoutEmbed() {
   const searchParams = useSearchParams();
@@ -14,6 +14,7 @@ function CheckoutEmbed() {
   const interval = (searchParams.get("interval") as BillingInterval) ?? "monthly";
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [emailLoaded, setEmailLoaded] = useState(false);
+  const [plans, setPlans] = useState<PlansConfig | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -25,10 +26,21 @@ function CheckoutEmbed() {
       .finally(() => setEmailLoaded(true));
   }, []);
 
-  const plan = planKey && planKey in PLANS ? PLANS[planKey] : null;
-  const whopPlanId = planKey ? getWhopPlanId(planKey, interval) : "";
+  useEffect(() => {
+    fetch("/api/config/plans")
+      .then((res) => res.json())
+      .then((data) => setPlans(data))
+      .catch(() => {});
+  }, []);
 
-  if (!plan || !whopPlanId) {
+  const plan = planKey && plans ? plans[planKey] ?? null : null;
+  const whopPlanId = plan
+    ? interval === "yearly"
+      ? plan.whopPlanIdYearly
+      : plan.whopPlanId
+    : "";
+
+  if (plans && (!plan || !whopPlanId)) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-xs text-center">
@@ -53,6 +65,8 @@ function CheckoutEmbed() {
       <p className="text-sm text-[var(--muted)]">Loading checkout...</p>
     </div>
   );
+
+  if (!plan) return loading;
 
   return (
     <div className="flex min-h-screen flex-col">

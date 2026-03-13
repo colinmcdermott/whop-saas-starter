@@ -8,19 +8,34 @@ Authentication, payments, subscription management, and a clean dashboard — wir
 
 The fastest way to get started. Click the button, follow the prompts, and you'll have a running app in minutes.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter&project-name=whop-saas-starter&repository-name=whop-saas-starter&env=NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,NEXT_PUBLIC_APP_URL&envDescription=Required%20credentials%20for%20Whop%20auth%20and%20sessions.%20Follow%20the%20setup%20guide%20for%20instructions.&envLink=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter%23step-by-step-setup&products=%5B%7B%22type%22%3A%22integration%22%2C%22group%22%3A%22postgres%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter&project-name=whop-saas-starter&repository-name=whop-saas-starter&envDescription=No%20env%20vars%20needed!%20The%20in-app%20setup%20wizard%20handles%20everything.&products=%5B%7B%22type%22%3A%22integration%22%2C%22group%22%3A%22postgres%22%7D%5D)
 
 > **What happens when you click Deploy:**
 > 1. Vercel clones the repo to your GitHub account
 > 2. You're prompted to add a **Postgres database** (Neon, Supabase, etc.)
-> 3. You're prompted to fill in 3 environment variables (instructions below)
-> 4. Vercel builds and deploys — the database tables are created automatically
+> 3. Vercel builds and deploys — the database tables are created automatically
+> 4. Visit your app — the **setup wizard** walks you through connecting Whop
 
-After deploying, follow the **Step-by-step Setup** below to configure Whop.
+No environment variables to fill in manually. The setup wizard handles everything.
 
 ---
 
-## Step-by-step Setup
+## Setup Wizard
+
+After deploying, visit your app URL. The **setup wizard** will appear automatically and guide you through:
+
+1. **Connect Whop** — Enter your App ID and API Key
+2. **Configure OAuth** — Copy-paste your redirect URI and webhook URL
+3. **Sign in** — Test OAuth and become the admin
+4. **Set up plans** — Enter your Whop plan IDs for pricing tiers
+
+The wizard stores all config in your database — no environment variables needed.
+
+---
+
+## Manual Setup (Alternative)
+
+If you prefer setting things up via environment variables (or for CI/CD), follow these steps.
 
 ### Step 1: Create a Whop app
 

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { buildAuthorizationUrl } from "@/lib/whop";
+import { getConfig, isSetupComplete } from "@/lib/config";
 
 /**
  * GET /api/auth/login?next=/dashboard
@@ -10,8 +11,15 @@ import { buildAuthorizationUrl } from "@/lib/whop";
  * Stores the PKCE code_verifier and redirect path in a secure cookie.
  */
 export async function GET(request: NextRequest) {
-  // Check that required env vars are configured
-  if (!process.env.NEXT_PUBLIC_WHOP_APP_ID) {
+  // Check if setup is complete
+  const setupDone = await isSetupComplete();
+  if (!setupDone) {
+    return NextResponse.redirect(new URL("/setup", request.url));
+  }
+
+  // Get Whop App ID from config (DB or env)
+  const whopAppId = await getConfig("whop_app_id");
+  if (!whopAppId) {
     const url = new URL("/auth-error", request.url);
     url.searchParams.set("error", "missing_config");
     return NextResponse.redirect(url);
@@ -31,7 +39,7 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${proto}://${host}/api/auth/callback`;
 
   // Generate PKCE values and build the authorization URL
-  const { url, codeVerifier, state } = await buildAuthorizationUrl(redirectUri);
+  const { url, codeVerifier, state } = await buildAuthorizationUrl(redirectUri, whopAppId);
 
   // Store PKCE verifier and redirect path in a cookie (httpOnly, short-lived)
   const cookieStore = await cookies();

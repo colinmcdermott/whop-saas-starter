@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/auth";
-import { PLANS } from "@/lib/constants";
+import { getPlansConfig } from "@/lib/config";
 import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
@@ -12,7 +12,8 @@ export const metadata: Metadata = {
 
 export default async function SettingsPage() {
   const session = await requireSession();
-  const planConfig = PLANS[session.plan as keyof typeof PLANS] ?? PLANS.free;
+  const plans = await getPlansConfig();
+  const planConfig = plans[session.plan as keyof typeof plans] ?? plans.free;
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },

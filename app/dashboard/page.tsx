@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/auth";
-import { PLANS } from "@/lib/constants";
+import { getPlansConfig } from "@/lib/config";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 
 export const metadata: Metadata = {
@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await requireSession();
-  const planConfig = PLANS[session.plan as keyof typeof PLANS] ?? PLANS.free;
+  const plans = await getPlansConfig();
+  const planConfig = plans[session.plan as keyof typeof plans] ?? plans.free;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

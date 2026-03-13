@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import { exchangeCodeForTokens, getWhopUser } from "@/lib/whop";
 import { setSessionCookie, type Session } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getConfig } from "@/lib/config";
 
 /**
  * GET /api/auth/callback?code=...&state=...
@@ -13,8 +14,9 @@ import { prisma } from "@/lib/db";
  * 2. Exchanges the authorization code for tokens using PKCE
  * 3. Fetches the user profile from Whop
  * 4. Creates or updates the user in our database
- * 5. Sets a session cookie (JWT)
- * 6. Redirects to the original destination
+ * 5. If no admin exists yet, makes this user the admin
+ * 6. Sets a session cookie (JWT)
+ * 7. Redirects to the original destination
  */
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
@@ -75,9 +77,12 @@ export async function GET(request: NextRequest) {
     request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? "localhost:3000";
   const redirectUri = `${proto}://${host}/api/auth/callback`;
 
+  // Get Whop App ID from config
+  const whopAppId = await getConfig("whop_app_id");
+
   try {
     // Exchange the code for tokens
-    const tokens = await exchangeCodeForTokens(code, codeVerifier, redirectUri);
+    const tokens = await exchangeCodeForTokens(code, codeVerifier, redirectUri, whopAppId ?? undefined);
 
     // Fetch user profile from Whop
     const whopUser = await getWhopUser(tokens.access_token);
@@ -99,6 +104,22 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // First-user-is-admin: if no admin exists, promote this user
+    let { isAdmin } = user;
+    if (!isAdmin) {
+      const adminExists = await prisma.user.findFirst({
+        where: { isAdmin: true },
+        select: { id: true },
+      });
+      if (!adminExists) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { isAdmin: true },
+        });
+        isAdmin = true;
+      }
+    }
+
     // Create a session
     const session: Session = {
       userId: user.id,
@@ -107,6 +128,7 @@ export async function GET(request: NextRequest) {
       name: user.name,
       profileImageUrl: user.profileImageUrl,
       plan: user.plan,
+      isAdmin,
     };
 
     await setSessionCookie(session);
