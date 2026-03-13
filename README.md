@@ -37,7 +37,7 @@ You need a PostgreSQL database. Recommended providers:
 
 1. Go to the [Whop Developer Dashboard](https://whop.com/dashboard/developer)
 2. Click **Create App**
-3. Note your **Client ID** (starts with `app_`) and **Client Secret** (starts with `apik_`)
+3. Note your **Client ID** (starts with `app_`), **API Key** (starts with `apik_`), and **Client Secret** (from OAuth settings)
 4. Under **OAuth**, add your redirect URI:
    - Development: `http://localhost:3000/api/auth/callback`
    - Production: `https://your-domain.com/api/auth/callback`
@@ -74,6 +74,7 @@ Fill in your `.env.local`:
 DATABASE_URL="postgresql://..."
 NEXT_PUBLIC_WHOP_APP_ID="app_xxxxxxxxx"
 WHOP_API_KEY="apik_xxxxxxxxx"
+WHOP_CLIENT_SECRET="your_client_secret_here"
 WHOP_WEBHOOK_SECRET="your_webhook_secret_here"
 SESSION_SECRET="generate-a-random-32-char-string"
 NEXT_PUBLIC_WHOP_FREE_PLAN_ID="plan_xxxxxxxxx"
