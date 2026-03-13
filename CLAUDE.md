@@ -27,7 +27,7 @@ pnpm db:migrate   # Run migrations
 - Whop embedded checkout via loader script (`https://js.whop.com/static/checkout/loader.js`)
 - Pricing buttons use `data-whop-checkout-plan-id` + `data-whop-checkout-return-url` attributes
 - Loader script auto-attaches checkout behavior to elements with these data attributes
-- Webhooks (`membership.went_valid` / `membership.went_invalid`) update user plan in DB
+- Webhooks (`membership.activated` / `membership.deactivated`) update user plan in DB
 - Docs: https://docs.whop.com/payments/checkout-embed
 
 ### Key Endpoints
@@ -52,12 +52,12 @@ pnpm db:migrate   # Run migrations
 ## Whop API Endpoints Used
 - `https://api.whop.com/oauth/authorize` — OAuth authorization
 - `https://api.whop.com/oauth/token` — token exchange
-- `https://api.whop.com/api/v5/me` — user profile
+- `https://api.whop.com/oauth/userinfo` — user profile (OIDC)
 
 ## Webhook Verification
 - Whop uses standardwebhooks format (HMAC-SHA256)
 - Headers: `webhook-id`, `webhook-signature`, `webhook-timestamp`
-- Secret must be base64-encoded before HMAC; API version must be **v1**
+- Secret is used raw as HMAC key (no base64 decoding needed)
 
 ## File Structure
 ```

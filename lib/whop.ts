@@ -99,19 +99,24 @@ export async function exchangeCodeForTokens(
 // User info
 // ---------------------------------------------------------------------------
 
+/**
+ * OIDC UserInfo response from Whop.
+ * Fields depend on the scopes granted: openid, profile, email.
+ */
 export interface WhopUser {
-  id: string;
-  email?: string;
-  name?: string;
-  username?: string;
-  profile_picture?: { url: string } | null;
+  sub: string;                  // user ID (e.g. "user_xxxxx")
+  name?: string;                // requires "profile" scope
+  preferred_username?: string;  // requires "profile" scope
+  picture?: string;             // requires "profile" scope
+  email?: string;               // requires "email" scope
+  email_verified?: boolean;     // requires "email" scope
 }
 
 /**
- * Fetch the authenticated user's profile from Whop.
+ * Fetch the authenticated user's profile from Whop's OIDC userinfo endpoint.
  */
 export async function getWhopUser(accessToken: string): Promise<WhopUser> {
-  const res = await fetch(`${WHOP_API_BASE}/api/v5/me`, {
+  const res = await fetch(`${WHOP_API_BASE}/oauth/userinfo`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

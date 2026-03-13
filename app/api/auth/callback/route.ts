@@ -84,17 +84,17 @@ export async function GET(request: NextRequest) {
 
     // Upsert user in our database
     const user = await prisma.user.upsert({
-      where: { whopUserId: whopUser.id },
+      where: { whopUserId: whopUser.sub },
       update: {
         email: whopUser.email ?? null,
-        name: whopUser.name ?? whopUser.username ?? null,
-        profileImageUrl: whopUser.profile_picture?.url ?? null,
+        name: whopUser.name ?? whopUser.preferred_username ?? null,
+        profileImageUrl: whopUser.picture ?? null,
       },
       create: {
-        whopUserId: whopUser.id,
+        whopUserId: whopUser.sub,
         email: whopUser.email ?? null,
-        name: whopUser.name ?? whopUser.username ?? null,
-        profileImageUrl: whopUser.profile_picture?.url ?? null,
+        name: whopUser.name ?? whopUser.preferred_username ?? null,
+        profileImageUrl: whopUser.picture ?? null,
         plan: "free",
       },
     });

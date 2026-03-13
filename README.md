@@ -37,7 +37,7 @@ You need a PostgreSQL database. Recommended providers:
 
 1. Go to the [Whop Developer Dashboard](https://whop.com/dashboard/developer)
 2. Click **Create App**
-3. Note your **App ID** (starts with `app_`) and **API Key** (starts with `sk_`)
+3. Note your **App ID** (starts with `app_`) and **API Key** (starts with `apik_`)
 4. Under **OAuth**, add your redirect URI:
    - Development: `http://localhost:3000/api/auth/callback`
    - Production: `https://your-domain.com/api/auth/callback`
@@ -53,12 +53,11 @@ You need a PostgreSQL database. Recommended providers:
 1. In your Whop app settings, add a webhook endpoint:
    - Development: Use [ngrok](https://ngrok.com) or similar to expose `http://localhost:3000/api/webhooks/whop`
    - Production: `https://your-domain.com/api/webhooks/whop`
-2. Set the **API version to v1** (important!)
-3. Subscribe to these events:
-   - `membership.went_valid`
-   - `membership.went_invalid`
+2. Subscribe to these events:
+   - `membership.activated`
+   - `membership.deactivated`
    - `payment.succeeded`
-4. Copy the **Webhook Secret** (starts with `whk_`)
+4. Copy the **Webhook Secret**
 
 ### 6. Configure environment variables
 
@@ -71,8 +70,8 @@ Fill in your `.env.local`:
 ```env
 DATABASE_URL="postgresql://..."
 NEXT_PUBLIC_WHOP_APP_ID="app_xxxxxxxxx"
-WHOP_API_KEY="sk_xxxxxxxxx"
-WHOP_WEBHOOK_SECRET="whk_xxxxxxxxx"
+WHOP_API_KEY="apik_xxxxxxxxx"
+WHOP_WEBHOOK_SECRET="your_webhook_secret_here"
 SESSION_SECRET="generate-a-random-32-char-string"
 NEXT_PUBLIC_WHOP_PRO_PLAN_ID="plan_xxxxxxxxx"
 NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID="plan_xxxxxxxxx"
@@ -170,8 +169,8 @@ User clicks plan on pricing page
 
 Whop sends webhook → /api/webhooks/whop
   → Verify webhook signature
-  → membership.went_valid → upgrade user plan in DB
-  → membership.went_invalid → downgrade to free
+  → membership.activated → upgrade user plan in DB
+  → membership.deactivated → downgrade to free
 
 User visits dashboard
   → Session contains plan info
@@ -237,8 +236,8 @@ export async function POST(request: NextRequest) {
 |---|---|---|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `NEXT_PUBLIC_WHOP_APP_ID` | Yes | Whop app ID (public, `app_...`) |
-| `WHOP_API_KEY` | Yes | Whop API key (secret, `sk_...`) |
-| `WHOP_WEBHOOK_SECRET` | Yes | Whop webhook signing secret (`whk_...`) |
+| `WHOP_API_KEY` | Yes | Whop app API key (`apik_...`) |
+| `WHOP_WEBHOOK_SECRET` | Yes | Whop webhook signing secret |
 | `SESSION_SECRET` | Yes | Random string for JWT signing (32+ chars) |
 | `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | For payments | Whop plan ID for Pro tier (`plan_...`) |
 | `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | For payments | Whop plan ID for Enterprise tier (`plan_...`) |

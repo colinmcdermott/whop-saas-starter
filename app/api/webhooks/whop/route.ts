@@ -25,15 +25,14 @@ interface WebhookMembershipData {
  * Handles Whop webhook events for subscription management.
  *
  * Events handled:
- * - membership.went_valid   → Activate subscription (upgrade user plan)
- * - membership.went_invalid → Deactivate subscription (downgrade to free)
- * - payment.succeeded       → Log payment (optional)
+ * - membership.activated   → Activate subscription (upgrade user plan)
+ * - membership.deactivated → Deactivate subscription (downgrade to free)
+ * - payment.succeeded      → Log payment (optional)
  *
  * Setup:
  * 1. In your Whop app settings, add a webhook endpoint pointing to:
  *    https://your-domain.com/api/webhooks/whop
- * 2. Set the API version to v1
- * 3. Copy the webhook secret to WHOP_WEBHOOK_SECRET in your .env.local
+ * 2. Copy the webhook secret to WHOP_WEBHOOK_SECRET in your .env.local
  */
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -55,20 +54,17 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (eventType) {
-      case "membership.went_valid":
-      case "membership_went_valid": {
-        await handleMembershipValid(event.data);
+      case "membership.activated": {
+        await handleMembershipActivated(event.data);
         break;
       }
 
-      case "membership.went_invalid":
-      case "membership_went_invalid": {
-        await handleMembershipInvalid(event.data);
+      case "membership.deactivated": {
+        await handleMembershipDeactivated(event.data);
         break;
       }
 
-      case "payment.succeeded":
-      case "payment_succeeded": {
+      case "payment.succeeded": {
         console.log("[Webhook] Payment succeeded:", event.data);
         break;
       }
@@ -92,9 +88,9 @@ export async function POST(request: NextRequest) {
 // Event handlers
 // ---------------------------------------------------------------------------
 
-async function handleMembershipValid(data: WebhookMembershipData) {
+async function handleMembershipActivated(data: WebhookMembershipData) {
   if (!data.user_id) {
-    console.error("[Webhook] membership.went_valid missing user_id");
+    console.error("[Webhook] membership.activated missing user_id");
     return;
   }
 
@@ -116,9 +112,9 @@ async function handleMembershipValid(data: WebhookMembershipData) {
   console.log(`[Webhook] User ${data.user_id} upgraded to ${plan}`);
 }
 
-async function handleMembershipInvalid(data: WebhookMembershipData) {
+async function handleMembershipDeactivated(data: WebhookMembershipData) {
   if (!data.user_id) {
-    console.error("[Webhook] membership.went_invalid missing user_id");
+    console.error("[Webhook] membership.deactivated missing user_id");
     return;
   }
 
