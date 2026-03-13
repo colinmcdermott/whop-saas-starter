@@ -4,6 +4,7 @@ import { requireSession } from "@/lib/auth";
 import { PLANS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/db";
+import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -76,13 +77,7 @@ export default async function SettingsPage() {
         <p className="mt-1 text-xs text-[var(--muted)]">
           Permanently delete your account and all associated data.
         </p>
-        <button
-          type="button"
-          disabled
-          className="mt-3 rounded-lg border border-red-200 dark:border-red-900/30 px-3.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 opacity-50 cursor-not-allowed"
-        >
-          Delete Account (coming soon)
-        </button>
+        <DeleteAccountButton />
       </section>
     </div>
   );
