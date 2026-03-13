@@ -53,7 +53,6 @@ export default async function RootLayout({
       lang="en"
       className={inter.variable}
       suppressHydrationWarning
-      style={accentStyle ? { "--accent": "", "--accent-dark": "" } as React.CSSProperties : undefined}
     >
       <head>
         {/* Inline script to prevent flash of wrong theme */}
