@@ -76,6 +76,7 @@ export async function exchangeCodeForTokens(
       code,
       redirect_uri: redirectUri,
       client_id: process.env.NEXT_PUBLIC_WHOP_APP_ID,
+      client_secret: process.env.WHOP_CLIENT_SECRET,
       code_verifier: codeVerifier,
     }),
   });
