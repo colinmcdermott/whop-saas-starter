@@ -65,7 +65,7 @@ function BillingToggle({
 }
 
 export function PricingCards({ plans }: { plans: PlansConfig }) {
-  const [interval, setInterval] = useState<BillingInterval>("monthly");
+  const [interval, setInterval] = useState<BillingInterval>("yearly");
   const planKeys = Object.keys(plans) as PlanKey[];
 
   return (
@@ -105,26 +105,20 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
               <p className="mt-1 text-xs text-[var(--muted)]">{plan.description}</p>
 
               <div className="mt-4">
-                {interval === "yearly" && price > 0 ? (
-                  <>
-                    <span className="text-3xl font-semibold tracking-tight">
-                      ${price}
-                    </span>
-                    <span className="text-xs text-[var(--muted)] ml-0.5">/yr</span>
-                    <p className="mt-0.5 text-[11px] text-[var(--muted)]">
-                      ${Math.round((price / 12) * 100) / 100}/mo billed yearly
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-3xl font-semibold tracking-tight">
-                      ${price}
-                    </span>
-                    {price > 0 && (
-                      <span className="text-xs text-[var(--muted)] ml-0.5">/mo</span>
-                    )}
-                  </>
+                <span className="text-3xl font-semibold tracking-tight">
+                  ${price}
+                </span>
+                {price > 0 && (
+                  <span className="text-xs text-[var(--muted)] ml-0.5">
+                    {interval === "yearly" ? "/yr" : "/mo"}
+                  </span>
                 )}
+                {/* Fixed-height subtitle to prevent layout shift on toggle */}
+                <p className="mt-0.5 h-4 text-[11px] text-[var(--muted)]">
+                  {interval === "yearly" && price > 0
+                    ? `$${Math.round((price / 12) * 100) / 100}/mo billed yearly`
+                    : "\u00A0"}
+                </p>
               </div>
 
               <div className="mt-5">
