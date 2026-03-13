@@ -8,12 +8,12 @@ Authentication, payments, subscription management, and a clean dashboard — wir
 
 The fastest way to get started. Click the button, follow the prompts, and you'll have a running app in minutes.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter&project-name=whop-saas-starter&repository-name=whop-saas-starter&env=NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,SESSION_SECRET,NEXT_PUBLIC_APP_URL&envDescription=Required%20credentials%20for%20Whop%20auth%20and%20sessions.%20Follow%20the%20setup%20guide%20for%20instructions.&envLink=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter%23step-by-step-setup&products=%5B%7B%22type%22%3A%22integration%22%2C%22group%22%3A%22postgres%22%7D%5D)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter&project-name=whop-saas-starter&repository-name=whop-saas-starter&env=NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,NEXT_PUBLIC_APP_URL&envDescription=Required%20credentials%20for%20Whop%20auth%20and%20sessions.%20Follow%20the%20setup%20guide%20for%20instructions.&envLink=https%3A%2F%2Fgithub.com%2Fcolinmcdermott%2Fwhop-saas-starter%23step-by-step-setup&products=%5B%7B%22type%22%3A%22integration%22%2C%22group%22%3A%22postgres%22%7D%5D)
 
 > **What happens when you click Deploy:**
 > 1. Vercel clones the repo to your GitHub account
 > 2. You're prompted to add a **Postgres database** (Neon, Supabase, etc.)
-> 3. You're prompted to fill in 4 environment variables (instructions below)
+> 3. You're prompted to fill in 3 environment variables (instructions below)
 > 4. Vercel builds and deploys — the database tables are created automatically
 
 After deploying, follow the **Step-by-step Setup** below to configure Whop.
@@ -59,16 +59,16 @@ Go to your Vercel project → **Settings** → **Environment Variables** and add
 |---|---|---|
 | `NEXT_PUBLIC_WHOP_APP_ID` | Whop Developer Dashboard → your app | `app_xxxxxxxxx` |
 | `WHOP_API_KEY` | Whop Developer Dashboard → your app | `apik_xxxxxxxxx` |
-| `SESSION_SECRET` | Generate: run `openssl rand -base64 32` in your terminal | `a1b2c3d4...` (any random 32+ char string) |
 | `NEXT_PUBLIC_APP_URL` | Your Vercel deployment URL | `https://your-app.vercel.app` |
 | `DATABASE_URL` | Auto-set if you added Postgres during deploy | `postgresql://...` |
 | `NEXT_PUBLIC_WHOP_FREE_PLAN_ID` | Whop Dashboard → your Free plan | `plan_xxxxxxxxx` |
 | `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | Whop Dashboard → your Pro plan | `plan_xxxxxxxxx` |
 | `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | Whop Dashboard → your Enterprise plan | `plan_xxxxxxxxx` |
+| `SESSION_SECRET` | **Optional.** Auto-generated and stored in DB if not set | `a1b2c3d4...` |
 
 > **Tip:** If you added a Postgres database during the Vercel deploy, `DATABASE_URL` is already set. Check your Environment Variables to confirm.
 
-> **Generating SESSION_SECRET:** Open a terminal and run `openssl rand -base64 32`. Copy the output and paste it as the value. If you don't have `openssl`, any random string of 32+ characters will work.
+> **About SESSION_SECRET:** A secret key used to sign login sessions. You don't need to set this — the app automatically generates one and stores it in your database. If you prefer to manage it yourself, set any random 32+ character string.
 
 After adding the variables, **redeploy** your app (Vercel → Deployments → click the three dots on the latest deployment → Redeploy).
 
