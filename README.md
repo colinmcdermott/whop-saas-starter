@@ -37,7 +37,7 @@ You need a PostgreSQL database. Recommended providers:
 
 1. Go to the [Whop Developer Dashboard](https://whop.com/dashboard/developer)
 2. Click **Create App**
-3. Note your **App ID** (starts with `app_`) and **API Key** (starts with `apik_`)
+3. Note your **Client ID** (starts with `app_`) and **Client Secret** (starts with `apik_`)
 4. Under **OAuth**, add your redirect URI:
    - Development: `http://localhost:3000/api/auth/callback`
    - Production: `https://your-domain.com/api/auth/callback`
@@ -235,8 +235,8 @@ export async function POST(request: NextRequest) {
 | Variable | Required | Description |
 |---|---|---|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `NEXT_PUBLIC_WHOP_APP_ID` | Yes | Whop app ID (public, `app_...`) |
-| `WHOP_API_KEY` | Yes | Whop app API key (`apik_...`) |
+| `NEXT_PUBLIC_WHOP_APP_ID` | Yes | OAuth client ID (`app_...`) |
+| `WHOP_API_KEY` | Yes | OAuth client secret (`apik_...`) |
 | `WHOP_WEBHOOK_SECRET` | Yes | Whop webhook signing secret |
 | `SESSION_SECRET` | Yes | Random string for JWT signing (32+ chars) |
 | `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | For payments | Whop plan ID for Pro tier (`plan_...`) |
