@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/auth";
-import { getPlansConfig } from "@/lib/config";
+import { getPlansConfig, getConfig } from "@/lib/config";
 import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
+import { AccentColorPicker } from "@/components/dashboard/accent-color-picker";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -15,10 +16,13 @@ export default async function SettingsPage() {
   const plans = await getPlansConfig();
   const planConfig = plans[session.plan as keyof typeof plans] ?? plans.free;
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { createdAt: true },
-  });
+  const [user, accentColor] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { createdAt: true },
+    }),
+    getConfig("accent_color"),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -70,8 +74,21 @@ export default async function SettingsPage() {
         </div>
       </section>
 
+      {/* Branding (admin only) */}
+      {session.isAdmin && (
+        <section className="animate-slide-up delay-300 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+          <h2 className="text-sm font-semibold">Branding</h2>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Customize the accent color used across your app.
+          </p>
+          <div className="mt-4">
+            <AccentColorPicker currentColor={accentColor} />
+          </div>
+        </section>
+      )}
+
       {/* Danger zone */}
-      <section className="animate-slide-up delay-300 rounded-xl border border-red-200 dark:border-red-900/30 bg-[var(--card)] p-5">
+      <section className="animate-slide-up delay-400 rounded-xl border border-red-200 dark:border-red-900/30 bg-[var(--card)] p-5">
         <h2 className="text-sm font-semibold text-red-600 dark:text-red-400">
           Danger Zone
         </h2>

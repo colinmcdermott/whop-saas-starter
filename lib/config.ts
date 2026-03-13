@@ -22,6 +22,7 @@ const ENV_MAP: Record<string, string> = {
   whop_enterprise_plan_id_yearly: "NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY",
   app_name: "NEXT_PUBLIC_APP_NAME",
   app_url: "NEXT_PUBLIC_APP_URL",
+  accent_color: "NEXT_PUBLIC_ACCENT_COLOR",
 };
 
 /** Non-sensitive keys that can be returned to the client */
@@ -34,6 +35,7 @@ const PUBLIC_KEYS = new Set([
   "whop_enterprise_plan_id_yearly",
   "app_name",
   "app_url",
+  "accent_color",
   "setup_complete",
 ]);
 

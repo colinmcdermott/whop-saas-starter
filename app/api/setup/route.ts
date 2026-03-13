@@ -11,6 +11,7 @@ const ALLOWED_KEYS = new Set([
   "whop_pro_plan_id_yearly",
   "whop_enterprise_plan_id",
   "whop_enterprise_plan_id_yearly",
+  "accent_color",
 ]);
 
 /**
