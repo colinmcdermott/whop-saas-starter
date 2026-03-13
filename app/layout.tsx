@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/toast";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
@@ -41,11 +40,6 @@ export default function RootLayout({
             {children}
           </ToastProvider>
         </ThemeProvider>
-        {/* Whop embedded checkout loader — activates any element with data-whop-checkout-plan-id */}
-        <Script
-          src="https://js.whop.com/static/checkout/loader.js"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

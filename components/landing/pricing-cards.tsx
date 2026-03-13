@@ -1,5 +1,4 @@
-"use client";
-
+import Link from "next/link";
 import { PLANS, type PlanKey } from "@/lib/constants";
 
 function CheckIcon() {
@@ -18,14 +17,13 @@ function CheckIcon() {
 
 export function PricingCards() {
   const planKeys = Object.keys(PLANS) as PlanKey[];
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== "undefined" ? window.location.origin : "");
 
   return (
     <div className="mx-auto grid max-w-4xl gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] lg:grid-cols-3">
       {planKeys.map((key) => {
         const plan = PLANS[key];
         const highlighted = plan.highlighted;
-        const whopPlanId = "whopPlanId" in plan ? plan.whopPlanId : null;
+        const whopPlanId = plan.whopPlanId;
 
         return (
           <div
@@ -61,18 +59,16 @@ export function PricingCards() {
 
             <div className="mt-5">
               {whopPlanId ? (
-                <div
-                  data-whop-checkout-plan-id={whopPlanId}
-                  data-whop-checkout-return-url={`${appUrl}/checkout/success?plan=${key}`}
-                  data-whop-color-scheme="system"
-                  className={`cursor-pointer rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
+                <Link
+                  href={`/checkout?plan=${key}`}
+                  className={`block rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
                     key === "free"
                       ? "border border-[var(--border)] bg-[var(--card)]"
                       : "bg-[var(--foreground)] text-[var(--background)]"
                   }`}
                 >
                   {key === "free" ? "Get Started" : "Subscribe"}
-                </div>
+                </Link>
               ) : (
                 <span className="block w-full rounded-lg border border-[var(--border)] py-2 text-center text-xs text-[var(--muted)]">
                   Configure plan ID
