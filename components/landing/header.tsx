@@ -8,12 +8,22 @@ import { APP_NAME } from "@/lib/constants";
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
   // Close on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Check auth state
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => {
+        setIsLoggedIn(res.ok);
+      })
+      .catch(() => setIsLoggedIn(false));
+  }, []);
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -37,19 +47,30 @@ export function Header() {
             >
               Pricing
             </Link>
-            <Link
-              href="/login"
-              className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
-            >
-              Sign in
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/dashboard"
+                className="ml-2 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/api/auth/login?next=/dashboard"
+                  className="ml-2 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
             <ThemeToggle />
-            <Link
-              href="/api/auth/login?next=/dashboard"
-              className="ml-2 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
-            >
-              Get Started
-            </Link>
           </nav>
 
           {/* Mobile controls */}
@@ -91,18 +112,29 @@ export function Header() {
               >
                 Pricing
               </Link>
-              <Link
-                href="/login"
-                className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/api/auth/login?next=/dashboard"
-                className="mt-1 rounded-lg bg-[var(--foreground)] px-3 py-2.5 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
-              >
-                Get Started
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  className="mt-1 rounded-lg bg-[var(--foreground)] px-3 py-2.5 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/api/auth/login?next=/dashboard"
+                    className="mt-1 rounded-lg bg-[var(--foreground)] px-3 py-2.5 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </>

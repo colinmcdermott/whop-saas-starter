@@ -11,7 +11,8 @@ function CheckoutEmbed() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planKey = searchParams.get("plan") as PlanKey | null;
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
+  const [emailLoaded, setEmailLoaded] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -19,7 +20,8 @@ function CheckoutEmbed() {
       .then((data) => {
         if (data?.email) setUserEmail(data.email);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setEmailLoaded(true));
   }, []);
 
   const plan = planKey && planKey in PLANS ? PLANS[planKey] : null;
@@ -44,6 +46,12 @@ function CheckoutEmbed() {
       </div>
     );
   }
+
+  const loading = (
+    <div className="flex min-h-[400px] items-center justify-center rounded-xl border border-[var(--border)]">
+      <p className="text-sm text-[var(--muted)]">Loading checkout...</p>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -72,25 +80,23 @@ function CheckoutEmbed() {
             </p>
           </div>
 
-          <WhopCheckoutEmbed
-            planId={whopPlanId}
-            skipRedirect
-            {...(userEmail
-              ? { prefill: { email: userEmail }, disableEmail: true }
-              : {})}
-            onComplete={(plan_id, receipt_id) => {
-              router.push(
-                `/checkout/success?plan=${planKey}&receipt=${receipt_id ?? ""}`
-              );
-            }}
-            fallback={
-              <div className="flex min-h-[400px] items-center justify-center rounded-xl border border-[var(--border)]">
-                <p className="text-sm text-[var(--muted)]">
-                  Loading checkout...
-                </p>
-              </div>
-            }
-          />
+          {/* Wait for email check before mounting embed so prefill works */}
+          {!emailLoaded ? (
+            loading
+          ) : (
+            <WhopCheckoutEmbed
+              planId={whopPlanId}
+              skipRedirect
+              prefill={userEmail ? { email: userEmail } : undefined}
+              disableEmail={!!userEmail}
+              onComplete={(plan_id, receipt_id) => {
+                router.push(
+                  `/checkout/success?plan=${planKey}&receipt=${receipt_id ?? ""}`
+                );
+              }}
+              fallback={loading}
+            />
+          )}
         </div>
       </div>
     </div>
