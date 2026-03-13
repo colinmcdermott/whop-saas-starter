@@ -28,7 +28,7 @@ export function Hero() {
         <div className="animate-slide-up delay-200 mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/api/auth/login?next=/dashboard"
-            className="group w-full rounded-lg bg-[var(--foreground)] px-5 py-2.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80 sm:w-auto"
+            className="group w-full rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 sm:w-auto"
           >
             Get Started Free
             <span className="ml-1.5 inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>

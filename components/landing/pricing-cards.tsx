@@ -128,7 +128,7 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
                     className={`block rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
                       key === "free"
                         ? "border border-[var(--border)] bg-[var(--card)]"
-                        : "bg-[var(--foreground)] text-[var(--background)]"
+                        : "bg-[var(--accent)] text-[var(--accent-foreground)]"
                     }`}
                   >
                     {key === "free" ? "Get Started" : "Subscribe"}

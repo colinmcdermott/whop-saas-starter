@@ -59,7 +59,7 @@ export default async function SettingsPage() {
           {session.plan === "free" ? (
             <Link
               href="/pricing"
-              className="rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-xs font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+              className="rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
             >
               Upgrade Plan
             </Link>

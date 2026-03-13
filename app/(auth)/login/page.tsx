@@ -28,7 +28,7 @@ export default async function LoginPage({
 
         <a
           href={`/api/auth/login?next=${encodeURIComponent(redirectPath)}`}
-          className="flex w-full items-center justify-center gap-2.5 rounded-lg bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+          className="flex w-full items-center justify-center gap-2.5 rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
         >
           <WhopLogo />
           Continue with Whop

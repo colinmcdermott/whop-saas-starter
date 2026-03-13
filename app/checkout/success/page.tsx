@@ -39,7 +39,7 @@ export default async function CheckoutSuccessPage({
 
         <Link
           href="/dashboard"
-          className="mt-6 inline-block rounded-lg bg-[var(--foreground)] px-5 py-2 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+          className="mt-6 inline-block rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
         >
           Go to Dashboard
         </Link>

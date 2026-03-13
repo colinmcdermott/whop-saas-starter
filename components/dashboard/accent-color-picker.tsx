@@ -129,7 +129,7 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-xs font-medium text-[var(--background)] transition-opacity hover:opacity-80 disabled:opacity-40"
+          className="rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
         >
           {isPending ? "Saving..." : saved ? "Saved!" : "Save"}
         </button>

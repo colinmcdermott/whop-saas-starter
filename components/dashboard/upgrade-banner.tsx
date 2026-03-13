@@ -12,7 +12,7 @@ export function UpgradeBanner() {
         </div>
         <Link
           href="/pricing"
-          className="shrink-0 rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-xs font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+          className="shrink-0 rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
         >
           Upgrade
         </Link>

@@ -29,7 +29,7 @@ export default function DashboardError({
         <div className="mt-5 flex flex-col gap-2">
           <button
             onClick={reset}
-            className="rounded-lg bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+            className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
           >
             Try Again
           </button>

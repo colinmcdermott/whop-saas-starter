@@ -50,7 +50,7 @@ export function Header() {
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="ml-2 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
               >
                 Dashboard
               </Link>
@@ -64,7 +64,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/api/auth/login?next=/dashboard"
-                  className="ml-2 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                  className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                 >
                   Get Started
                 </Link>
@@ -115,7 +115,7 @@ export function Header() {
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
-                  className="mt-1 rounded-lg bg-[var(--foreground)] px-3 py-2.5 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                  className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                 >
                   Dashboard
                 </Link>
@@ -129,7 +129,7 @@ export function Header() {
                   </Link>
                   <Link
                     href="/api/auth/login?next=/dashboard"
-                    className="mt-1 rounded-lg bg-[var(--foreground)] px-3 py-2.5 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                    className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                   >
                     Get Started
                   </Link>

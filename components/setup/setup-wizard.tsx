@@ -173,7 +173,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
           )}
           <div className="flex-1 md:flex-none md:w-full max-w-md h-2 bg-[var(--border)] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[var(--foreground)] transition-all duration-300 ease-out"
+              className="h-full bg-[var(--accent)] transition-all duration-300 ease-out"
               role="progressbar"
               aria-valuenow={step}
               aria-valuemin={1}
@@ -362,7 +362,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
               ) : (
                 <a
                   href="/api/auth/login?next=/setup?step=4"
-                  className="mt-8 block w-full rounded-lg bg-[var(--foreground)] py-3 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                  className="mt-8 block w-full rounded-lg bg-[var(--accent)] py-3 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                 >
                   Sign in with Whop
                 </a>
@@ -492,7 +492,7 @@ function StepButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="mt-8 w-full rounded-lg bg-[var(--foreground)] py-3 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+      className="mt-8 w-full rounded-lg bg-[var(--accent)] py-3 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
     >
       {children}
     </button>

@@ -390,7 +390,7 @@ export function CheckoutForm({
                       <button
                         type="button"
                         onClick={handleContinueToPayment}
-                        className="w-full rounded-lg bg-[var(--foreground)] py-3 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                        className="w-full rounded-lg bg-[var(--accent)] py-3 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                       >
                         Continue to Payment
                       </button>
@@ -449,7 +449,7 @@ export function CheckoutForm({
                       type="button"
                       onClick={handleSubmitPayment}
                       disabled={isProcessing || !checkoutReady}
-                      className="mt-4 w-full rounded-lg bg-[var(--foreground)] py-3 text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="mt-4 w-full rounded-lg bg-[var(--accent)] py-3 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       {isProcessing ? "Processing..." : `Pay $${price}`}
                     </button>

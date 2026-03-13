@@ -66,7 +66,7 @@ export default async function AuthErrorPage({
           {!isConfigError && (
             <Link
               href="/login"
-              className="rounded-lg bg-[var(--foreground)] px-4 py-2 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+              className="rounded-lg bg-[var(--accent)] px-4 py-2 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
             >
               Try Again
             </Link>
