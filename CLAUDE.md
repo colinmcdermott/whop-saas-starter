@@ -27,7 +27,7 @@ pnpm db:migrate   # Run migrations
 - Whop embedded checkout via loader script (`https://js.whop.com/static/checkout/loader.js`)
 - Pricing buttons use `data-whop-checkout-plan-id` + `data-whop-checkout-return-url` attributes
 - Loader script auto-attaches checkout behavior to elements with these data attributes
-- Webhooks (`membership.activated` / `membership.deactivated`) update user plan in DB
+- Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
 - Docs: https://docs.whop.com/payments/checkout-embed
 
 ### Key Endpoints

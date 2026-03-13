@@ -25,9 +25,9 @@ interface WebhookMembershipData {
  * Handles Whop webhook events for subscription management.
  *
  * Events handled:
- * - membership.activated   → Activate subscription (upgrade user plan)
- * - membership.deactivated → Deactivate subscription (downgrade to free)
- * - payment.succeeded      → Log payment (optional)
+ * - membership_activated   → Activate subscription (upgrade user plan)
+ * - membership_deactivated → Deactivate subscription (downgrade to free)
+ * - payment_succeeded      → Log payment (optional)
  *
  * Setup:
  * 1. In your Whop app settings, add a webhook endpoint pointing to:
@@ -54,17 +54,17 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (eventType) {
-      case "membership.activated": {
+      case "membership_activated": {
         await handleMembershipActivated(event.data);
         break;
       }
 
-      case "membership.deactivated": {
+      case "membership_deactivated": {
         await handleMembershipDeactivated(event.data);
         break;
       }
 
-      case "payment.succeeded": {
+      case "payment_succeeded": {
         console.log("[Webhook] Payment succeeded:", event.data);
         break;
       }
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
 async function handleMembershipActivated(data: WebhookMembershipData) {
   if (!data.user_id) {
-    console.error("[Webhook] membership.activated missing user_id");
+    console.error("[Webhook] membership_activated missing user_id");
     return;
   }
 
@@ -114,7 +114,7 @@ async function handleMembershipActivated(data: WebhookMembershipData) {
 
 async function handleMembershipDeactivated(data: WebhookMembershipData) {
   if (!data.user_id) {
-    console.error("[Webhook] membership.deactivated missing user_id");
+    console.error("[Webhook] membership_deactivated missing user_id");
     return;
   }
 

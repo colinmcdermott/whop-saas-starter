@@ -54,10 +54,10 @@ You need a PostgreSQL database. Recommended providers:
    - Development: Use [ngrok](https://ngrok.com) or similar to expose `http://localhost:3000/api/webhooks/whop`
    - Production: `https://your-domain.com/api/webhooks/whop`
 2. Subscribe to these events:
-   - `membership.activated`
-   - `membership.deactivated`
-   - `payment.succeeded`
-4. Copy the **Webhook Secret**
+   - `membership_activated`
+   - `membership_deactivated`
+   - `payment_succeeded`
+3. Copy the **Webhook Secret**
 
 ### 6. Configure environment variables
 
@@ -169,8 +169,8 @@ User clicks plan on pricing page
 
 Whop sends webhook → /api/webhooks/whop
   → Verify webhook signature
-  → membership.activated → upgrade user plan in DB
-  → membership.deactivated → downgrade to free
+  → membership_activated → upgrade user plan in DB
+  → membership_deactivated → downgrade to free
 
 User visits dashboard
   → Session contains plan info
