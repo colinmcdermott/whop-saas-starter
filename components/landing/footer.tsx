@@ -29,6 +29,7 @@ export function Footer() {
         <nav className="flex gap-5">
           <Link
             href="/pricing"
+            prefetch={false}
             className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
           >
             Pricing
