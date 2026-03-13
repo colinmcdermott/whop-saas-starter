@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
-import { PLANS, type PlanKey } from "@/lib/constants";
+import { PLANS, type PlanKey, type BillingInterval, getWhopPlanId } from "@/lib/constants";
 import { APP_NAME } from "@/lib/constants";
 
 function CheckoutEmbed() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planKey = searchParams.get("plan") as PlanKey | null;
+  const interval = (searchParams.get("interval") as BillingInterval) ?? "monthly";
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
   const [emailLoaded, setEmailLoaded] = useState(false);
 
@@ -25,7 +26,7 @@ function CheckoutEmbed() {
   }, []);
 
   const plan = planKey && planKey in PLANS ? PLANS[planKey] : null;
-  const whopPlanId = plan?.whopPlanId;
+  const whopPlanId = planKey ? getWhopPlanId(planKey, interval) : "";
 
   if (!plan || !whopPlanId) {
     return (
@@ -76,7 +77,9 @@ function CheckoutEmbed() {
             <p className="mt-1 text-sm text-[var(--muted)]">
               {plan.priceMonthly === 0
                 ? "Free forever"
-                : `$${plan.priceMonthly}/mo`}
+                : interval === "yearly"
+                  ? `$${plan.priceYearly}/yr`
+                  : `$${plan.priceMonthly}/mo`}
             </p>
           </div>
 

@@ -48,6 +48,8 @@ pnpm db:migrate   # Run migrations
 - `requireSession()` — get session or redirect to `/login` (protected pages)
 - Plan gating: check `session.plan` ("free" | "pro" | "enterprise")
 - Plans configured in `lib/constants.ts` — map Whop plan IDs to local tiers
+- Billing intervals: monthly/yearly toggle on pricing page; each paid tier has two Whop plan IDs
+- `SESSION_SECRET` auto-generates and persists in `SystemConfig` table if env var not set
 
 ## Whop API Endpoints Used
 - `https://api.whop.com/oauth/authorize` — OAuth authorization

@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { PLANS, type PlanKey } from "@/lib/constants";
+import { PLANS, type PlanKey, type BillingInterval } from "@/lib/constants";
 
 function CheckIcon() {
   return (
@@ -15,78 +18,145 @@ function CheckIcon() {
   );
 }
 
+function BillingToggle({
+  interval,
+  onChange,
+}: {
+  interval: BillingInterval;
+  onChange: (interval: BillingInterval) => void;
+}) {
+  return (
+    <div className="flex items-center justify-center gap-3 mb-10">
+      <span
+        className={`text-sm font-medium transition-colors ${
+          interval === "monthly" ? "text-[var(--foreground)]" : "text-[var(--muted)]"
+        }`}
+      >
+        Monthly
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={interval === "yearly"}
+        onClick={() => onChange(interval === "monthly" ? "yearly" : "monthly")}
+        className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-[var(--border)] bg-[var(--surface)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-[var(--foreground)] transition-transform ${
+            interval === "yearly" ? "translate-x-5" : "translate-x-0"
+          }`}
+        />
+      </button>
+      <span
+        className={`text-sm font-medium transition-colors ${
+          interval === "yearly" ? "text-[var(--foreground)]" : "text-[var(--muted)]"
+        }`}
+      >
+        Yearly
+      </span>
+      {interval === "yearly" && (
+        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+          Save ~17%
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function PricingCards() {
+  const [interval, setInterval] = useState<BillingInterval>("monthly");
   const planKeys = Object.keys(PLANS) as PlanKey[];
 
   return (
-    <div className="mx-auto grid max-w-4xl gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] lg:grid-cols-3">
-      {planKeys.map((key) => {
-        const plan = PLANS[key];
-        const highlighted = plan.highlighted;
-        const whopPlanId = plan.whopPlanId;
+    <div>
+      <BillingToggle interval={interval} onChange={setInterval} />
 
-        return (
-          <div
-            key={key}
-            className={`relative flex flex-col p-6 ${
-              highlighted
-                ? "bg-[var(--surface)]"
-                : "bg-[var(--card)]"
-            }`}
-          >
-            {highlighted && (
-              <div className="absolute top-0 left-0 right-0 h-px bg-[var(--accent)]" />
-            )}
+      <div className="mx-auto grid max-w-4xl gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] lg:grid-cols-3">
+        {planKeys.map((key) => {
+          const plan = PLANS[key];
+          const highlighted = plan.highlighted;
+          const price =
+            interval === "yearly" ? plan.priceYearly : plan.priceMonthly;
+          const whopPlanId =
+            interval === "yearly" ? plan.whopPlanIdYearly : plan.whopPlanId;
 
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold">{plan.name}</h3>
+          return (
+            <div
+              key={key}
+              className={`relative flex flex-col p-6 ${
+                highlighted
+                  ? "bg-[var(--surface)]"
+                  : "bg-[var(--card)]"
+              }`}
+            >
               {highlighted && (
-                <span className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
-                  Popular
-                </span>
+                <div className="absolute top-0 left-0 right-0 h-px bg-[var(--accent)]" />
               )}
-            </div>
-            <p className="mt-1 text-xs text-[var(--muted)]">{plan.description}</p>
 
-            <div className="mt-4">
-              <span className="text-3xl font-semibold tracking-tight">
-                ${plan.priceMonthly}
-              </span>
-              {plan.priceMonthly > 0 && (
-                <span className="text-xs text-[var(--muted)] ml-0.5">/mo</span>
-              )}
-            </div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-semibold">{plan.name}</h3>
+                {highlighted && (
+                  <span className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
+                    Popular
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-[var(--muted)]">{plan.description}</p>
 
-            <div className="mt-5">
-              {whopPlanId ? (
-                <Link
-                  href={`/checkout?plan=${key}`}
-                  className={`block rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
-                    key === "free"
-                      ? "border border-[var(--border)] bg-[var(--card)]"
-                      : "bg-[var(--foreground)] text-[var(--background)]"
-                  }`}
-                >
-                  {key === "free" ? "Get Started" : "Subscribe"}
-                </Link>
-              ) : (
-                <span className="block w-full rounded-lg border border-[var(--border)] py-2 text-center text-xs text-[var(--muted)]">
-                  Configure plan ID
-                </span>
-              )}
-            </div>
+              <div className="mt-4">
+                {interval === "yearly" && price > 0 ? (
+                  <>
+                    <span className="text-3xl font-semibold tracking-tight">
+                      ${price}
+                    </span>
+                    <span className="text-xs text-[var(--muted)] ml-0.5">/yr</span>
+                    <p className="mt-0.5 text-[11px] text-[var(--muted)]">
+                      ${Math.round((price / 12) * 100) / 100}/mo billed yearly
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-3xl font-semibold tracking-tight">
+                      ${price}
+                    </span>
+                    {price > 0 && (
+                      <span className="text-xs text-[var(--muted)] ml-0.5">/mo</span>
+                    )}
+                  </>
+                )}
+              </div>
 
-            <ul className="mt-5 flex flex-col gap-2 flex-1">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-xs text-[var(--muted)]">
-                  <CheckIcon />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+              <div className="mt-5">
+                {whopPlanId ? (
+                  <Link
+                    href={`/checkout?plan=${key}&interval=${interval}`}
+                    className={`block rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
+                      key === "free"
+                        ? "border border-[var(--border)] bg-[var(--card)]"
+                        : "bg-[var(--foreground)] text-[var(--background)]"
+                    }`}
+                  >
+                    {key === "free" ? "Get Started" : "Subscribe"}
+                  </Link>
+                ) : (
+                  <span className="block w-full rounded-lg border border-[var(--border)] py-2 text-center text-xs text-[var(--muted)]">
+                    Configure plan ID
+                  </span>
+                )}
+              </div>
+
+              <ul className="mt-5 flex flex-col gap-2 flex-1">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-xs text-[var(--muted)]">
+                    <CheckIcon />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

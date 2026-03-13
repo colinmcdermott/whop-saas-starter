@@ -62,8 +62,10 @@ Go to your Vercel project → **Settings** → **Environment Variables** and add
 | `NEXT_PUBLIC_APP_URL` | Your Vercel deployment URL | `https://your-app.vercel.app` |
 | `DATABASE_URL` | Auto-set if you added Postgres during deploy | `postgresql://...` |
 | `NEXT_PUBLIC_WHOP_FREE_PLAN_ID` | Whop Dashboard → your Free plan | `plan_xxxxxxxxx` |
-| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | Whop Dashboard → your Pro plan | `plan_xxxxxxxxx` |
-| `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | Whop Dashboard → your Enterprise plan | `plan_xxxxxxxxx` |
+| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | Whop Dashboard → your Pro monthly plan | `plan_xxxxxxxxx` |
+| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID_YEARLY` | Whop Dashboard → your Pro yearly plan | `plan_xxxxxxxxx` |
+| `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | Whop Dashboard → your Enterprise monthly plan | `plan_xxxxxxxxx` |
+| `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY` | Whop Dashboard → your Enterprise yearly plan | `plan_xxxxxxxxx` |
 | `SESSION_SECRET` | **Optional.** Auto-generated and stored in DB if not set | `a1b2c3d4...` |
 
 > **Tip:** If you added a Postgres database during the Vercel deploy, `DATABASE_URL` is already set. Check your Environment Variables to confirm.
