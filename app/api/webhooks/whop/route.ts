@@ -10,13 +10,14 @@ import { verifyWebhookSignature } from "@/lib/whop";
 
 interface WebhookEvent {
   type: string;
-  data: WebhookMembershipData;
+  data: WebhookData;
 }
 
-interface WebhookMembershipData {
+interface WebhookData {
   id?: string;
   user_id?: string;
   plan_id?: string;
+  membership_id?: string;
 }
 
 /**
@@ -27,7 +28,10 @@ interface WebhookMembershipData {
  * Events handled:
  * - membership_activated   → Activate subscription (upgrade user plan)
  * - membership_deactivated → Deactivate subscription (downgrade to free)
- * - payment_succeeded      → Log payment (optional)
+ * - payment_succeeded      → Log successful payment
+ * - payment_failed         → Log failed payment
+ * - refund_created         → Downgrade user on refund
+ * - dispute_created        → Downgrade user on chargeback
  *
  * Setup:
  * 1. In your Whop app settings, add a webhook endpoint pointing to:
@@ -69,6 +73,22 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "payment_failed": {
+        console.log("[Webhook] Payment failed:", event.data);
+        // TODO: Notify the user about the failed payment
+        break;
+      }
+
+      case "refund_created": {
+        await handleRefundOrDispute(event.data, "refund");
+        break;
+      }
+
+      case "dispute_created": {
+        await handleRefundOrDispute(event.data, "dispute");
+        break;
+      }
+
       default: {
         console.log(`[Webhook] Unhandled event type: ${eventType}`);
       }
@@ -88,7 +108,7 @@ export async function POST(request: NextRequest) {
 // Event handlers
 // ---------------------------------------------------------------------------
 
-async function handleMembershipActivated(data: WebhookMembershipData) {
+async function handleMembershipActivated(data: WebhookData) {
   if (!data.user_id) {
     console.error("[Webhook] membership_activated missing user_id");
     return;
@@ -112,7 +132,7 @@ async function handleMembershipActivated(data: WebhookMembershipData) {
   console.log(`[Webhook] User ${data.user_id} upgraded to ${plan}`);
 }
 
-async function handleMembershipDeactivated(data: WebhookMembershipData) {
+async function handleMembershipDeactivated(data: WebhookData) {
   if (!data.user_id) {
     console.error("[Webhook] membership_deactivated missing user_id");
     return;
@@ -124,4 +144,18 @@ async function handleMembershipDeactivated(data: WebhookMembershipData) {
   });
 
   console.log(`[Webhook] User ${data.user_id} downgraded to free`);
+}
+
+async function handleRefundOrDispute(data: WebhookData, reason: "refund" | "dispute") {
+  if (!data.user_id) {
+    console.error(`[Webhook] ${reason}_created missing user_id`);
+    return;
+  }
+
+  await prisma.user.updateMany({
+    where: { whopUserId: data.user_id },
+    data: { plan: "free", whopMembershipId: null },
+  });
+
+  console.log(`[Webhook] User ${data.user_id} downgraded to free (${reason})`);
 }

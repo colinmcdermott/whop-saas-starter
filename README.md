@@ -57,6 +57,9 @@ You need a PostgreSQL database. Recommended providers:
    - `membership_activated`
    - `membership_deactivated`
    - `payment_succeeded`
+   - `payment_failed`
+   - `refund_created`
+   - `dispute_created`
 3. Copy the **Webhook Secret**
 
 ### 6. Configure environment variables
@@ -73,6 +76,7 @@ NEXT_PUBLIC_WHOP_APP_ID="app_xxxxxxxxx"
 WHOP_API_KEY="apik_xxxxxxxxx"
 WHOP_WEBHOOK_SECRET="your_webhook_secret_here"
 SESSION_SECRET="generate-a-random-32-char-string"
+NEXT_PUBLIC_WHOP_FREE_PLAN_ID="plan_xxxxxxxxx"
 NEXT_PUBLIC_WHOP_PRO_PLAN_ID="plan_xxxxxxxxx"
 NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID="plan_xxxxxxxxx"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -213,7 +217,7 @@ export async function POST(request: NextRequest) {
 
 ### One-click deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/colinmcdermott/whop-saas-starter&env=DATABASE_URL,NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,WHOP_WEBHOOK_SECRET,SESSION_SECRET,NEXT_PUBLIC_WHOP_PRO_PLAN_ID,NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID,NEXT_PUBLIC_APP_URL)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/colinmcdermott/whop-saas-starter&env=DATABASE_URL,NEXT_PUBLIC_WHOP_APP_ID,WHOP_API_KEY,WHOP_WEBHOOK_SECRET,SESSION_SECRET,NEXT_PUBLIC_WHOP_FREE_PLAN_ID,NEXT_PUBLIC_WHOP_PRO_PLAN_ID,NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID,NEXT_PUBLIC_APP_URL)
 
 ### Manual deploy
 
@@ -239,6 +243,7 @@ export async function POST(request: NextRequest) {
 | `WHOP_API_KEY` | Yes | OAuth client secret (`apik_...`) |
 | `WHOP_WEBHOOK_SECRET` | Yes | Whop webhook signing secret |
 | `SESSION_SECRET` | Yes | Random string for JWT signing (32+ chars) |
+| `NEXT_PUBLIC_WHOP_FREE_PLAN_ID` | Recommended | Whop plan ID for Free tier — $0 plan (`plan_...`) |
 | `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | For payments | Whop plan ID for Pro tier (`plan_...`) |
 | `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | For payments | Whop plan ID for Enterprise tier (`plan_...`) |
 | `NEXT_PUBLIC_APP_URL` | Recommended | Your app's public URL |

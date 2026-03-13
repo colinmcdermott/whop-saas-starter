@@ -26,6 +26,7 @@ export const PLANS = {
     name: "Free",
     description: "Get started with the basics",
     priceMonthly: 0,
+    whopPlanId: process.env.NEXT_PUBLIC_WHOP_FREE_PLAN_ID ?? "",
     features: [
       "Up to 3 projects",
       "Basic analytics",
@@ -71,6 +72,7 @@ export type PlanKey = keyof typeof PLANS;
 
 /** Map Whop plan IDs to our plan keys */
 export function getPlanFromWhopPlanId(whopPlanId: string): PlanKey {
+  if (whopPlanId === PLANS.free.whopPlanId) return "free";
   if (whopPlanId === PLANS.pro.whopPlanId) return "pro";
   if (whopPlanId === PLANS.enterprise.whopPlanId) return "enterprise";
   return "free";

@@ -60,21 +60,18 @@ export function PricingCards() {
             </div>
 
             <div className="mt-5">
-              {key === "free" ? (
-                <a
-                  href="/api/auth/login?next=/dashboard"
-                  className="block w-full rounded-lg border border-[var(--border)] bg-[var(--card)] py-2 text-center text-sm font-medium transition-colors hover:bg-[var(--surface)]"
-                >
-                  Get Started
-                </a>
-              ) : whopPlanId ? (
+              {whopPlanId ? (
                 <div
                   data-whop-checkout-plan-id={whopPlanId}
                   data-whop-checkout-return-url={`${appUrl}/checkout/success?plan=${key}`}
                   data-whop-color-scheme="system"
-                  className="cursor-pointer rounded-lg bg-[var(--foreground)] py-2 text-center text-sm font-medium text-[var(--background)] transition-opacity hover:opacity-80"
+                  className={`cursor-pointer rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
+                    key === "free"
+                      ? "border border-[var(--border)] bg-[var(--card)]"
+                      : "bg-[var(--foreground)] text-[var(--background)]"
+                  }`}
                 >
-                  Subscribe
+                  {key === "free" ? "Get Started" : "Subscribe"}
                 </div>
               ) : (
                 <span className="block w-full rounded-lg border border-[var(--border)] py-2 text-center text-xs text-[var(--muted)]">
