@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: "whop-cdn.com" },
       { hostname: "*.whop.com" },
+      { hostname: "s3.us-east-2.amazonaws.com", pathname: "/assets.whop.com/**" },
     ],
   },
 
