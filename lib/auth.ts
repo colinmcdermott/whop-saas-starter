@@ -1,7 +1,9 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { prisma } from "./db";
+import type { PlanKey } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -153,8 +155,12 @@ export async function clearSessionCookie() {
 /**
  * Get the current session, or null if not authenticated.
  * Use this in server components and API routes.
+ *
+ * The JWT carries identity; the plan is always read fresh from the DB
+ * (kept up-to-date by Whop webhooks) so it's never stale.
+ * Wrapped with React.cache() so multiple calls per request hit the DB once.
  */
-export async function getSession(): Promise<Session | null> {
+export const getSession = cache(async (): Promise<Session | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
@@ -162,8 +168,17 @@ export async function getSession(): Promise<Session | null> {
   const session = await verifySessionToken(token);
   if (!session) return null;
 
-  return session;
-}
+  // Fetch fresh plan from DB (single column, PK lookup)
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { plan: true },
+  });
+
+  // User was deleted — treat as logged out
+  if (!user) return null;
+
+  return { ...session, plan: user.plan };
+});
 
 /**
  * Require an authenticated session. Redirects to login if not authenticated.
@@ -177,27 +192,39 @@ export async function requireSession(): Promise<Session> {
   return session;
 }
 
+// ---------------------------------------------------------------------------
+// Plan gating
+// ---------------------------------------------------------------------------
+
+const PLAN_RANK: Record<string, number> = {
+  free: 0,
+  pro: 1,
+  enterprise: 2,
+};
+
 /**
- * Refresh the session with latest data from the database.
- * Call this after plan changes or profile updates.
+ * Check if a user's plan meets or exceeds a minimum plan level.
+ * Pure function — no DB or async needed.
  */
-export async function refreshSession(whopUserId: string): Promise<Session | null> {
-  const user = await prisma.user.findUnique({
-    where: { whopUserId },
-  });
+export function hasMinimumPlan(userPlan: PlanKey, minimumPlan: PlanKey): boolean {
+  return (PLAN_RANK[userPlan] ?? 0) >= (PLAN_RANK[minimumPlan] ?? 0);
+}
 
-  if (!user) return null;
-
-  const session: Session = {
-    userId: user.id,
-    whopUserId: user.whopUserId,
-    email: user.email,
-    name: user.name,
-    profileImageUrl: user.profileImageUrl,
-    plan: user.plan,
-    isAdmin: user.isAdmin,
-  };
-
-  await setSessionCookie(session);
+/**
+ * Require a minimum plan level. Redirects to /pricing if insufficient.
+ * Use in server components for plan-gated pages.
+ *
+ * @example
+ * // Only pro+ users can access this page
+ * const session = await requirePlan("pro");
+ */
+export async function requirePlan(
+  minimumPlan: PlanKey,
+  redirectTo = "/pricing"
+): Promise<Session> {
+  const session = await requireSession();
+  if (!hasMinimumPlan(session.plan as PlanKey, minimumPlan)) {
+    redirect(redirectTo);
+  }
   return session;
 }

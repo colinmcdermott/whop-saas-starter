@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { isSetupComplete, getPlansConfig } from "@/lib/config";
 import { Header } from "@/components/landing/header";
@@ -5,6 +6,16 @@ import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { PricingCards } from "@/components/landing/pricing-cards";
 import { Footer } from "@/components/landing/footer";
+import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: `${APP_NAME} — ${APP_DESCRIPTION}`,
+  description: APP_DESCRIPTION,
+  openGraph: {
+    title: `${APP_NAME} — ${APP_DESCRIPTION}`,
+    description: APP_DESCRIPTION,
+  },
+};
 
 export default async function HomePage() {
   const setupDone = await isSetupComplete();

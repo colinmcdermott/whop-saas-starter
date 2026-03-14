@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/toast";
 
 const PRESETS = [
   { label: "Indigo", value: "#5b4cff" },
@@ -26,10 +27,10 @@ function lightenHex(hex: string): string {
 
 export function AccentColorPicker({ currentColor }: { currentColor: string | null }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState(currentColor ?? PRESETS[0].value);
   const [custom, setCustom] = useState("");
-  const [saved, setSaved] = useState(false);
 
   const activeColor = custom && /^#[0-9a-fA-F]{6}$/.test(custom) ? custom : selected;
 
@@ -46,14 +47,12 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
     setSelected(hex);
     setCustom("");
     applyPreview(hex);
-    setSaved(false);
   }
 
   function handleCustomChange(value: string) {
     setCustom(value);
     if (/^#[0-9a-fA-F]{6}$/.test(value)) {
       applyPreview(value);
-      setSaved(false);
     }
   }
 
@@ -66,9 +65,10 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
       });
 
       if (res.ok) {
-        setSaved(true);
+        toast("Accent color saved", "success");
         router.refresh();
-        setTimeout(() => setSaved(false), 2000);
+      } else {
+        toast("Failed to save accent color", "error");
       }
     });
   }
@@ -131,7 +131,7 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
           disabled={isPending}
           className="rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
         >
-          {isPending ? "Saving..." : saved ? "Saved!" : "Save"}
+          {isPending ? "Saving..." : "Save"}
         </button>
       </div>
 

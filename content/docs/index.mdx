@@ -9,8 +9,9 @@ Welcome to the **SaaS Starter** documentation. This template gives you everythin
 
 - **Authentication** — OAuth 2.1 + PKCE via Whop (no client secret needed)
 - **Payments** — Embedded checkout with monthly/yearly billing
+- **Plan Gating** — `requirePlan()`, `<PlanGate>`, and Whop API access checks
 - **Dashboard** — Protected area with plan-gated features
-- **Admin Settings** — Branding, plan management, and setup wizard
+- **Admin Settings** — Branding, integrations (analytics, email, error tracking), and setup wizard
 - **Docs** — This documentation site (powered by [Fumadocs](https://fumadocs.vercel.app))
 
 ## Tech Stack
@@ -54,7 +55,7 @@ app/
 ├── setup/               # First-run setup wizard
 └── api/
     ├── auth/            # login, callback, logout, me, delete-account
-    ├── config/          # plans, accent color
+    ├── config/          # plans, accent color, integrations
     ├── search/          # Full-text docs search
     ├── setup/           # Setup wizard API
     └── webhooks/whop/   # Whop webhook handler
@@ -65,9 +66,11 @@ components/
 └── setup/               # Setup wizard
 content/docs/            # Documentation (MDX files — you're reading them!)
 lib/
-├── auth.ts              # JWT session management
+├── auth.ts              # Session + plan gating (requirePlan, hasMinimumPlan)
 ├── config.ts            # DB-backed configuration
-├── whop.ts              # Whop OAuth + webhooks
+├── whop.ts              # Whop OAuth, webhooks, access checks
+├── analytics.ts         # Analytics script generation
+├── email.ts             # Transactional email (Resend, SendGrid)
 ├── db.ts                # Prisma client singleton
 ├── constants.ts         # Plans, app name, links
 └── source.ts            # Fumadocs content loader

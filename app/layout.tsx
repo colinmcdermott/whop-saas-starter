@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/toast";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import { getConfig } from "@/lib/config";
+import { getAnalyticsScript } from "@/lib/analytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,12 +12,26 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
 };
 
 /**
@@ -36,14 +51,19 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Read accent color from DB/env (returns null if not set → CSS default used)
+  // Read accent color and analytics config from DB/env
   let accentCss: string | undefined;
+  let analyticsHtml: string | null = null;
   try {
-    const accent = await getConfig("accent_color");
+    const [accent, analytics] = await Promise.all([
+      getConfig("accent_color"),
+      getAnalyticsScript(),
+    ]);
     if (accent && /^#[0-9a-fA-F]{6}$/.test(accent)) {
       const lightVariant = lightenHex(accent);
       accentCss = `:root{--accent:${accent} !important;--accent-dark:${lightVariant} !important}.dark{--accent:${lightVariant} !important}`;
     }
+    analyticsHtml = analytics;
   } catch {
     // Config/DB not ready yet (first build) — use CSS defaults
   }
@@ -66,6 +86,12 @@ export default async function RootLayout({
           <style
             id="accent-override"
             dangerouslySetInnerHTML={{ __html: accentCss }}
+          />
+        )}
+        {analyticsHtml && (
+          <script
+            id="analytics"
+            dangerouslySetInnerHTML={{ __html: analyticsHtml }}
           />
         )}
       </head>

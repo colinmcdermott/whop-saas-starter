@@ -55,19 +55,62 @@ const session = await requireSession();
 
 ## Plan Gating
 
-Check `session.plan` to gate features by subscription level:
+The user's plan is always fresh from the database (kept up-to-date by Whop webhooks). Several helpers make plan gating easy:
+
+### `requirePlan()` — Gate entire pages
+
+Redirects to `/pricing` if the user's plan is below the required level:
 
 ```tsx
-const session = await requireSession();
+import { requirePlan } from "@/lib/auth";
 
-if (session.plan === "free") {
-  // Show upgrade prompt
-}
+// Only pro and enterprise users can access this page
+const session = await requirePlan("pro");
+```
 
-if (session.plan === "pro" || session.plan === "enterprise") {
-  // Show premium features
+### `hasMinimumPlan()` — Check plan level in API routes
+
+Pure function for plan comparison without redirects:
+
+```tsx
+import { getSession, hasMinimumPlan } from "@/lib/auth";
+
+const session = await getSession();
+if (!session || !hasMinimumPlan(session.plan as PlanKey, "pro")) {
+  return NextResponse.json({ error: "Upgrade required" }, { status: 403 });
 }
 ```
+
+### `<PlanGate>` — Conditional rendering in client components
+
+Pass the plan from a server parent to gate UI elements:
+
+```tsx
+import { PlanGate } from "@/components/plan-gate";
+
+// In a server component
+const session = await requireSession();
+
+return (
+  <PlanGate plan={session.plan} minimum="pro" fallback={<UpgradeBanner />}>
+    <AdvancedFeature />
+  </PlanGate>
+);
+```
+
+### Direct Whop API access check
+
+For authoritative real-time access verification (e.g., before high-value operations):
+
+```tsx
+import { hasWhopAccess } from "@/lib/whop";
+
+const { hasAccess } = await hasWhopAccess(session.whopUserId, "prod_xxxxx");
+```
+
+### Plan hierarchy
+
+The plan levels are: `enterprise` > `pro` > `free`. All helpers respect this hierarchy — an enterprise user can access pro-gated features.
 
 ## Admin Access
 

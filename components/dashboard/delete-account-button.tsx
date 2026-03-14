@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/toast";
 
 export function DeleteAccountButton() {
   const router = useRouter();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,9 @@ export function DeleteAccountButton() {
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setError(message);
+      toast(message, "error");
       setLoading(false);
     }
   }

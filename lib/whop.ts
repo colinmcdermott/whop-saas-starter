@@ -138,6 +138,73 @@ export async function getWhopUser(accessToken: string): Promise<WhopUser> {
 }
 
 // ---------------------------------------------------------------------------
+// Access verification
+// ---------------------------------------------------------------------------
+
+import { getConfig } from "./config";
+
+/**
+ * Check if a user has access to a specific Whop resource (product/experience).
+ * Uses the Whop API directly for authoritative, real-time access checks.
+ *
+ * @see https://docs.whop.com/api-reference/users/check-access
+ *
+ * @example
+ * const canAccess = await checkWhopAccess(
+ *   session.whopUserId,
+ *   "prod_xxxxx",
+ *   apiKey,
+ * );
+ */
+export async function checkWhopAccess(
+  whopUserId: string,
+  resourceId: string,
+  apiKey: string,
+): Promise<{ hasAccess: boolean; accessLevel: string }> {
+  const res = await fetch(
+    `${WHOP_API_BASE}/api/v1/users/${whopUserId}/access/${resourceId}`,
+    {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      cache: "no-store",
+    },
+  );
+
+  if (res.ok) {
+    const data = await res.json();
+    return {
+      hasAccess: data.has_access ?? false,
+      accessLevel: data.access_level ?? "no_access",
+    };
+  }
+
+  if (res.status === 403 || res.status === 404) {
+    return { hasAccess: false, accessLevel: "no_access" };
+  }
+
+  console.error(`[Whop] Access check failed (${res.status}) for user ${whopUserId}`);
+  return { hasAccess: false, accessLevel: "no_access" };
+}
+
+/**
+ * Convenience wrapper that reads the API key from config.
+ * Returns false if API key is not configured.
+ *
+ * @example
+ * const { hasAccess } = await hasWhopAccess(session.whopUserId, "prod_xxxxx");
+ */
+export async function hasWhopAccess(
+  whopUserId: string,
+  resourceId: string,
+): Promise<{ hasAccess: boolean; accessLevel: string }> {
+  const apiKey = await getConfig("whop_api_key");
+  if (!apiKey) {
+    console.warn("[Whop] API key not configured; cannot verify access");
+    return { hasAccess: false, accessLevel: "no_access" };
+  }
+  return checkWhopAccess(whopUserId, resourceId, apiKey);
+}
+
+// ---------------------------------------------------------------------------
 // Webhook verification
 // ---------------------------------------------------------------------------
 

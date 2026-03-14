@@ -20,9 +20,16 @@ const ENV_MAP: Record<string, string> = {
   whop_pro_plan_id_yearly: "NEXT_PUBLIC_WHOP_PRO_PLAN_ID_YEARLY",
   whop_enterprise_plan_id: "NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID",
   whop_enterprise_plan_id_yearly: "NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY",
+  whop_pro_product_id: "WHOP_PRO_PRODUCT_ID",
+  whop_enterprise_product_id: "WHOP_ENTERPRISE_PRODUCT_ID",
   app_name: "NEXT_PUBLIC_APP_NAME",
   app_url: "NEXT_PUBLIC_APP_URL",
   accent_color: "NEXT_PUBLIC_ACCENT_COLOR",
+  analytics_provider: "ANALYTICS_PROVIDER",
+  analytics_id: "ANALYTICS_ID",
+  error_tracking_dsn: "ERROR_TRACKING_DSN",
+  email_provider: "EMAIL_PROVIDER",
+  email_api_key: "EMAIL_API_KEY",
 };
 
 /** Non-sensitive keys that can be returned to the client */

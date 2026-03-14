@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
 import { AccentColorPicker } from "@/components/dashboard/accent-color-picker";
+import { IntegrationsSettings } from "@/components/dashboard/integrations-settings";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -87,8 +88,21 @@ export default async function SettingsPage() {
         </section>
       )}
 
+      {/* Integrations (admin only) */}
+      {session.isAdmin && (
+        <section className="animate-slide-up delay-400 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+          <h2 className="text-sm font-semibold">Integrations</h2>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Connect analytics, error tracking, and email services.
+          </p>
+          <div className="mt-4">
+            <IntegrationsSettings />
+          </div>
+        </section>
+      )}
+
       {/* Danger zone */}
-      <section className="animate-slide-up delay-400 rounded-xl border border-red-200 dark:border-red-900/30 bg-[var(--card)] p-5">
+      <section className="animate-slide-up delay-500 rounded-xl border border-red-200 dark:border-red-900/30 bg-[var(--card)] p-5">
         <h2 className="text-sm font-semibold text-red-600 dark:text-red-400">
           Danger Zone
         </h2>

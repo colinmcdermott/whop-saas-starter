@@ -1,0 +1,46 @@
+"use client";
+
+import type { PlanKey } from "@/lib/constants";
+
+const PLAN_RANK: Record<string, number> = {
+  free: 0,
+  pro: 1,
+  enterprise: 2,
+};
+
+interface PlanGateProps {
+  /** The user's current plan (pass from server parent via session.plan) */
+  plan: string;
+  /** Minimum plan required to show children */
+  minimum: PlanKey;
+  /** Content shown when plan is sufficient */
+  children: React.ReactNode;
+  /** Optional fallback when plan is insufficient */
+  fallback?: React.ReactNode;
+}
+
+/**
+ * Conditionally render content based on the user's plan level.
+ *
+ * The plan is passed as a prop from a server component (always fresh from DB).
+ *
+ * @example
+ * <PlanGate plan={session.plan} minimum="pro">
+ *   <ProFeatureWidget />
+ * </PlanGate>
+ *
+ * @example
+ * <PlanGate plan={session.plan} minimum="pro" fallback={<UpgradeBanner />}>
+ *   <AdvancedAnalytics />
+ * </PlanGate>
+ */
+export function PlanGate({ plan, minimum, children, fallback = null }: PlanGateProps) {
+  const userRank = PLAN_RANK[plan] ?? 0;
+  const requiredRank = PLAN_RANK[minimum] ?? 0;
+
+  if (userRank >= requiredRank) {
+    return <>{children}</>;
+  }
+
+  return <>{fallback}</>;
+}
