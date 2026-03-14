@@ -76,8 +76,14 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
         {planKeys.map((key) => {
           const plan = plans[key];
           const highlighted = plan.highlighted;
-          const price =
-            interval === "yearly" ? plan.priceYearly : plan.priceMonthly;
+          const price = plan.priceMonthly;
+          const yearlyTotal = plan.priceYearly;
+          const monthlyEquivalent =
+            yearlyTotal > 0
+              ? Math.round((yearlyTotal / 12) * 100) / 100
+              : 0;
+          const displayPrice =
+            interval === "yearly" ? monthlyEquivalent : price;
           const whopPlanId =
             interval === "yearly" ? plan.whopPlanIdYearly : plan.whopPlanId;
 
@@ -119,17 +125,17 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
 
               <div className="mt-4">
                 <span className="text-3xl font-semibold tracking-tight">
-                  ${price}
+                  ${displayPrice}
                 </span>
-                {price > 0 && (
+                {displayPrice > 0 && (
                   <span className="text-xs text-[var(--muted)] ml-0.5">
-                    {interval === "yearly" ? "/yr" : "/mo"}
+                    /mo
                   </span>
                 )}
                 {/* Fixed-height subtitle to prevent layout shift on toggle */}
                 <p className="mt-0.5 h-4 text-[11px] text-[var(--muted)]">
-                  {interval === "yearly" && price > 0
-                    ? `$${Math.round((price / 12) * 100) / 100}/mo billed yearly`
+                  {interval === "yearly" && yearlyTotal > 0
+                    ? `$${yearlyTotal} billed annually`
                     : "\u00A0"}
                 </p>
               </div>
