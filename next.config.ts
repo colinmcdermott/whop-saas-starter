@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   // Ensure Turbopack resolves the workspace root to this project
   turbopack: { root: resolve(".") },
 
+  // Allow Whop CDN images (user profile pictures)
+  images: {
+    remotePatterns: [
+      { hostname: "whop-cdn.com" },
+      { hostname: "*.whop.com" },
+    ],
+  },
+
   // Security headers for all routes
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
