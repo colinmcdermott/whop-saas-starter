@@ -46,22 +46,29 @@ Visit `http://localhost:3000` and the setup wizard will guide you through connec
 
 ```
 app/
-├── (auth)/          # Login, auth error pages
-├── (marketing)/     # Pricing page
-├── dashboard/       # Protected user area
-├── checkout/        # Payment flow
-├── docs/            # This documentation
-├── setup/           # First-run setup wizard
-└── api/             # API routes
+├── (auth)/              # Login, auth error pages
+├── (marketing)/         # Pricing page
+├── dashboard/           # Protected user area
+├── checkout/            # Two-step payment flow
+├── docs/                # This documentation
+├── setup/               # First-run setup wizard
+└── api/
+    ├── auth/            # login, callback, logout, me, delete-account
+    ├── config/          # plans, accent color
+    ├── search/          # Full-text docs search
+    ├── setup/           # Setup wizard API
+    └── webhooks/whop/   # Whop webhook handler
 components/
-├── landing/         # Hero, header, footer, pricing
-├── dashboard/       # Sidebar, settings
-└── setup/           # Setup wizard
+├── landing/             # Hero, header, footer, pricing
+├── checkout/            # Billing form + Whop embed
+├── dashboard/           # Sidebar, header, settings
+└── setup/               # Setup wizard
+content/docs/            # Documentation (MDX files — you're reading them!)
 lib/
-├── auth.ts          # Session management
-├── config.ts        # DB-backed configuration
-├── whop.ts          # Whop OAuth + webhooks
-├── db.ts            # Prisma client
-└── constants.ts     # Plans, app name, links
-content/docs/        # Documentation (MDX files)
+├── auth.ts              # JWT session management
+├── config.ts            # DB-backed configuration
+├── whop.ts              # Whop OAuth + webhooks
+├── db.ts                # Prisma client singleton
+├── constants.ts         # Plans, app name, links
+└── source.ts            # Fumadocs content loader
 ```

@@ -17,20 +17,45 @@ That's it. The build script automatically runs `prisma generate` and `prisma db 
 
 ## Environment Variables
 
+All Whop-related variables can be set either via environment variables **or** the in-app setup wizard at `/setup`. Environment variables take priority if both are set.
+
 ### Required
 
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string (auto-set by Vercel Postgres) |
 
-### Optional (can also be set via setup wizard)
+### Whop OAuth (required for auth)
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_WHOP_APP_ID` | Your Whop app ID |
-| `WHOP_API_KEY` | Your Whop API key |
-| `WHOP_WEBHOOK_SECRET` | Webhook signing secret |
-| `SESSION_SECRET` | JWT signing secret (auto-generated if not set) |
+| `NEXT_PUBLIC_WHOP_APP_ID` | Your Whop app ID (used as OAuth client_id) |
+| `WHOP_API_KEY` | Your Whop API key (server-side only) |
+
+### Whop Webhooks (required for payments)
+
+| Variable | Description |
+|----------|-------------|
+| `WHOP_WEBHOOK_SECRET` | Webhook signing secret from your Whop app settings |
+
+### Whop Plan IDs (required for paid tiers)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_WHOP_FREE_PLAN_ID` | Free tier plan ID |
+| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | Pro monthly plan ID |
+| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID_YEARLY` | Pro yearly plan ID |
+| `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | Enterprise monthly plan ID |
+| `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY` | Enterprise yearly plan ID |
+
+### App Configuration (optional)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_APP_URL` | Your app's public URL (for OAuth redirect URLs) |
+| `NEXT_PUBLIC_APP_NAME` | Override the app name from `lib/constants.ts` |
+| `NEXT_PUBLIC_ACCENT_COLOR` | Default accent color hex (e.g. `#5b4cff`) |
+| `SESSION_SECRET` | JWT signing secret (auto-generated and stored in DB if not set) |
 
 ## First Visit
 
@@ -40,7 +65,7 @@ After deploying, visit your site. If Whop isn't configured yet, you'll be redire
 2. Connecting your plan IDs
 3. Setting up webhooks
 
-The first user to sign in via OAuth becomes the admin.
+The first user to sign in via OAuth automatically becomes the admin.
 
 ## Custom Domain
 

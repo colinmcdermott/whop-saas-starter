@@ -28,20 +28,21 @@ pnpm db:migrate   # Run migrations
 - `getConfig(key)` / `setConfig(key, value)` — DB-backed with env var fallback and in-memory cache
 - `getPlansConfig()` — merges static plan metadata from `constants.ts` with dynamic plan IDs from DB/env
 - `isSetupComplete()` — checks if app is configured (setup_complete flag or whop_app_id exists)
-- All config keys: whop_app_id, whop_api_key, whop_webhook_secret, plan IDs, setup_complete
+- All config keys: whop_app_id, whop_api_key, whop_webhook_secret, plan IDs, accent_color, setup_complete
 
 ### Auth Flow
 - OAuth 2.1 + PKCE — Public client mode (no client_secret needed)
 - PKCE state stored in httpOnly cookie (not in URL state param like whop-ecom)
 - Session = JWT in httpOnly cookie, 7-day TTL, signed with SESSION_SECRET (auto-generated)
-- Session includes `isAdmin` flag for admin-only features
+- Session includes `isAdmin` flag for admin-only features and `profileImageUrl` for avatar display
 - Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `requireSession()`
 
 ### Payments
 - Whop embedded checkout via `@whop/checkout` React component (`WhopCheckoutEmbed`)
+- Two-step checkout: native billing form (email, name, address) → Whop embedded payment
 - Pricing buttons link to `/checkout?plan={key}&interval={monthly|yearly}`
 - Billing intervals: monthly/yearly toggle on pricing page; each paid tier has two Whop plan IDs
-- Checkout pre-fills email for logged-in users (fetches from /api/auth/me)
+- Checkout pre-fills email for logged-in users
 - Plans fetched from `/api/config/plans` for client components
 - Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
 
@@ -55,12 +56,15 @@ pnpm db:migrate   # Run migrations
 - `GET/POST /api/setup` — read/write config during setup (open pre-setup, admin-only after)
 - `POST /api/setup/complete` — mark setup as done (admin-only)
 - `GET /api/config/plans` — plan config for client components
+- `GET/POST /api/config/accent` — read/save accent color (admin-only POST)
+- `GET /api/search` — Fumadocs full-text search
 
 ## Tech Stack
 - **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS v4**
 - **Prisma 7** + PostgreSQL (pg driver adapter via `@prisma/adapter-pg`)
 - **jose** for JWT signing/verification
 - **@whop/checkout** for embedded checkout; direct fetch to `https://api.whop.com` for auth/API
+- **Fumadocs** + MDX for documentation site at `/docs`
 
 ## Important Patterns
 - `getSession()` — get current session or null (server components, API routes)
@@ -70,6 +74,7 @@ pnpm db:migrate   # Run migrations
 - Plan gating: check `session.plan` ("free" | "pro" | "enterprise")
 - Static plan metadata in `lib/constants.ts`; dynamic plan IDs via `lib/config.ts`
 - Client components get plan config as props from server parents, or fetch `/api/config/plans`
+- Admin-configurable accent color applied via CSS custom properties (`--accent`, `--accent-foreground`)
 
 ## Whop API Endpoints Used
 - `https://api.whop.com/oauth/authorize` — OAuth authorization
@@ -88,27 +93,34 @@ app/                        # Pages and API routes
 ├── (marketing)/            # Pricing (unprotected)
 ├── setup/                  # Setup wizard (shown on first visit)
 ├── dashboard/              # Protected area (layout calls requireSession)
-├── checkout/               # Embedded Whop checkout (WhopCheckoutEmbed)
+├── checkout/               # Embedded Whop checkout (two-step billing form)
 ├── checkout/success/       # Post-payment redirect
+├── docs/                   # Documentation site (Fumadocs)
 ├── not-found.tsx           # Global 404 page
 ├── error.tsx               # Global error boundary
 └── api/
     ├── auth/               # login, callback, logout, me, delete-account
     ├── setup/              # Config read/write + completion
-    ├── config/plans/       # Plan config for client components
+    ├── config/             # plans, accent color
+    ├── search/             # Fumadocs full-text search
     └── webhooks/whop/      # Whop webhook handler
 components/
 ├── landing/                # Hero, features, pricing cards, header, footer
 ├── dashboard/              # Sidebar, header, upgrade banner, delete account
+├── checkout/               # Two-step checkout form
 └── setup/                  # Setup wizard
+content/docs/               # Documentation MDX files
 lib/
 ├── auth.ts                 # JWT session management (isAdmin included)
 ├── config.ts               # DB-backed config system (getConfig, getPlansConfig)
 ├── whop.ts                 # Whop OAuth + webhook helpers
 ├── db.ts                   # Prisma client singleton
 ├── constants.ts            # Static plan metadata, APP_NAME, types
+├── source.ts               # Fumadocs content source loader
 └── utils.ts                # cn(), formatDate()
 proxy.ts                   # Protects /dashboard/* routes (Next.js 16 proxy)
+source.config.ts            # Fumadocs MDX content config
+mdx-components.tsx          # MDX component overrides
 prisma/schema.prisma        # User (with isAdmin) + SystemConfig models
 prisma.config.ts            # Prisma 7 configuration
 ```
