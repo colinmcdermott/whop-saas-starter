@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import type { NextConfig } from "next";
+import { createMDX } from "fumadocs-mdx/next";
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
@@ -19,4 +20,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withMDX = createMDX();
+
+export default withMDX(nextConfig);

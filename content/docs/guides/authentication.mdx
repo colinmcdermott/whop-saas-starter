@@ -1,0 +1,82 @@
+---
+title: Authentication
+description: How authentication works in this template
+---
+
+This template uses **Whop OAuth 2.1 + PKCE** for authentication. Users sign in with their Whop account — no passwords to manage, no client secret required.
+
+## How It Works
+
+1. User clicks "Sign in" → redirected to Whop's authorize page
+2. User approves → redirected back with an authorization code
+3. The callback exchanges the code for user info via PKCE
+4. A JWT session cookie is created (7-day expiry)
+
+## Protecting Pages
+
+The dashboard layout calls `requireSession()` which redirects unauthenticated users to `/login`:
+
+```tsx
+// app/dashboard/layout.tsx
+import { requireSession } from "@/lib/auth";
+
+export default async function DashboardLayout({ children }) {
+  const session = await requireSession();
+  // session.userId, session.email, session.plan, session.isAdmin
+  return <>{children}</>;
+}
+```
+
+## Session Helpers
+
+### `getSession()` — Optional auth check
+
+Returns the session or `null`. Use in server components and API routes where auth is optional:
+
+```tsx
+import { getSession } from "@/lib/auth";
+
+const session = await getSession();
+if (session) {
+  // User is logged in
+}
+```
+
+### `requireSession()` — Required auth check
+
+Returns the session or redirects to `/login`. Use in protected pages:
+
+```tsx
+import { requireSession } from "@/lib/auth";
+
+const session = await requireSession();
+// Always authenticated here
+```
+
+## Plan Gating
+
+Check `session.plan` to gate features by subscription level:
+
+```tsx
+const session = await requireSession();
+
+if (session.plan === "free") {
+  // Show upgrade prompt
+}
+
+if (session.plan === "pro" || session.plan === "enterprise") {
+  // Show premium features
+}
+```
+
+## Admin Access
+
+The first user to sign in becomes the admin. Check `session.isAdmin` for admin-only features:
+
+```tsx
+const session = await requireSession();
+
+if (session.isAdmin) {
+  // Show admin settings
+}
+```

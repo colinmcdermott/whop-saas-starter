@@ -1,0 +1,70 @@
+---
+title: Payments
+description: Setting up subscriptions and handling payments
+---
+
+Payments are handled through **Whop's embedded checkout**. Users select a plan, fill in billing details, and complete payment — all without leaving your site.
+
+## Payment Flow
+
+1. User clicks a plan on the pricing page
+2. Redirected to `/checkout?plan=pro&interval=monthly`
+3. Fills in billing details (email, name, address)
+4. Completes payment via Whop's embedded checkout
+5. Webhook fires → user's plan is updated in your database
+6. User is redirected to the dashboard
+
+## Configuring Plans
+
+Plans are defined in two places:
+
+### Static metadata — `lib/constants.ts`
+
+Names, descriptions, prices, and features:
+
+```tsx
+export const PLAN_METADATA = {
+  free: {
+    name: "Free",
+    priceMonthly: 0,
+    features: ["Up to 3 projects", "Basic analytics"],
+  },
+  pro: {
+    name: "Pro",
+    priceMonthly: 29,
+    priceYearly: 290,
+    features: ["Unlimited projects", "Priority support"],
+  },
+  // ...
+};
+```
+
+### Dynamic plan IDs — Setup wizard or env vars
+
+Connect your Whop plan IDs via the setup wizard at `/setup`, or set them in `.env.local`:
+
+```
+WHOP_PRO_MONTHLY_PLAN_ID=plan_xxxxx
+WHOP_PRO_YEARLY_PLAN_ID=plan_xxxxx
+WHOP_ENTERPRISE_MONTHLY_PLAN_ID=plan_xxxxx
+WHOP_ENTERPRISE_YEARLY_PLAN_ID=plan_xxxxx
+```
+
+## Webhooks
+
+Whop sends webhooks when a membership status changes. The handler at `/api/webhooks/whop` processes two events:
+
+- **`membership_activated`** — Updates the user's plan in the database
+- **`membership_deactivated`** — Resets the user's plan to "free"
+
+### Setting up webhooks
+
+1. Go to your app in the [Whop Dashboard](https://dash.whop.com)
+2. Add a webhook endpoint: `https://your-domain.com/api/webhooks/whop`
+3. Copy the webhook secret and add it to your config (via setup wizard or `WHOP_WEBHOOK_SECRET` env var)
+
+## Billing Intervals
+
+Each paid plan supports monthly and yearly billing. The pricing page includes a toggle, and the yearly price is typically discounted (~17% off).
+
+The checkout page resolves the correct Whop plan ID based on the selected plan and interval.

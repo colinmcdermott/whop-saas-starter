@@ -1,0 +1,76 @@
+---
+title: Customization
+description: How to customize the template for your product
+---
+
+This template is designed to be easily customized. Here are the key places to make it your own.
+
+## App Name & Description
+
+Edit `lib/constants.ts`:
+
+```tsx
+export const APP_NAME = "Your App Name";
+export const APP_DESCRIPTION = "Your app description";
+```
+
+This updates the header, sidebar, login page, and HTML metadata.
+
+## Branding / Accent Color
+
+Admins can change the accent color from **Dashboard → Settings → Branding**. This updates all primary buttons and accents across the site.
+
+You can also set the default accent color in `app/globals.css`:
+
+```css
+:root {
+  --accent: #5b4cff;
+  --accent-foreground: #ffffff;
+}
+```
+
+## Plans & Pricing
+
+Update plan metadata in `lib/constants.ts` — names, descriptions, prices, and feature lists.
+
+Connect Whop plan IDs via the setup wizard at `/setup` or environment variables.
+
+## Landing Page
+
+The landing page components are in `components/landing/`:
+
+- `hero.tsx` — Main headline and CTA buttons
+- `features.tsx` — Feature grid
+- `pricing-cards.tsx` — Pricing comparison table
+- `header.tsx` — Navigation header
+- `footer.tsx` — Footer links
+
+## Dashboard
+
+The dashboard layout is in `app/dashboard/layout.tsx` with components in `components/dashboard/`:
+
+- `sidebar.tsx` — Navigation sidebar
+- `header.tsx` — Dashboard header with user menu
+- `upgrade-banner.tsx` — Shown to free-tier users
+
+## Adding Pages
+
+### Public pages
+
+Add to `app/(marketing)/` — these share the landing page header and footer.
+
+### Protected pages
+
+Add to `app/dashboard/` — these are automatically protected by the dashboard layout's `requireSession()` call.
+
+### Documentation
+
+Add `.mdx` files to `content/docs/`. They automatically appear in the docs sidebar. Use `meta.json` files in folders to control ordering.
+
+## Theme
+
+The template supports light and dark mode via CSS class toggling. Theme variables are in `app/globals.css`.
+
+## Documentation
+
+This docs site is powered by [Fumadocs](https://fumadocs.vercel.app). To add new pages, create `.mdx` files in `content/docs/`. Organize them in folders with `meta.json` for sidebar ordering.

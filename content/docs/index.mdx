@@ -1,0 +1,67 @@
+---
+title: Introduction
+description: Getting started with the SaaS Starter template
+---
+
+Welcome to the **SaaS Starter** documentation. This template gives you everything you need to launch a SaaS product — authentication, payments, subscriptions, and a dashboard — all wired up and ready to go.
+
+## What's Included
+
+- **Authentication** — OAuth 2.1 + PKCE via Whop (no client secret needed)
+- **Payments** — Embedded checkout with monthly/yearly billing
+- **Dashboard** — Protected area with plan-gated features
+- **Admin Settings** — Branding, plan management, and setup wizard
+- **Docs** — This documentation site (powered by [Fumadocs](https://fumadocs.vercel.app))
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL + Prisma 7 |
+| Auth & Payments | Whop |
+| Docs | Fumadocs + MDX |
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/your-repo/whop-saas-starter.git
+cd whop-saas-starter
+pnpm install
+
+# Set up your database
+cp .env.example .env.local
+# Add your DATABASE_URL to .env.local
+
+# Start developing
+pnpm dev
+```
+
+Visit `http://localhost:3000` and the setup wizard will guide you through connecting Whop.
+
+## Project Structure
+
+```
+app/
+├── (auth)/          # Login, auth error pages
+├── (marketing)/     # Pricing page
+├── dashboard/       # Protected user area
+├── checkout/        # Payment flow
+├── docs/            # This documentation
+├── setup/           # First-run setup wizard
+└── api/             # API routes
+components/
+├── landing/         # Hero, header, footer, pricing
+├── dashboard/       # Sidebar, settings
+└── setup/           # Setup wizard
+lib/
+├── auth.ts          # Session management
+├── config.ts        # DB-backed configuration
+├── whop.ts          # Whop OAuth + webhooks
+├── db.ts            # Prisma client
+└── constants.ts     # Plans, app name, links
+content/docs/        # Documentation (MDX files)
+```
