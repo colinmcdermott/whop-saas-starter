@@ -63,7 +63,7 @@ export function Header() {
                   Sign in
                 </Link>
                 <Link
-                  href="/api/auth/login?next=/dashboard"
+                  href="/pricing"
                   className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                 >
                   Get Started
@@ -128,7 +128,7 @@ export function Header() {
                     Sign in
                   </Link>
                   <Link
-                    href="/api/auth/login?next=/dashboard"
+                    href="/pricing"
                     className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                   >
                     Get Started
