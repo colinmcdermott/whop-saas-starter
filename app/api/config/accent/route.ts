@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { setConfig, getConfig } from "@/lib/config";
 
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
   }
 
   await setConfig("accent_color", color);
+  revalidatePath("/", "layout");
   return NextResponse.json({ saved: true });
 }
 
