@@ -5,10 +5,10 @@ import Link from "next/link";
 import type { PlanKey, BillingInterval } from "@/lib/constants";
 import type { PlansConfig } from "@/lib/config";
 
-function CheckIcon() {
+function CheckIcon({ accent }: { accent?: boolean }) {
   return (
     <svg
-      className="h-3.5 w-3.5 text-[var(--foreground)] shrink-0 mt-0.5"
+      className={`h-3.5 w-3.5 shrink-0 mt-0.5 ${accent ? "text-[var(--accent)]" : "text-[var(--foreground)]"}`}
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={2}
@@ -72,7 +72,7 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
     <div>
       <BillingToggle interval={interval} onChange={setInterval} />
 
-      <div className="mx-auto grid max-w-4xl gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] lg:grid-cols-3">
+      <div className="mx-auto grid max-w-5xl gap-4 lg:grid-cols-3">
         {planKeys.map((key) => {
           const plan = plans[key];
           const highlighted = plan.highlighted;
@@ -81,27 +81,40 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
           const whopPlanId =
             interval === "yearly" ? plan.whopPlanIdYearly : plan.whopPlanId;
 
+          // Pro first on mobile, Free last — keeps recommended plan above the fold
+          const orderClass =
+            key === "pro"
+              ? "order-first lg:order-none"
+              : key === "free"
+                ? "order-last lg:order-none"
+                : "";
+
           return (
             <div
               key={key}
-              className={`relative flex flex-col p-6 ${
+              className={`relative flex flex-col rounded-xl border p-6 ${orderClass} ${
                 highlighted
-                  ? "bg-[var(--surface)]"
-                  : "bg-[var(--card)]"
+                  ? "border-[var(--accent)] bg-[var(--card)]"
+                  : "border-[var(--border)] bg-[var(--card)]"
               }`}
+              style={
+                highlighted
+                  ? {
+                      boxShadow:
+                        "0 2px 40px -12px color-mix(in srgb, var(--accent) 25%, transparent)",
+                    }
+                  : undefined
+              }
             >
               {highlighted && (
-                <div className="absolute top-0 left-0 right-0 h-px bg-[var(--accent)]" />
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="rounded-full bg-[var(--accent)] px-3 py-1 text-[11px] font-semibold text-[var(--accent-foreground)] whitespace-nowrap">
+                    Most Popular
+                  </span>
+                </div>
               )}
 
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold">{plan.name}</h3>
-                {highlighted && (
-                  <span className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
-                    Popular
-                  </span>
-                )}
-              </div>
+              <h3 className="text-sm font-semibold">{plan.name}</h3>
               <p className="mt-1 text-xs text-[var(--muted)]">{plan.description}</p>
 
               <div className="mt-4">
@@ -125,16 +138,18 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
                 {whopPlanId ? (
                   <Link
                     href={`/checkout?plan=${key}&interval=${interval}`}
-                    className={`block rounded-lg py-2 text-center text-sm font-medium transition-opacity hover:opacity-80 ${
-                      key === "free"
-                        ? "border border-[var(--border)] bg-[var(--card)]"
-                        : "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                    className={`block rounded-lg py-2.5 text-center text-sm font-medium transition-all ${
+                      highlighted
+                        ? "bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90"
+                        : key === "free"
+                          ? "border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface)]"
+                          : "bg-[var(--foreground)] text-[var(--background)] hover:opacity-90"
                     }`}
                   >
-                    {key === "free" ? "Get Started" : "Subscribe"}
+                    {key === "free" ? "Start Free" : highlighted ? "Get Started" : "Subscribe"}
                   </Link>
                 ) : (
-                  <span className="block w-full rounded-lg border border-[var(--border)] py-2 text-center text-xs text-[var(--muted)]">
+                  <span className="block w-full rounded-lg border border-[var(--border)] py-2.5 text-center text-xs text-[var(--muted)]">
                     Configure plan ID
                   </span>
                 )}
@@ -143,7 +158,7 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
               <ul className="mt-5 flex flex-col gap-2 flex-1">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-xs text-[var(--muted)]">
-                    <CheckIcon />
+                    <CheckIcon accent={highlighted} />
                     <span>{feature}</span>
                   </li>
                 ))}
