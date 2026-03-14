@@ -3,7 +3,7 @@ title: Deployment
 description: Deploying your SaaS to production
 ---
 
-This template is optimized for deployment on **Vercel** with **Vercel Postgres**.
+This template works on any platform that supports Next.js. It's optimized for **Vercel** but also works on Railway, Fly.io, Render, AWS, and self-hosted setups.
 
 ## Deploy to Vercel
 
@@ -13,7 +13,52 @@ This template is optimized for deployment on **Vercel** with **Vercel Postgres**
 4. Vercel automatically sets `DATABASE_URL` — no manual config needed
 5. Deploy
 
-That's it. The build script automatically runs `prisma generate` and `prisma db push`.
+That's it. The build script automatically runs `prisma generate` and `prisma db push`. SEO URLs (sitemap, OG metadata) are auto-detected from Vercel's system environment variables.
+
+## Deploy to Other Platforms
+
+The template runs anywhere you can host a Next.js app with a PostgreSQL database.
+
+### Requirements
+
+- **Node.js 18+** and `pnpm`
+- **PostgreSQL** database (Supabase, Neon, PlanetScale, RDS, self-hosted, etc.)
+- A platform that supports Next.js server-side rendering (not static export)
+
+### Steps
+
+1. Set up a PostgreSQL database and get the connection string
+2. Set the required environment variables (see below)
+3. Build and start:
+
+```bash
+pnpm install
+pnpm build   # runs prisma generate + db push + next build
+pnpm start
+```
+
+### Required Environment Variables
+
+On non-Vercel platforms, you **must** set `NEXT_PUBLIC_APP_URL`. This is used for OAuth redirect URLs, sitemap generation, and Open Graph metadata. On Vercel this is auto-detected.
+
+```bash
+# Required on all platforms
+DATABASE_URL="postgresql://user:password@host:5432/dbname"
+
+# Required on non-Vercel platforms (Vercel auto-detects this)
+NEXT_PUBLIC_APP_URL="https://yourdomain.com"
+```
+
+### Platform-Specific Notes
+
+**Railway / Render / Fly.io:**
+- Set `DATABASE_URL` and `NEXT_PUBLIC_APP_URL` in your platform's environment settings
+- The build command is `pnpm build`, start command is `pnpm start`
+- Port is auto-detected from the `PORT` environment variable
+
+**Docker / Self-hosted:**
+- Use `node .next/standalone/server.js` after build for a minimal production server
+- Ensure your reverse proxy forwards the `host` header (needed for sitemap URL detection)
 
 ## Environment Variables
 
@@ -24,6 +69,7 @@ All Whop-related variables can be set either via environment variables **or** th
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string (auto-set by Vercel Postgres) |
+| `NEXT_PUBLIC_APP_URL` | Your app's public URL — **required on non-Vercel platforms** |
 
 ### Whop OAuth (required for auth)
 
@@ -48,14 +94,32 @@ All Whop-related variables can be set either via environment variables **or** th
 | `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID` | Enterprise monthly plan ID |
 | `NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY` | Enterprise yearly plan ID |
 
+### Whop Product IDs (optional — for real-time access checks)
+
+| Variable | Description |
+|----------|-------------|
+| `WHOP_PRO_PRODUCT_ID` | Pro product ID for `hasWhopAccess()` verification |
+| `WHOP_ENTERPRISE_PRODUCT_ID` | Enterprise product ID for `hasWhopAccess()` verification |
+
 ### App Configuration (optional)
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_APP_URL` | Your app's public URL (for OAuth redirect URLs) |
 | `NEXT_PUBLIC_APP_NAME` | Override the app name from `lib/constants.ts` |
 | `NEXT_PUBLIC_ACCENT_COLOR` | Default accent color hex (e.g. `#5b4cff`) |
 | `SESSION_SECRET` | JWT signing secret (auto-generated and stored in DB if not set) |
+
+### Integrations (optional)
+
+These can also be configured via the admin Settings page instead of env vars.
+
+| Variable | Description |
+|----------|-------------|
+| `ANALYTICS_PROVIDER` | `"posthog"`, `"google"`, or `"plausible"` |
+| `ANALYTICS_ID` | Tracking ID or project key for your analytics provider |
+| `ERROR_TRACKING_DSN` | Sentry DSN for error tracking |
+| `EMAIL_PROVIDER` | `"resend"` or `"sendgrid"` |
+| `EMAIL_API_KEY` | API key for your email provider |
 
 ## First Visit
 
@@ -69,10 +133,16 @@ The first user to sign in via OAuth automatically becomes the admin.
 
 ## Custom Domain
 
-Add your custom domain in the Vercel dashboard under Settings → Domains. Update your Whop app's redirect URL to match:
+Update your Whop app's redirect URL to match your domain:
 
 ```
 https://your-domain.com/api/auth/callback
+```
+
+Also update the webhook URL in your Whop app settings:
+
+```
+https://your-domain.com/api/webhooks/whop
 ```
 
 ## Database Migrations

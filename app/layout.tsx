@@ -12,11 +12,13 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+// For OG metadata URLs. Set NEXT_PUBLIC_APP_URL in production.
+// Vercel auto-provides VERCEL_PROJECT_PRODUCTION_URL as a fallback.
 const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : `https://${process.env.VERCEL_URL || "localhost:3000"}`);
+    : "http://localhost:3000");
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
