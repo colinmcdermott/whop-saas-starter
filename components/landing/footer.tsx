@@ -34,6 +34,12 @@ export function Footer() {
           >
             Pricing
           </Link>
+          <Link
+            href="/docs"
+            className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Docs
+          </Link>
           <a
             href={LINKS.github}
             className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"

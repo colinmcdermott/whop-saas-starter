@@ -47,6 +47,12 @@ export function Header() {
             >
               Pricing
             </Link>
+            <Link
+              href="/docs"
+              className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
+            >
+              Docs
+            </Link>
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
@@ -111,6 +117,12 @@ export function Header() {
                 className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
               >
                 Pricing
+              </Link>
+              <Link
+                href="/docs"
+                className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+              >
+                Docs
               </Link>
               {isLoggedIn ? (
                 <Link
