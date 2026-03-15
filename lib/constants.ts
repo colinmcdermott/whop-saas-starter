@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 /** Your app's name — shown in the header, sidebar, login page, and metadata */
-export const APP_NAME = "SaaS Starter";
+export const APP_NAME = "Whop SaaS Starter";
 
 /** Your app's description — used in metadata and the landing page */
 export const APP_DESCRIPTION =
