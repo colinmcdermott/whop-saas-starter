@@ -5,7 +5,9 @@ import { exchangeCodeForTokens, getWhopUser } from "@/lib/whop";
 import { setSessionCookie, type Session } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getConfig } from "@/lib/config";
-import { DEFAULT_PLAN } from "@/lib/constants";
+import { DEFAULT_PLAN, APP_NAME } from "@/lib/constants";
+import { sendEmail } from "@/lib/email";
+import { welcomeEmail } from "@/lib/email-templates";
 
 /**
  * GET /api/auth/callback?code=...&state=...
@@ -88,6 +90,12 @@ export async function GET(request: NextRequest) {
     // Fetch user profile from Whop
     const whopUser = await getWhopUser(tokens.access_token);
 
+    // Check if this is a new user (for welcome email)
+    const existingUser = await prisma.user.findUnique({
+      where: { whopUserId: whopUser.sub },
+      select: { id: true },
+    });
+
     // Upsert user in our database
     const user = await prisma.user.upsert({
       where: { whopUserId: whopUser.sub },
@@ -133,6 +141,14 @@ export async function GET(request: NextRequest) {
     };
 
     await setSessionCookie(session);
+
+    // Send welcome email for new users (non-blocking)
+    if (!existingUser && user.email) {
+      const email = welcomeEmail(user.name);
+      sendEmail({ to: user.email, ...email }).catch((err) =>
+        console.error("[Email] Welcome email failed:", err)
+      );
+    }
 
     return NextResponse.redirect(new URL(next, request.url));
   } catch (err) {

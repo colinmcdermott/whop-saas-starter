@@ -7,7 +7,6 @@ import { setConfig, getConfig } from "@/lib/config";
 const INTEGRATION_KEYS = new Set([
   "analytics_provider",
   "analytics_id",
-  "error_tracking_dsn",
   "email_provider",
   "email_api_key",
 ]);

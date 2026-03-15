@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { getPlanKeyFromWhopId, getConfig } from "@/lib/config";
 import { verifyWebhookSignature } from "@/lib/whop";
 import { DEFAULT_PLAN, PLAN_KEYS } from "@/lib/constants";
+import { sendEmail } from "@/lib/email";
+import { paymentFailedEmail } from "@/lib/email-templates";
 
 // ---------------------------------------------------------------------------
 // Webhook payload types
@@ -84,7 +86,18 @@ export async function POST(request: NextRequest) {
 
       case "payment_failed": {
         console.log("[Webhook] Payment failed:", event.data);
-        // TODO: Notify the user about the failed payment
+        if (event.data.user_id) {
+          const user = await prisma.user.findUnique({
+            where: { whopUserId: event.data.user_id },
+            select: { email: true, name: true },
+          });
+          if (user?.email) {
+            const email = paymentFailedEmail(user.name);
+            sendEmail({ to: user.email, ...email }).catch((err) =>
+              console.error("[Email] Payment failed email error:", err)
+            );
+          }
+        }
         break;
       }
 

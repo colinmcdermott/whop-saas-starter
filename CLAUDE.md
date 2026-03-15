@@ -86,7 +86,8 @@ pnpm db:migrate   # Run migrations
 - `checkWhopAccess(whopUserId, productId, apiKey)` / `hasWhopAccess(whopUserId, productId)` — real-time Whop API access checks (for authoritative gating)
 - `getConfig(key)` — read config value (cache → env → DB)
 - `getPlansConfig()` — server-side plan config (use in server components, pass to client as props)
-- `sendEmail({ to, subject, html })` — sends via configured provider (Resend/SendGrid), returns `{ success, error? }`
+- `sendEmail({ to, subject, html })` — sends via configured provider (Resend/SendGrid), returns `{ success, error? }`. Used for welcome emails and payment failure notifications.
+- `welcomeEmail(name)` / `paymentFailedEmail(name)` — HTML email templates in `lib/email-templates.ts`
 - Plan system is data-driven: edit `PLAN_METADATA` in `lib/constants.ts` to add/remove/modify tiers; everything else adapts
 - Client components get plan config as props from server parents, or fetch `/api/config/plans`
 - Admin-configurable accent color applied via CSS custom properties (`--accent`, `--accent-foreground`)
@@ -135,6 +136,7 @@ lib/
 ├── constants.ts            # Plan metadata (single source of truth), APP_NAME, derived types/helpers
 ├── analytics.ts            # Analytics script generation (PostHog, GA, Plausible)
 ├── email.ts                # Email sending (Resend, SendGrid)
+├── email-templates.ts      # HTML email templates (welcome, payment failed)
 ├── source.ts               # Fumadocs content source loader
 └── utils.ts                # cn(), formatDate()
 proxy.ts                   # Protects /dashboard/* routes (Next.js 16 proxy)

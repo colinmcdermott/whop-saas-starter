@@ -7,7 +7,6 @@ import { useToast } from "@/components/toast";
 interface IntegrationsData {
   analytics_provider: string | null;
   analytics_id: string | null;
-  error_tracking_dsn: string | null;
   email_provider: string | null;
   email_api_key: string | null;
 }
@@ -33,7 +32,6 @@ export function IntegrationsSettings() {
 
   const [analyticsProvider, setAnalyticsProvider] = useState("");
   const [analyticsId, setAnalyticsId] = useState("");
-  const [errorDsn, setErrorDsn] = useState("");
   const [emailProvider, setEmailProvider] = useState("");
   const [emailApiKey, setEmailApiKey] = useState("");
 
@@ -43,7 +41,6 @@ export function IntegrationsSettings() {
       .then((data: IntegrationsData) => {
         setAnalyticsProvider(data.analytics_provider ?? "");
         setAnalyticsId(data.analytics_id ?? "");
-        setErrorDsn(data.error_tracking_dsn ?? "");
         setEmailProvider(data.email_provider ?? "");
         setEmailApiKey(data.email_api_key ?? "");
       })
@@ -59,7 +56,6 @@ export function IntegrationsSettings() {
         body: JSON.stringify({
           analytics_provider: analyticsProvider,
           analytics_id: analyticsId,
-          error_tracking_dsn: errorDsn,
           email_provider: emailProvider,
           email_api_key: emailApiKey,
         }),
@@ -122,23 +118,6 @@ export function IntegrationsSettings() {
             />
           )}
         </div>
-      </div>
-
-      {/* Error Tracking */}
-      <div className="space-y-3">
-        <div>
-          <h3 className="text-xs font-medium">Error Tracking</h3>
-          <p className="text-xs text-[var(--muted)] mt-0.5">
-            Capture and monitor errors with Sentry.
-          </p>
-        </div>
-        <input
-          type="text"
-          value={errorDsn}
-          onChange={(e) => setErrorDsn(e.target.value)}
-          placeholder="https://xxxxx@o123456.ingest.sentry.io/123456"
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-        />
       </div>
 
       {/* Email */}

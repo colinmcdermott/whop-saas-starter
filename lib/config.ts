@@ -47,7 +47,6 @@ const ENV_MAP: Record<string, string> = {
   accent_color: "NEXT_PUBLIC_ACCENT_COLOR",
   analytics_provider: "ANALYTICS_PROVIDER",
   analytics_id: "ANALYTICS_ID",
-  error_tracking_dsn: "ERROR_TRACKING_DSN",
   email_provider: "EMAIL_PROVIDER",
   email_api_key: "EMAIL_API_KEY",
 };
