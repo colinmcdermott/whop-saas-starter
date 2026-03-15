@@ -146,7 +146,7 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
                 {whopPlanId ? (
                   <Link
                     href={`/checkout?plan=${key}&interval=${interval}`}
-                    className={`block rounded-lg py-2.5 text-center text-sm font-medium transition-all ${
+                    className={`block rounded-lg py-2.5 text-center text-sm font-medium transition-opacity ${
                       highlighted
                         ? "bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90"
                         : plan.priceMonthly === 0

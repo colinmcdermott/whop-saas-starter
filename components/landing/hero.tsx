@@ -30,7 +30,7 @@ export function Hero() {
             href="/pricing"
             className="group w-full rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 sm:w-auto"
           >
-            Get Started
+            View Pricing
             <span className="ml-1.5 inline-block transition-transform group-hover:translate-x-0.5">&rarr;</span>
           </Link>
           <Link
