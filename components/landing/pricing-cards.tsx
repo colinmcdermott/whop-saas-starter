@@ -40,6 +40,7 @@ function BillingToggle({
         type="button"
         role="switch"
         aria-checked={interval === "yearly"}
+        aria-label="Toggle yearly billing"
         onClick={() => onChange(interval === "monthly" ? "yearly" : "monthly")}
         className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-[var(--border)] bg-[var(--surface)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
       >
@@ -57,7 +58,7 @@ function BillingToggle({
         Yearly
       </span>
       {interval === "yearly" && (
-        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+        <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
           Save ~17%
         </span>
       )}
