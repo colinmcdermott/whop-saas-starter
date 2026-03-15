@@ -255,7 +255,18 @@ export async function verifyWebhookSignature(
 
   const expectedSignature = `v1,${base64url(new Uint8Array(signatureBytes))}`;
 
-  // Check against all provided signatures (comma-separated)
+  // Check against all provided signatures (space-separated)
+  // Use constant-time comparison to prevent timing attacks
   const providedSignatures = signature.split(" ");
-  return providedSignatures.some((sig) => sig === expectedSignature);
+  const expectedBytes = new TextEncoder().encode(expectedSignature);
+  return providedSignatures.some((sig) => {
+    const sigBytes = new TextEncoder().encode(sig);
+    if (sigBytes.length !== expectedBytes.length) return false;
+    // XOR all bytes and accumulate — constant time regardless of match position
+    let diff = 0;
+    for (let i = 0; i < sigBytes.length; i++) {
+      diff |= sigBytes[i] ^ expectedBytes[i];
+    }
+    return diff === 0;
+  });
 }

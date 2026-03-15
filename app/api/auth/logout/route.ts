@@ -11,7 +11,10 @@ import { clearSessionCookie } from "@/lib/auth";
 async function handleLogout(request: NextRequest) {
   await clearSessionCookie();
 
-  const next = request.nextUrl.searchParams.get("next") ?? "/";
+  let next = request.nextUrl.searchParams.get("next") ?? "/";
+  if (!next.startsWith("/") || next.startsWith("//")) {
+    next = "/";
+  }
   return NextResponse.redirect(new URL(next, request.url));
 }
 
