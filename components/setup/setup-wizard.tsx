@@ -185,7 +185,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
               className="cursor-pointer mr-3 md:absolute md:-left-8 md:mr-0 p-2 text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-md transition-colors"
               aria-label="Go back"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
             </button>
@@ -214,7 +214,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
           {step === 1 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface)]">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                 </svg>
               </div>
@@ -235,7 +235,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
           {step === 2 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface)]">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016A3.001 3.001 0 0021 9.349M3.75 9.349a3 3 0 01-2.695-1.738L2.25 4.5h19.5l1.195 3.111A3 3 0 0120.25 9.35" />
                 </svg>
               </div>
@@ -344,7 +344,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                 onClick={handleWhopConfigSave}
                 disabled={saving || !whopAppId.trim()}
               >
-                {saving ? "Saving..." : "Continue"}
+                {saving ? "Saving\u2026" : "Continue"}
               </StepButton>
             </div>
           )}
@@ -453,7 +453,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                 onClick={handleWebhookSecretSave}
                 disabled={saving}
               >
-                {saving ? "Saving..." : "Continue"}
+                {saving ? "Saving\u2026" : "Continue"}
               </StepButton>
               <button
                 onClick={() => goTo(6)}
@@ -473,7 +473,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
           {step === 6 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface)]">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                 </svg>
               </div>
@@ -588,7 +588,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
               </div>
 
               <StepButton onClick={handlePlansSave} disabled={saving}>
-                {saving ? "Saving..." : "Continue"}
+                {saving ? "Saving\u2026" : "Continue"}
               </StepButton>
               <button
                 onClick={() => goTo(8)}
@@ -604,7 +604,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
           {step === 8 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
-                <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               </div>
@@ -616,7 +616,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                 You can update these settings anytime from the dashboard.
               </p>
               <StepButton onClick={handleComplete} disabled={saving}>
-                {saving ? "Finishing..." : "Go to Dashboard"}
+                {saving ? "Finishing\u2026" : "Go to Dashboard"}
               </StepButton>
             </>
           )}
@@ -666,18 +666,21 @@ function InputField({
   hint?: string;
   required?: boolean;
 }) {
+  const id = `input-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div>
-      <label className="text-sm font-medium">
+      <label htmlFor={id} className="text-sm font-medium">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       <input
+        id={id}
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm font-mono outline-none focus:border-[var(--accent)] transition-colors"
+        spellCheck={false}
+        className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm font-mono outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:border-[var(--accent)] transition-colors"
       />
       {hint && <p className="mt-1 text-[11px] text-[var(--muted)]">{hint}</p>}
     </div>

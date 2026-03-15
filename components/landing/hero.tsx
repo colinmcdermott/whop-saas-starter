@@ -14,7 +14,7 @@ export function Hero() {
           Built with Next.js + Whop
         </div>
 
-        <h1 className="animate-slide-up text-3xl font-semibold tracking-tight sm:text-5xl lg:text-6xl leading-[1.1]">
+        <h1 className="animate-slide-up text-3xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl leading-[1.1]">
           Build your SaaS{" "}
           <span className="text-[var(--muted)]">
             in minutes, not months
@@ -51,7 +51,7 @@ export function Hero() {
           <div className="flex h-48 items-center justify-center sm:h-72">
             <div className="text-center px-6">
               <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--surface)]">
-                <svg className="h-5 w-5 text-[var(--muted)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="h-5 w-5 text-[var(--muted)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
                 </svg>
               </div>

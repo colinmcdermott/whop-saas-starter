@@ -55,12 +55,17 @@ export function DeleteAccountButton() {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          style={{ overscrollBehavior: "contain" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) close();
           }}
+          onKeyDown={(e) => { if (e.key === "Escape") close(); }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-dialog-title"
         >
           <div className="w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-lg animate-scale-in">
-            <h3 className="text-sm font-semibold text-red-600 dark:text-red-400">
+            <h3 id="delete-dialog-title" className="text-sm font-semibold text-red-600 dark:text-red-400">
               Delete your account?
             </h3>
             <p className="mt-2 text-xs text-[var(--muted)] leading-relaxed">
@@ -85,7 +90,7 @@ export function DeleteAccountButton() {
                 disabled={loading}
                 className="flex-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {loading ? "Deleting..." : "Yes, delete"}
+                {loading ? "Deleting\u2026" : "Yes, delete"}
               </button>
             </div>
           </div>

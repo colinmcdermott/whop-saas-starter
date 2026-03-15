@@ -15,10 +15,10 @@ export default async function PricingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-24">
           <div className="text-center mb-12">
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
               Pricing
             </h1>
             <p className="mt-2 text-sm text-[var(--muted)]">

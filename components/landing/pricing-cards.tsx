@@ -13,6 +13,7 @@ function CheckIcon({ accent }: { accent?: boolean }) {
       viewBox="0 0 24 24"
       strokeWidth={2}
       stroke="currentColor"
+      aria-hidden="true"
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
     </svg>
@@ -124,7 +125,7 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
               <p className="mt-1 text-xs text-[var(--muted)]">{plan.description}</p>
 
               <div className="mt-4">
-                <span className="text-3xl font-semibold tracking-tight">
+                <span className="text-3xl font-semibold tracking-tight" style={{ fontVariantNumeric: "tabular-nums" }}>
                   ${displayPrice}
                 </span>
                 {displayPrice > 0 && (

@@ -28,6 +28,7 @@ function LogoMark() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className="h-5 w-5 shrink-0"
+      aria-hidden="true"
     >
       <rect width="24" height="24" rx="6" fill="var(--accent, #5b4cff)" />
       <path

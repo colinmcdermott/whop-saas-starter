@@ -22,6 +22,7 @@ function LockIcon() {
       viewBox="0 0 24 24"
       strokeWidth={2}
       stroke="currentColor"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -40,6 +41,7 @@ function CheckIcon() {
       viewBox="0 0 24 24"
       strokeWidth={2}
       stroke="currentColor"
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"
@@ -53,10 +55,10 @@ function CheckIcon() {
 // ── Shared input classes ─────────────────────────────────────────────────────
 
 const inputClass =
-  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus:border-[var(--accent)]";
+  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:border-[var(--accent)]";
 
 const inputErrorClass =
-  "w-full rounded-lg border border-red-400 dark:border-red-500 bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus:border-red-400";
+  "w-full rounded-lg border border-red-400 dark:border-red-500 bg-[var(--surface)] px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-[var(--muted)] focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:border-red-400";
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -224,8 +226,10 @@ export function CheckoutForm({
                       clearFieldError("email");
                     }}
                     placeholder="Email address"
+                    aria-label="Email address"
                     disabled={isLoggedIn}
                     autoComplete="email"
+                    spellCheck={false}
                     className={`${formErrors.email ? inputErrorClass : inputClass} ${isLoggedIn ? "opacity-70 cursor-not-allowed" : ""}`}
                   />
                   {formErrors.email && (
@@ -253,6 +257,7 @@ export function CheckoutForm({
                         setCountry(e.target.value);
                         clearFieldError("country");
                       }}
+                      aria-label="Country"
                       className={
                         formErrors.country ? inputErrorClass : inputClass
                       }
@@ -283,6 +288,7 @@ export function CheckoutForm({
                         clearFieldError("name");
                       }}
                       placeholder="Full name"
+                      aria-label="Full name"
                       autoComplete="name"
                       className={
                         formErrors.name ? inputErrorClass : inputClass
@@ -305,6 +311,7 @@ export function CheckoutForm({
                         clearFieldError("address");
                       }}
                       placeholder="Address"
+                      aria-label="Address"
                       autoComplete="address-line1"
                       className={
                         formErrors.address ? inputErrorClass : inputClass
@@ -323,6 +330,7 @@ export function CheckoutForm({
                     value={apartment}
                     onChange={(e) => setApartment(e.target.value)}
                     placeholder="Apartment, suite, etc. (optional)"
+                    aria-label="Apartment, suite, etc."
                     autoComplete="address-line2"
                     className={inputClass}
                   />
@@ -338,6 +346,7 @@ export function CheckoutForm({
                           clearFieldError("city");
                         }}
                         placeholder="City"
+                        aria-label="City"
                         autoComplete="address-level2"
                         className={
                           formErrors.city ? inputErrorClass : inputClass
@@ -354,6 +363,7 @@ export function CheckoutForm({
                       value={state}
                       onChange={(e) => setState(e.target.value)}
                       placeholder="State"
+                      aria-label="State"
                       autoComplete="address-level1"
                       className={inputClass}
                     />
@@ -366,6 +376,7 @@ export function CheckoutForm({
                           clearFieldError("postalCode");
                         }}
                         placeholder="Postal code"
+                        aria-label="Postal code"
                         autoComplete="postal-code"
                         className={
                           formErrors.postalCode ? inputErrorClass : inputClass
@@ -433,7 +444,7 @@ export function CheckoutForm({
                         fallback={
                           <div className="flex h-32 items-center justify-center">
                             <p className="text-xs text-[var(--muted)]">
-                              Loading payment form...
+                              Loading payment form\u2026
                             </p>
                           </div>
                         }
@@ -452,7 +463,7 @@ export function CheckoutForm({
                       disabled={isProcessing || !checkoutReady}
                       className="mt-4 w-full rounded-lg bg-[var(--accent)] py-3 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      {isProcessing ? "Processing..." : `Pay $${price}`}
+                      {isProcessing ? "Processing\u2026" : `Pay $${price}`}
                     </button>
 
                     <div className="mt-3 flex items-center justify-center gap-1.5 text-[var(--muted)]">

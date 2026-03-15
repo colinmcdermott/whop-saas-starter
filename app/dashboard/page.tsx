@@ -61,7 +61,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-[var(--card)] p-5">
       <p className="text-xs text-[var(--muted)]">{label}</p>
-      <p className="mt-1 text-xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-1 text-xl font-semibold tracking-tight" style={{ fontVariantNumeric: "tabular-nums" }}>{value}</p>
     </div>
   );
 }

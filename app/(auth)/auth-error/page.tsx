@@ -34,11 +34,11 @@ export default async function AuthErrorPage({
         <div className="text-center">
           <div className={`mx-auto mb-5 flex h-10 w-10 items-center justify-center rounded-lg ${isConfigError ? "bg-amber-500/10" : "bg-red-500/10"}`}>
             {isConfigError ? (
-              <svg className="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <svg className="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-1.42.83V18a1 1 0 002 0v-1.58l4.25-2.46a1 1 0 00-1-1.73l-3.83 2.22zM12 2a10 10 0 100 20 10 10 0 000-20z" />
               </svg>
             ) : (
-              <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
             )}

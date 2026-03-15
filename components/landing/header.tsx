@@ -89,7 +89,7 @@ export function Header() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                 {mobileOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -107,9 +107,13 @@ export function Header() {
           <div
             className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden"
             onClick={() => setMobileOpen(false)}
+            onKeyDown={(e) => { if (e.key === "Escape") setMobileOpen(false); }}
+            role="button"
+            tabIndex={-1}
+            aria-label="Close menu"
           />
-          <nav className="fixed top-14 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--background)] p-4 sm:hidden animate-slide-up"
-            style={{ animationDuration: "150ms" }}
+          <nav className="fixed top-14 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--background)] p-4 sm:hidden animate-slide-up overscroll-contain"
+            style={{ animationDuration: "150ms", overscrollBehavior: "contain" }}
           >
             <div className="mx-auto flex max-w-5xl flex-col gap-0.5">
               <Link

@@ -82,6 +82,8 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#090909" media="(prefers-color-scheme: dark)" />
         {/* Inline script to prevent flash of wrong theme */}
         <script
           id="theme-init"
@@ -97,6 +99,9 @@ export default async function RootLayout({
         )}
       </head>
       <body className="antialiased">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-lg focus:bg-[var(--accent)] focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-[var(--accent-foreground)]">
+          Skip to content
+        </a>
         <ThemeProvider>
           <ToastProvider>
             {children}

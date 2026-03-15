@@ -18,7 +18,7 @@ export default function Error({
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-xs text-center">
         <div className="mx-auto mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10">
-          <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
           </svg>
         </div>

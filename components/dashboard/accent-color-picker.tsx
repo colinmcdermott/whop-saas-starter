@@ -82,6 +82,7 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
             key={preset.value}
             type="button"
             title={preset.label}
+            aria-label={`Select ${preset.label} accent color`}
             onClick={() => handlePresetClick(preset.value)}
             className="relative h-8 w-8 rounded-full border-2 transition-transform hover:scale-110"
             style={{
@@ -122,8 +123,10 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
           value={custom}
           onChange={(e) => handleCustomChange(e.target.value)}
           placeholder="#5b4cff"
+          aria-label="Custom hex color"
           maxLength={7}
-          className="w-28 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+          spellCheck={false}
+          className="w-28 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
         />
         <button
           type="button"
@@ -131,7 +134,7 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
           disabled={isPending}
           className="rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
         >
-          {isPending ? "Saving..." : "Save"}
+          {isPending ? "Saving\u2026" : "Save"}
         </button>
       </div>
 

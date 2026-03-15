@@ -4,6 +4,7 @@
 
 /* ── Light ──────────────────────────────────── */
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #0a0a0a;
   --muted: #6b6b76;
@@ -17,6 +18,7 @@
 
 /* ── Dark (class-based) ─────────────────────── */
 .dark {
+  color-scheme: dark;
   --background: #090909;
   --foreground: #ededef;
   --muted: #9494a0;
@@ -79,3 +81,28 @@ body {
 .delay-300 { animation-delay: 225ms; }
 .delay-400 { animation-delay: 300ms; }
 .delay-500 { animation-delay: 375ms; }
+
+/* ── Reduced motion ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in {
+    animation: none;
+  }
+
+  .delay-100,
+  .delay-200,
+  .delay-300,
+  .delay-400,
+  .delay-500 {
+    animation-delay: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

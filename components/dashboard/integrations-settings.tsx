@@ -94,7 +94,8 @@ export function IntegrationsSettings() {
           <select
             value={analyticsProvider}
             onChange={(e) => setAnalyticsProvider(e.target.value)}
-            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+            aria-label="Analytics provider"
+            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
           >
             {ANALYTICS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -107,6 +108,8 @@ export function IntegrationsSettings() {
               type="text"
               value={analyticsId}
               onChange={(e) => setAnalyticsId(e.target.value)}
+              aria-label="Analytics ID"
+              spellCheck={false}
               placeholder={
                 analyticsProvider === "google"
                   ? "G-XXXXXXXXXX"
@@ -114,7 +117,7 @@ export function IntegrationsSettings() {
                     ? "phc_xxxxxxxxxx"
                     : "yourdomain.com"
               }
-              className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+              className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             />
           )}
         </div>
@@ -132,7 +135,8 @@ export function IntegrationsSettings() {
           <select
             value={emailProvider}
             onChange={(e) => setEmailProvider(e.target.value)}
-            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+            aria-label="Email provider"
+            className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
           >
             {EMAIL_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -145,12 +149,14 @@ export function IntegrationsSettings() {
               type="text"
               value={emailApiKey}
               onChange={(e) => setEmailApiKey(e.target.value)}
+              aria-label="Email API key"
+              spellCheck={false}
               placeholder={
                 emailProvider === "resend"
                   ? "re_xxxxxxxxxx"
                   : "SG.xxxxxxxxxx"
               }
-              className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+              className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-mono placeholder:text-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             />
           )}
         </div>
@@ -163,7 +169,7 @@ export function IntegrationsSettings() {
         disabled={isPending}
         className="rounded-lg bg-[var(--accent)] px-4 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40"
       >
-        {isPending ? "Saving..." : "Save Integrations"}
+        {isPending ? "Saving\u2026" : "Save Integrations"}
       </button>
     </div>
   );
