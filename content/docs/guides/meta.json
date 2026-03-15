@@ -1,4 +1,4 @@
 {
   "title": "Guides",
-  "pages": ["authentication", "plan-gating", "payments", "customization", "deployment"]
+  "pages": ["authentication", "plan-gating", "payments", "email", "customization", "deployment", "troubleshooting"]
 }

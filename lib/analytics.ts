@@ -21,13 +21,27 @@ export async function getAnalyticsConfig(): Promise<AnalyticsConfig | null> {
   return { provider: provider as AnalyticsProvider, id };
 }
 
+/** Validation patterns for analytics IDs to prevent XSS injection */
+const ANALYTICS_ID_PATTERNS: Record<string, RegExp> = {
+  google: /^G-[A-Z0-9]+$/i,        // GA4: G-XXXXXXXXXX
+  posthog: /^phc_[a-zA-Z0-9]+$/,   // PostHog: phc_xxxxx
+  plausible: /^[a-zA-Z0-9._-]+$/,  // Domain: example.com
+};
+
 /**
  * Generate the analytics script HTML for the configured provider.
- * Returns null if no analytics is configured.
+ * Returns null if no analytics is configured or if the ID fails validation.
  */
 export async function getAnalyticsScript(): Promise<string | null> {
   const config = await getAnalyticsConfig();
   if (!config) return null;
+
+  // Validate analytics ID format to prevent script injection
+  const pattern = ANALYTICS_ID_PATTERNS[config.provider];
+  if (!pattern || !pattern.test(config.id)) {
+    console.warn(`[Analytics] Invalid ${config.provider} ID format: ${config.id}`);
+    return null;
+  }
 
   switch (config.provider) {
     case "google":

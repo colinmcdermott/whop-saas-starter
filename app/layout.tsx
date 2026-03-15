@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/toast";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
@@ -94,12 +95,6 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: accentCss }}
           />
         )}
-        {analyticsHtml && (
-          <script
-            id="analytics"
-            dangerouslySetInnerHTML={{ __html: analyticsHtml }}
-          />
-        )}
       </head>
       <body className="antialiased">
         <ThemeProvider>
@@ -107,6 +102,13 @@ export default async function RootLayout({
             {children}
           </ToastProvider>
         </ThemeProvider>
+        {analyticsHtml && (
+          <Script
+            id="analytics"
+            strategy="lazyOnload"
+            dangerouslySetInnerHTML={{ __html: analyticsHtml }}
+          />
+        )}
       </body>
     </html>
   );

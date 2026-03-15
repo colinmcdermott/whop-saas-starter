@@ -118,11 +118,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (err) {
+    // Return 200 to prevent Whop from retrying indefinitely.
+    // The event was received and authenticated; processing failed internally.
     console.error(`[Webhook] Error processing ${eventType}:`, err);
-    return NextResponse.json(
-      { error: "Webhook processing failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ received: true, error: "processing_failed" });
   }
 }
 

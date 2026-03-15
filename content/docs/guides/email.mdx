@@ -1,0 +1,95 @@
+---
+title: Email
+description: Transactional email setup and customization
+---
+
+The template includes a built-in email system for transactional emails like welcome messages and payment notifications.
+
+## Supported Providers
+
+- **Resend** — modern email API, great developer experience
+- **SendGrid** — established provider, high deliverability
+
+## Setup
+
+Configure your email provider in **Dashboard > Settings > Integrations**, or via environment variables:
+
+```bash
+EMAIL_PROVIDER="resend"    # or "sendgrid"
+EMAIL_API_KEY="re_xxxxxxxxxx"
+```
+
+If no provider is configured, email sending is silently skipped (no errors).
+
+## Emails Sent Automatically
+
+| Event | Email | Template |
+|-------|-------|----------|
+| First sign-up (OAuth) | Welcome email | `welcomeEmail()` |
+| Payment failed (webhook) | Payment failure notice | `paymentFailedEmail()` |
+
+Emails are sent **non-blocking** — they don't slow down the auth callback or webhook response. Failures are logged to the console but don't affect the user experience.
+
+## Customizing Templates
+
+Templates are in `lib/email-templates.ts`. Each function returns `{ subject, html }`:
+
+```tsx
+import { APP_NAME } from "./constants";
+
+export function welcomeEmail(name: string | null) {
+  return {
+    subject: `Welcome to ${APP_NAME}!`,
+    html: wrapper(`
+      <h1>Hi ${name ?? "there"},</h1>
+      <p>Thanks for signing up...</p>
+    `),
+  };
+}
+```
+
+The `wrapper()` function provides a shared layout (white card on grey background, footer with app name). Edit it to match your brand.
+
+Templates use **inline HTML with inline CSS** — no dependencies needed. Email clients strip external stylesheets, so inline styles are required.
+
+## Adding New Emails
+
+1. Add a new template function in `lib/email-templates.ts`
+2. Call `sendEmail()` wherever you need it:
+
+```tsx
+import { sendEmail } from "@/lib/email";
+import { myNewEmail } from "@/lib/email-templates";
+
+const email = myNewEmail(user.name);
+sendEmail({ to: user.email, ...email }).catch((err) =>
+  console.error("[Email] Failed:", err)
+);
+```
+
+Use the `.catch()` pattern to keep it non-blocking.
+
+## Sender Address
+
+The default `from` address is `noreply@example.com`. To change it, update the `from` field in `lib/email.ts`, or pass it when calling `sendEmail()`:
+
+```tsx
+sendEmail({
+  to: user.email,
+  from: "hello@yourdomain.com",
+  ...email,
+});
+```
+
+Make sure the `from` address is verified with your email provider.
+
+## Upgrading to React Email
+
+If you want rich, component-based email templates, you can integrate [React Email](https://react.email):
+
+1. Install: `pnpm add @react-email/components`
+2. Create templates as React components
+3. Render them to HTML with `render()` from `@react-email/render`
+4. Pass the rendered HTML to `sendEmail()`
+
+The existing `sendEmail()` function works with any HTML string, so React Email slots in without changing the sending infrastructure.

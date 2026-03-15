@@ -21,9 +21,15 @@ const STEPS = [
   { id: 8, label: "Done" },
 ];
 
+function getPersistedStep(): number | null {
+  if (typeof window === "undefined") return null;
+  const saved = localStorage.getItem("setup_step");
+  return saved ? parseInt(saved, 10) : null;
+}
+
 export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
   const router = useRouter();
-  const [step, setStep] = useState(initialStep ?? 1);
+  const [step, setStep] = useState(initialStep ?? getPersistedStep() ?? 1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -146,6 +152,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to complete setup");
       }
+      try { localStorage.removeItem("setup_step"); } catch {}
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -157,6 +164,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
   function goTo(n: number) {
     setError(null);
     setStep(n);
+    try { localStorage.setItem("setup_step", String(n)); } catch {}
   }
 
   const progress = (step / STEPS.length) * 100;
@@ -454,6 +462,10 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
               >
                 Skip for now
               </button>
+              <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400 text-center">
+                Without webhooks, plan changes from Whop won&apos;t sync to your app.
+                You can set this up later in your Whop Developer Dashboard.
+              </p>
             </div>
           )}
 

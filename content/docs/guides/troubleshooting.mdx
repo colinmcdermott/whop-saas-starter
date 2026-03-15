@@ -1,0 +1,148 @@
+---
+title: Troubleshooting
+description: Common issues and how to fix them
+---
+
+## Authentication Issues
+
+### "OAuth callback failed" error
+
+This usually means the redirect URI in your Whop app doesn't match your deployment URL.
+
+**Fix:** Go to your [Whop Developer Dashboard](https://whop.com/dashboard/developer), open your app's **OAuth** tab, and verify the redirect URI matches exactly:
+
+```
+https://your-domain.com/api/auth/callback
+```
+
+Make sure there are no trailing slashes or extra characters.
+
+### User signs in but isn't set as admin
+
+The first user to sign in becomes the admin. If someone else signed in first (e.g., during testing), they became admin instead.
+
+**Fix:** Connect to your database and update the `isAdmin` field:
+
+```sql
+UPDATE "User" SET "isAdmin" = true WHERE email = 'your@email.com';
+UPDATE "User" SET "isAdmin" = false WHERE email = 'other@email.com';
+```
+
+### Session expires too quickly
+
+Sessions last 7 days by default. If users are being logged out sooner, check if `SESSION_SECRET` is changing between deployments. If you don't set `SESSION_SECRET` manually, the app auto-generates one and stores it in the database — this should persist across deployments.
+
+## Webhook Issues
+
+### Plan changes don't sync from Whop
+
+This is the most common issue. Check these in order:
+
+1. **Is the webhook configured?** Go to your app in the [Whop Developer Dashboard](https://whop.com/dashboard/developer) > **Webhooks** tab. You should see a webhook pointing to `https://your-domain.com/api/webhooks/whop`.
+
+2. **Is the webhook secret set?** Check your config — either via the setup wizard or the `WHOP_WEBHOOK_SECRET` environment variable.
+
+3. **Are the right events selected?** The webhook must subscribe to `membership_activated` and `membership_deactivated`.
+
+4. **Check Whop's webhook logs.** In the Whop Developer Dashboard, click on your webhook to see delivery attempts and response codes.
+
+### Testing webhooks locally
+
+Use [ngrok](https://ngrok.com) to expose your local server:
+
+```bash
+# Terminal 1: Start your dev server
+pnpm dev
+
+# Terminal 2: Start ngrok
+ngrok http 3000
+```
+
+Then add the ngrok URL as a webhook in Whop:
+
+```
+https://xxxx.ngrok.io/api/webhooks/whop
+```
+
+Use Whop's "Test" button to send a sample payload and verify it reaches your local server.
+
+## Payment Issues
+
+### Checkout page shows "Configure plan ID"
+
+The plan's Whop plan ID isn't configured. Either:
+- Run through the setup wizard at `/setup` and enter plan IDs in step 7
+- Or set the environment variables (e.g., `NEXT_PUBLIC_WHOP_PRO_PLAN_ID`)
+
+### Payment succeeds but plan doesn't update
+
+See "Plan changes don't sync from Whop" above — this is a webhook issue.
+
+## Database Issues
+
+### "Database not found" or connection errors
+
+Check your `DATABASE_URL` environment variable. It should be a valid PostgreSQL connection string:
+
+```
+postgresql://user:password@host:5432/dbname
+```
+
+If using Vercel Postgres, this is set automatically. For other providers (Neon, Supabase, etc.), copy the connection string from their dashboard.
+
+### Schema out of sync
+
+If you've modified `prisma/schema.prisma`, push the changes:
+
+```bash
+pnpm db:push
+```
+
+For production databases, use migrations instead:
+
+```bash
+pnpm db:migrate
+```
+
+## Setup Issues
+
+### Can't access the setup wizard
+
+The setup wizard at `/setup` only appears if the app hasn't been configured yet. Once setup is complete (either via the wizard or env vars), visiting `/setup` redirects to the home page.
+
+To re-run setup, clear the `setup_complete` flag in your database:
+
+```sql
+DELETE FROM "SystemConfig" WHERE key = 'setup_complete';
+DELETE FROM "SystemConfig" WHERE key = 'whop_app_id';
+```
+
+### Setup wizard restarted from the beginning
+
+The wizard saves your progress in your browser's localStorage. If you switched browsers or cleared your data, it restarts. Your previously saved config (App ID, API Key, etc.) is still in the database — the wizard will load those values when you reach those steps again.
+
+## Email Issues
+
+### Emails not sending
+
+Check these:
+1. Is an email provider configured? (Dashboard > Settings > Integrations)
+2. Is the API key valid?
+3. Is the `from` address verified with your provider?
+
+Emails are sent non-blocking, so failures only appear in server logs. Check your Vercel function logs or terminal output.
+
+## Customization Issues
+
+### Adding a new plan tier
+
+1. Add the tier to `PLAN_METADATA` in `lib/constants.ts`
+2. Create the corresponding product and plans in your Whop Dashboard
+3. Enter the plan IDs in Dashboard > Settings, or set env vars: `NEXT_PUBLIC_WHOP_{TIER_NAME}_PLAN_ID`
+4. The pricing page, setup wizard, and plan gating all update automatically
+
+### Removing a plan tier
+
+1. Remove the key from `PLAN_METADATA` in `lib/constants.ts`
+2. Update any code that references the old plan key directly (e.g., `requirePlan("old_key")`)
+3. Users on the removed plan will keep their stored plan string in the database, but it won't match any tier — they'll be treated as the default (lowest) plan
