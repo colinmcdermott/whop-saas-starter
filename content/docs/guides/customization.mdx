@@ -31,9 +31,14 @@ You can also set the default accent color in `app/globals.css`:
 
 ## Plans & Pricing
 
-Update plan metadata in `lib/constants.ts` — names, descriptions, prices, and feature lists.
+The plan system is **data-driven** from `PLAN_METADATA` in `lib/constants.ts`. To customize:
 
-Connect Whop plan IDs via the setup wizard at `/setup` or environment variables.
+- **Edit tiers** — change names, descriptions, prices, features in `PLAN_METADATA`
+- **Add/remove tiers** — add or remove keys. The pricing page, setup wizard, plan gating, and config keys all adapt automatically
+- **Billing intervals** — set `billingIntervals: ["monthly"]` on a plan to disable yearly
+- **Free trials** — set `trialDays: 7` for display; configure the actual trial in your Whop Dashboard
+
+Connect Whop plan IDs via the setup wizard at `/setup` or environment variables (pattern: `NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID`).
 
 ## Landing Page
 

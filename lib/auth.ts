@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { prisma } from "./db";
-import type { PlanKey } from "./constants";
+import { PLAN_RANK, type PlanKey } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -195,12 +195,6 @@ export async function requireSession(): Promise<Session> {
 // ---------------------------------------------------------------------------
 // Plan gating
 // ---------------------------------------------------------------------------
-
-const PLAN_RANK: Record<string, number> = {
-  free: 0,
-  pro: 1,
-  enterprise: 2,
-};
 
 /**
  * Check if a user's plan meets or exceeds a minimum plan level.

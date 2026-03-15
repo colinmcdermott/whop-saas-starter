@@ -188,7 +188,7 @@ lib/
 ├── auth.ts                  # Session management (JWT cookies)
 ├── whop.ts                  # Whop OAuth + webhook helpers
 ├── db.ts                    # Prisma client
-├── constants.ts             # Plan configuration (edit this!)
+├── constants.ts             # Plan tiers (single source of truth — edit this!)
 └── utils.ts                 # Utility functions
 prisma/schema.prisma         # Database schema
 proxy.ts                     # Route protection (Next.js 16)
@@ -202,7 +202,7 @@ Edit `lib/constants.ts` — change `APP_NAME` and `APP_DESCRIPTION` at the top. 
 
 ### Change the plans
 
-Edit `lib/constants.ts` to modify plan names, prices, and features. Create matching plans in Whop and update the plan ID environment variables.
+Edit `PLAN_METADATA` in `lib/constants.ts` to add, remove, or modify plan tiers. The plan system is data-driven — pricing page, setup wizard, config keys, env vars, and plan gating all adapt automatically. Create matching plans in Whop and connect the IDs via the setup wizard or env vars (pattern: `NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID`).
 
 ### Add new pages
 

@@ -110,7 +110,7 @@ const { hasAccess } = await hasWhopAccess(session.whopUserId, "prod_xxxxx");
 
 ### Plan hierarchy
 
-The plan levels are: `enterprise` > `pro` > `free`. All helpers respect this hierarchy — an enterprise user can access pro-gated features.
+The plan hierarchy is auto-derived from key order in `PLAN_METADATA` (`lib/constants.ts`). With the default tiers: `enterprise` > `pro` > `free`. All helpers respect this hierarchy — an enterprise user can access pro-gated features. If you add or remove tiers, the hierarchy updates automatically.
 
 ## Admin Access
 

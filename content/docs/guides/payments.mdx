@@ -16,32 +16,46 @@ Payments are handled through **Whop's embedded checkout**. Users select a plan, 
 
 ## Configuring Plans
 
-Plans are defined in two places:
+Plans are **data-driven** from a single source of truth: `PLAN_METADATA` in `lib/constants.ts`.
 
-### Static metadata — `lib/constants.ts`
+### Plan metadata — `lib/constants.ts`
 
-Names, descriptions, prices, and features:
+Add, remove, or reorder tiers here. Everything else adapts automatically — config keys, env vars, setup wizard, pricing page, and plan gating.
 
 ```tsx
 export const PLAN_METADATA = {
   free: {
     name: "Free",
     priceMonthly: 0,
+    priceYearly: 0,
     features: ["Up to 3 projects", "Basic analytics"],
+    highlighted: false,
   },
   pro: {
     name: "Pro",
     priceMonthly: 29,
     priceYearly: 290,
     features: ["Unlimited projects", "Priority support"],
+    highlighted: true,
+    trialDays: 7, // display only — configure the actual trial in Whop
+    // billingIntervals: ["monthly"], // omit yearly if you don't offer it
   },
-  // ...
-};
+  // Add more tiers by adding keys here...
+} as const satisfies Record<string, PlanMetadataEntry>;
 ```
+
+Key order defines the plan hierarchy (first = lowest tier, last = highest).
 
 ### Dynamic plan IDs — Setup wizard or env vars
 
-Connect your Whop plan IDs via the setup wizard at `/setup`, or set them in `.env.local`:
+Connect your Whop plan IDs via the setup wizard at `/setup`, or set them in `.env.local`. Env var names are auto-derived from plan keys:
+
+```
+NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID=plan_xxxxx
+NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID_YEARLY=plan_xxxxx
+```
+
+For the default tiers, that means:
 
 ```
 NEXT_PUBLIC_WHOP_FREE_PLAN_ID=plan_xxxxx
@@ -56,7 +70,7 @@ NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY=plan_xxxxx
 Whop sends webhooks when a membership status changes. The handler at `/api/webhooks/whop` processes two events:
 
 - **`membership_activated`** — Updates the user's plan in the database
-- **`membership_deactivated`** — Resets the user's plan to "free"
+- **`membership_deactivated`** — Resets the user's plan to the default (lowest) tier
 
 ### Setting up webhooks
 
@@ -66,6 +80,10 @@ Whop sends webhooks when a membership status changes. The handler at `/api/webho
 
 ## Billing Intervals
 
-Each paid plan supports monthly and yearly billing. The pricing page includes a toggle, and the yearly price is typically discounted (~17% off).
+Each paid plan supports monthly and yearly billing by default. You can customize this per-plan by setting `billingIntervals` in `PLAN_METADATA` (e.g., `["monthly"]` to offer monthly only). The pricing page includes a toggle, and the yearly price is typically discounted (~17% off).
 
 The checkout page resolves the correct Whop plan ID based on the selected plan and interval.
+
+## Free Trials
+
+To offer a free trial, set `trialDays` on a plan in `PLAN_METADATA` for display purposes (e.g., "7-day free trial" on the pricing page). The actual trial is configured in your Whop Dashboard when creating the checkout link (Checkout links → Edit → Free trial).

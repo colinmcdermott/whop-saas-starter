@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { PLAN_METADATA, PLAN_KEYS, getPlanBillingIntervals, planConfigKey, planConfigKeyYearly } from "@/lib/constants";
 
 interface Props {
   initialStep?: number;
@@ -11,11 +12,13 @@ interface Props {
 
 const STEPS = [
   { id: 1, label: "Welcome" },
-  { id: 2, label: "Whop App" },
-  { id: 3, label: "OAuth" },
-  { id: 4, label: "Sign In" },
-  { id: 5, label: "Plans" },
-  { id: 6, label: "Done" },
+  { id: 2, label: "Business" },
+  { id: 3, label: "Create App" },
+  { id: 4, label: "OAuth" },
+  { id: 5, label: "Webhooks" },
+  { id: 6, label: "Sign In" },
+  { id: 7, label: "Plans" },
+  { id: 8, label: "Done" },
 ];
 
 export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
@@ -30,12 +33,11 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
   const [whopApiKey, setWhopApiKey] = useState("");
   const [whopWebhookSecret, setWhopWebhookSecret] = useState("");
 
-  // Plan IDs
-  const [freePlanId, setFreePlanId] = useState("");
-  const [proMonthlyId, setProMonthlyId] = useState("");
-  const [proYearlyId, setProYearlyId] = useState("");
-  const [entMonthlyId, setEntMonthlyId] = useState("");
-  const [entYearlyId, setEntYearlyId] = useState("");
+  // Plan IDs (dynamic — keys derived from PLAN_METADATA)
+  const [planIds, setPlanIds] = useState<Record<string, string>>({});
+  function setPlanId(configKey: string, value: string) {
+    setPlanIds((prev) => ({ ...prev, [configKey]: value }));
+  }
 
   // Load existing config if any
   useEffect(() => {
@@ -44,20 +46,23 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
       .then((data) => {
         if (data.values) {
           if (data.values.whop_app_id) setWhopAppId(data.values.whop_app_id);
-          if (data.values.whop_free_plan_id) setFreePlanId(data.values.whop_free_plan_id);
-          if (data.values.whop_pro_plan_id) setProMonthlyId(data.values.whop_pro_plan_id);
-          if (data.values.whop_pro_plan_id_yearly) setProYearlyId(data.values.whop_pro_plan_id_yearly);
-          if (data.values.whop_enterprise_plan_id) setEntMonthlyId(data.values.whop_enterprise_plan_id);
-          if (data.values.whop_enterprise_plan_id_yearly) setEntYearlyId(data.values.whop_enterprise_plan_id_yearly);
+          const loaded: Record<string, string> = {};
+          for (const key of PLAN_KEYS) {
+            const ck = planConfigKey(key);
+            const cky = planConfigKeyYearly(key);
+            if (data.values[ck]) loaded[ck] = data.values[ck];
+            if (data.values[cky]) loaded[cky] = data.values[cky];
+          }
+          setPlanIds(loaded);
         }
       })
       .catch(() => {});
   }, []);
 
-  // If we returned from OAuth and are now signed in, auto-advance to step 5
+  // If we returned from OAuth and are now signed in, auto-advance to step 7
   useEffect(() => {
-    if (isSignedIn && isAdmin && step === 4) {
-      setStep(5);
+    if (isSignedIn && isAdmin && step === 6) {
+      setStep(7);
     }
   }, [isSignedIn, isAdmin, step]);
 
@@ -106,24 +111,30 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
     const ok = await saveConfigs({
       whop_app_id: whopAppId.trim(),
       ...(whopApiKey.trim() && { whop_api_key: whopApiKey.trim() }),
-      ...(whopWebhookSecret.trim() && { whop_webhook_secret: whopWebhookSecret.trim() }),
     });
-    if (ok) goTo(3);
+    if (ok) goTo(4);
   }
 
-  async function handlePlansSave() {
+  async function handleWebhookSecretSave() {
     const configs: Record<string, string> = {};
-    if (freePlanId.trim()) configs.whop_free_plan_id = freePlanId.trim();
-    if (proMonthlyId.trim()) configs.whop_pro_plan_id = proMonthlyId.trim();
-    if (proYearlyId.trim()) configs.whop_pro_plan_id_yearly = proYearlyId.trim();
-    if (entMonthlyId.trim()) configs.whop_enterprise_plan_id = entMonthlyId.trim();
-    if (entYearlyId.trim()) configs.whop_enterprise_plan_id_yearly = entYearlyId.trim();
-
+    if (whopWebhookSecret.trim()) configs.whop_webhook_secret = whopWebhookSecret.trim();
     if (Object.keys(configs).length > 0) {
       const ok = await saveConfigs(configs);
       if (!ok) return;
     }
     goTo(6);
+  }
+
+  async function handlePlansSave() {
+    const configs: Record<string, string> = {};
+    for (const [key, value] of Object.entries(planIds)) {
+      if (value.trim()) configs[key] = value.trim();
+    }
+    if (Object.keys(configs).length > 0) {
+      const ok = await saveConfigs(configs);
+      if (!ok) return;
+    }
+    goTo(8);
   }
 
   async function handleComplete() {
@@ -149,12 +160,12 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
   }
 
   const progress = (step / STEPS.length) * 100;
-  const showBack = step > 1 && step < 6;
+  const showBack = step > 1 && step < 8;
 
   return (
     <div className="min-h-screen flex justify-center p-4 pt-8 md:pt-12">
       <div className="w-full max-w-lg">
-        {/* Progress bar — whop-ecom style */}
+        {/* Progress bar */}
         <nav
           className="relative flex items-center justify-center"
           aria-label="Setup progress"
@@ -200,14 +211,11 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                 </svg>
               </div>
               <h1 className="text-xl font-semibold tracking-tight">
-                Welcome to your new SaaS
+                Let&apos;s get everything set up.
               </h1>
               <p className="mt-3 text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
-                Let&apos;s get everything set up. This wizard will walk you through
+                This wizard will walk you through
                 connecting Whop for authentication and payments.
-              </p>
-              <p className="mt-1.5 text-xs text-[var(--muted)]">
-                It only takes a few minutes.
               </p>
               <StepButton onClick={() => goTo(2)}>
                 Get Started
@@ -215,26 +223,99 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
             </>
           )}
 
-          {/* Step 2: Whop App Config */}
+          {/* Step 2: Do you have a Whop business? */}
           {step === 2 && (
+            <>
+              <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface)]">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016A3.001 3.001 0 0021 9.349M3.75 9.349a3 3 0 01-2.695-1.738L2.25 4.5h19.5l1.195 3.111A3 3 0 0120.25 9.35" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold tracking-tight">
+                Do you have a Whop business?
+              </h2>
+              <p className="mt-3 text-sm text-[var(--muted)] leading-relaxed max-w-sm mx-auto">
+                You&apos;ll need a Whop business to handle payments and authentication for your SaaS.
+              </p>
+
+              <div className="mt-8 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => goTo(3)}
+                  className="cursor-pointer w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-4 text-left transition-colors hover:border-[var(--accent)]"
+                >
+                  <p className="text-sm font-medium">Yes, I have a Whop business</p>
+                  <p className="mt-0.5 text-xs text-[var(--muted)]">
+                    I&apos;ll create an app in the Developer Dashboard
+                  </p>
+                </button>
+                <a
+                  href="https://whop.com/new/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-4 text-left transition-colors hover:border-[var(--accent)]"
+                >
+                  <p className="text-sm font-medium">No, I need to create one</p>
+                  <p className="mt-0.5 text-xs text-[var(--muted)]">
+                    Opens whop.com/new/ in a new tab — come back here when you&apos;re done
+                  </p>
+                </a>
+              </div>
+
+              <button
+                onClick={() => goTo(3)}
+                type="button"
+                className="cursor-pointer mt-4 w-full py-2.5 text-center text-sm text-[var(--muted)] font-medium transition-colors hover:text-[var(--foreground)]"
+              >
+                I&apos;ve created my business, continue
+              </button>
+            </>
+          )}
+
+          {/* Step 3: Create App + App ID & API Key */}
+          {step === 3 && (
             <div className="text-left">
               <h2 className="text-lg font-semibold tracking-tight text-center">
-                Connect your Whop app
+                Create a Whop app
               </h2>
               <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed text-center">
-                Create an app at{" "}
+                Go to{" "}
                 <a
                   href="https://whop.com/dashboard/developer"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[var(--accent)] underline underline-offset-2"
                 >
-                  whop.com/dashboard/developer
+                  Developer
                 </a>
-                , then paste your credentials below.
+                {" "}in your Whop sidebar and create a new app.
               </p>
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-6 space-y-5">
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+                  <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide mb-3">Where to find your credentials</p>
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">1</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        Click <span className="font-medium text-[var(--foreground)]">Developer</span> in the bottom-left sidebar, then create a new app
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">2</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        On the <span className="font-medium text-[var(--foreground)]">App details</span> tab, find the <span className="font-medium text-[var(--foreground)]">&quot;Set up your local environment&quot;</span> box in the top-right
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">3</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        Copy the <span className="font-mono text-[var(--foreground)]">app_</span> value (App ID) and <span className="font-mono text-[var(--foreground)]">apik_</span> value (API Key) from that box
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <InputField
                   label="App ID"
                   placeholder="app_xxxxxxxxx"
@@ -247,14 +328,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                   placeholder="apik_xxxxxxxxx"
                   value={whopApiKey}
                   onChange={setWhopApiKey}
-                  hint="Optional — used for server-side API calls"
-                />
-                <InputField
-                  label="Webhook Secret"
-                  placeholder="Your webhook secret"
-                  value={whopWebhookSecret}
-                  onChange={setWhopWebhookSecret}
-                  hint="Optional — you can add this later in step 5"
+                  hint="Found in the same box as your App ID"
                 />
               </div>
 
@@ -267,23 +341,16 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
             </div>
           )}
 
-          {/* Step 3: Redirect URI */}
-          {step === 3 && (
+          {/* Step 4: Configure OAuth */}
+          {step === 4 && (
             <div className="text-left">
               <h2 className="text-lg font-semibold tracking-tight text-center">
-                Configure OAuth in Whop
+                Configure OAuth
               </h2>
               <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed text-center">
-                Go to your app in the{" "}
-                <a
-                  href="https://whop.com/dashboard/developer"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[var(--accent)] underline underline-offset-2"
-                >
-                  Whop Developer Dashboard
-                </a>{" "}
-                and configure these settings.
+                In your app&apos;s{" "}
+                <span className="font-medium text-[var(--foreground)]">OAuth</span>
+                {" "}tab, configure these settings so users can sign in.
               </p>
 
               <div className="mt-6 space-y-5">
@@ -292,7 +359,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                     1. Set Client mode to <span className="font-semibold">Public</span>
                   </p>
                   <p className="text-xs text-[var(--muted)]">
-                    Under the OAuth section of your app settings.
+                    This is in the OAuth tab of your app. Public mode means no client secret is needed.
                   </p>
                 </div>
 
@@ -303,30 +370,95 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                     copied={copied === "callback"}
                     onCopy={() => copyText(callbackUrl, "callback")}
                   />
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium mb-2">3. Add this Webhook URL</p>
-                  <CopyField
-                    value={webhookUrl}
-                    copied={copied === "webhook"}
-                    onCopy={() => copyText(webhookUrl, "webhook")}
-                  />
                   <p className="mt-1.5 text-[11px] text-[var(--muted)]">
-                    Subscribe to: membership_activated, membership_deactivated,
-                    payment_succeeded, payment_failed
+                    This tells Whop where to send users after they sign in.
                   </p>
                 </div>
               </div>
 
-              <StepButton onClick={() => goTo(4)}>
+              <StepButton onClick={() => goTo(5)}>
                 I&apos;ve done this
               </StepButton>
             </div>
           )}
 
-          {/* Step 4: Test OAuth */}
-          {step === 4 && (
+          {/* Step 5: Set up Webhooks */}
+          {step === 5 && (
+            <div className="text-left">
+              <h2 className="text-lg font-semibold tracking-tight text-center">
+                Set up webhooks
+              </h2>
+              <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed text-center">
+                Webhooks keep your app in sync when users subscribe or cancel.
+              </p>
+
+              <div className="mt-6 space-y-5">
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+                  <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide mb-3">How to create your webhook</p>
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">1</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        Go to the <span className="font-medium text-[var(--foreground)]">Webhooks</span> tab in your app and click <span className="font-medium text-[var(--foreground)]">&quot;+ Create webhook&quot;</span>
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">2</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        Paste the Endpoint URL below into the webhook form
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">3</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        Select these events: <span className="font-medium text-[var(--foreground)]">membership_activated</span> and <span className="font-medium text-[var(--foreground)]">membership_deactivated</span>
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">4</span>
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        Click <span className="font-medium text-[var(--foreground)]">Save</span>, then copy the <span className="font-medium text-[var(--foreground)]">Secret</span> (starts with <span className="font-mono text-[var(--foreground)]">ws_</span>) from the webhooks table
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium mb-2">Your Endpoint URL</p>
+                  <CopyField
+                    value={webhookUrl}
+                    copied={copied === "webhook"}
+                    onCopy={() => copyText(webhookUrl, "webhook")}
+                  />
+                </div>
+
+                <InputField
+                  label="Webhook Secret"
+                  placeholder="ws_xxxxxxxxx"
+                  value={whopWebhookSecret}
+                  onChange={setWhopWebhookSecret}
+                  hint="Shown in the Secret column after you save the webhook"
+                />
+              </div>
+
+              <StepButton
+                onClick={handleWebhookSecretSave}
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Continue"}
+              </StepButton>
+              <button
+                onClick={() => goTo(6)}
+                type="button"
+                className="cursor-pointer mt-3 w-full py-2.5 text-center text-sm text-[var(--muted)] font-medium transition-colors hover:text-[var(--foreground)]"
+              >
+                Skip for now
+              </button>
+            </div>
+          )}
+
+          {/* Step 6: Test OAuth / Sign In */}
+          {step === 6 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface)]">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -346,7 +478,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                   <div className="mt-5 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400">
                     Connected and signed in as admin!
                   </div>
-                  <StepButton onClick={() => goTo(5)}>
+                  <StepButton onClick={() => goTo(7)}>
                     Continue
                   </StepButton>
                 </>
@@ -361,8 +493,8 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                 </>
               ) : (
                 <a
-                  href="/api/auth/login?next=/setup?step=4"
-                  className="mt-8 block w-full rounded-lg bg-[var(--accent)] py-3 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
+                  href="/api/auth/login?next=/setup?step=6"
+                  className="cursor-pointer mt-8 block w-full rounded-lg bg-[var(--accent)] py-3 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                 >
                   Sign in with Whop
                 </a>
@@ -370,8 +502,8 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
             </>
           )}
 
-          {/* Step 5: Configure Plans */}
-          {step === 5 && (
+          {/* Step 7: Configure Plans */}
+          {step === 7 && (
             <div className="text-left">
               <h2 className="text-lg font-semibold tracking-tight text-center">
                 Configure your plans
@@ -388,68 +520,76 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
                 </a>{" "}
                 and paste the plan IDs below.
               </p>
+              <p className="mt-1.5 text-[11px] text-[var(--muted)] text-center">
+                To customize plan names, prices, or features, edit <code className="font-mono">lib/constants.ts</code>
+              </p>
 
               <div className="mt-6 space-y-4">
-                <InputField
-                  label="Free Plan ID"
-                  placeholder="plan_xxxxxxxxx"
-                  value={freePlanId}
-                  onChange={setFreePlanId}
-                  hint="A $0 plan so free users are tracked in Whop"
-                />
-                <div className="border-t border-[var(--border)] pt-4">
-                  <p className="text-xs font-medium text-[var(--muted)] mb-3">Pro ($29/mo)</p>
-                  <div className="space-y-3">
-                    <InputField
-                      label="Monthly"
-                      placeholder="plan_xxxxxxxxx"
-                      value={proMonthlyId}
-                      onChange={setProMonthlyId}
-                    />
-                    <InputField
-                      label="Yearly"
-                      placeholder="plan_xxxxxxxxx"
-                      value={proYearlyId}
-                      onChange={setProYearlyId}
-                      hint="Optional — leave blank if you don't offer yearly"
-                    />
-                  </div>
-                </div>
-                <div className="border-t border-[var(--border)] pt-4">
-                  <p className="text-xs font-medium text-[var(--muted)] mb-3">Enterprise ($99/mo)</p>
-                  <div className="space-y-3">
-                    <InputField
-                      label="Monthly"
-                      placeholder="plan_xxxxxxxxx"
-                      value={entMonthlyId}
-                      onChange={setEntMonthlyId}
-                    />
-                    <InputField
-                      label="Yearly"
-                      placeholder="plan_xxxxxxxxx"
-                      value={entYearlyId}
-                      onChange={setEntYearlyId}
-                      hint="Optional — leave blank if you don't offer yearly"
-                    />
-                  </div>
-                </div>
+                {PLAN_KEYS.map((key, index) => {
+                  const meta = PLAN_METADATA[key];
+                  const intervals = getPlanBillingIntervals(key);
+                  const ck = planConfigKey(key);
+                  const cky = planConfigKeyYearly(key);
+                  const isFree = meta.priceMonthly === 0;
+
+                  if (isFree) {
+                    return (
+                      <div key={key}>
+                        <InputField
+                          label={`${meta.name} Plan ID`}
+                          placeholder="plan_xxxxxxxxx"
+                          value={planIds[ck] ?? ""}
+                          onChange={(v) => setPlanId(ck, v)}
+                          hint="A $0 plan so free users are tracked in Whop"
+                        />
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={key} className={index > 0 ? "border-t border-[var(--border)] pt-4" : ""}>
+                      <p className="text-xs font-medium text-[var(--muted)] mb-3">
+                        {meta.name} (${meta.priceMonthly}/mo)
+                      </p>
+                      <div className="space-y-3">
+                        {intervals.includes("monthly") && (
+                          <InputField
+                            label="Monthly"
+                            placeholder="plan_xxxxxxxxx"
+                            value={planIds[ck] ?? ""}
+                            onChange={(v) => setPlanId(ck, v)}
+                          />
+                        )}
+                        {intervals.includes("yearly") && (
+                          <InputField
+                            label="Yearly"
+                            placeholder="plan_xxxxxxxxx"
+                            value={planIds[cky] ?? ""}
+                            onChange={(v) => setPlanId(cky, v)}
+                            hint="Optional — leave blank if you don't offer yearly"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <StepButton onClick={handlePlansSave} disabled={saving}>
                 {saving ? "Saving..." : "Continue"}
               </StepButton>
               <button
-                onClick={() => goTo(6)}
+                onClick={() => goTo(8)}
                 type="button"
-                className="mt-3 w-full py-2.5 text-center text-sm text-[var(--muted)] font-medium transition-colors hover:text-[var(--foreground)]"
+                className="cursor-pointer mt-3 w-full py-2.5 text-center text-sm text-[var(--muted)] font-medium transition-colors hover:text-[var(--foreground)]"
               >
                 Skip for now
               </button>
             </div>
           )}
 
-          {/* Step 6: Done */}
-          {step === 6 && (
+          {/* Step 8: Done */}
+          {step === 8 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
                 <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -492,7 +632,7 @@ function StepButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="mt-8 w-full rounded-lg bg-[var(--accent)] py-3 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
+      className="cursor-pointer mt-8 w-full rounded-lg bg-[var(--accent)] py-3 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
     >
       {children}
     </button>
@@ -547,7 +687,7 @@ function CopyField({
       <button
         type="button"
         onClick={onCopy}
-        className="shrink-0 rounded-md border border-[var(--border)] px-2.5 py-1 text-xs font-medium transition-colors hover:bg-[var(--card)]"
+        className="cursor-pointer shrink-0 rounded-md border border-[var(--border)] px-2.5 py-1 text-xs font-medium transition-colors hover:bg-[var(--card)]"
       >
         {copied ? "Copied!" : "Copy"}
       </button>

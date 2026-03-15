@@ -20,12 +20,29 @@ export const LINKS = {
 // Plan types and static metadata
 // ---------------------------------------------------------------------------
 
-export type PlanKey = "free" | "pro" | "enterprise";
 export type BillingInterval = "monthly" | "yearly";
 
+/** Shape of each plan entry in PLAN_METADATA */
+export interface PlanMetadataEntry {
+  name: string;
+  description: string;
+  priceMonthly: number;
+  priceYearly: number;
+  features: readonly string[];
+  highlighted: boolean;
+  /** Optional free trial length (display only — configure the actual trial in Whop) */
+  trialDays?: number;
+  /** Which billing intervals to offer. Defaults to ["monthly", "yearly"] if omitted. */
+  billingIntervals?: readonly BillingInterval[];
+}
+
 /**
- * Static plan metadata — names, descriptions, prices, features.
- * Dynamic plan IDs come from the DB/env via lib/config.ts.
+ * Static plan metadata — the single source of truth for your tier structure.
+ *
+ * - Add, remove, or reorder plans here. Everything else adapts automatically.
+ * - Key order defines the plan hierarchy (first = lowest, last = highest).
+ * - Dynamic Whop plan IDs come from the DB/env via lib/config.ts.
+ * - trialDays is display-only; configure the actual trial in your Whop Dashboard.
  */
 export const PLAN_METADATA = {
   free: {
@@ -38,7 +55,7 @@ export const PLAN_METADATA = {
       "Basic analytics",
       "Community support",
       "1 GB storage",
-    ] as readonly string[],
+    ],
     highlighted: false,
   },
   pro: {
@@ -53,7 +70,7 @@ export const PLAN_METADATA = {
       "100 GB storage",
       "Custom integrations",
       "Team collaboration",
-    ] as readonly string[],
+    ],
     highlighted: true,
   },
   enterprise: {
@@ -69,7 +86,47 @@ export const PLAN_METADATA = {
       "SSO & advanced security",
       "Audit logs",
       "API access",
-    ] as readonly string[],
+    ],
     highlighted: false,
   },
-} as const;
+} as const satisfies Record<string, PlanMetadataEntry>;
+
+// ---------------------------------------------------------------------------
+// Derived types and helpers — everything below is auto-generated from above
+// ---------------------------------------------------------------------------
+
+/** Plan key type — derived from whatever keys are in PLAN_METADATA */
+export type PlanKey = keyof typeof PLAN_METADATA;
+
+/** Ordered array of plan keys (insertion order = hierarchy) */
+export const PLAN_KEYS = Object.keys(PLAN_METADATA) as PlanKey[];
+
+/** Numeric rank for each plan (used for plan gating comparisons) */
+export const PLAN_RANK: Record<string, number> = Object.fromEntries(
+  PLAN_KEYS.map((key, index) => [key, index])
+);
+
+/** The lowest-tier plan key (first in PLAN_METADATA). Also the Prisma default. */
+export const DEFAULT_PLAN: PlanKey = PLAN_KEYS[0];
+
+/** Get the billing intervals a plan supports */
+export function getPlanBillingIntervals(key: PlanKey): BillingInterval[] {
+  const meta = PLAN_METADATA[key] as PlanMetadataEntry;
+  return [...(meta.billingIntervals ?? ["monthly", "yearly"])];
+}
+
+// Config key naming convention: whop_{planKey}_plan_id / whop_{planKey}_plan_id_yearly
+export function planConfigKey(planKey: PlanKey): string {
+  return `whop_${planKey}_plan_id`;
+}
+export function planConfigKeyYearly(planKey: PlanKey): string {
+  return `whop_${planKey}_plan_id_yearly`;
+}
+
+// Env var naming convention: NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID
+export function planEnvVar(planKey: PlanKey): string {
+  return `NEXT_PUBLIC_WHOP_${planKey.toUpperCase()}_PLAN_ID`;
+}
+export function planEnvVarYearly(planKey: PlanKey): string {
+  return `NEXT_PUBLIC_WHOP_${planKey.toUpperCase()}_PLAN_ID_YEARLY`;
+}

@@ -1,12 +1,6 @@
 "use client";
 
-import type { PlanKey } from "@/lib/constants";
-
-const PLAN_RANK: Record<string, number> = {
-  free: 0,
-  pro: 1,
-  enterprise: 2,
-};
+import { PLAN_RANK, type PlanKey } from "@/lib/constants";
 
 interface PlanGateProps {
   /** The user's current plan (pass from server parent via session.plan) */

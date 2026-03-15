@@ -6,20 +6,40 @@
 // ---------------------------------------------------------------------------
 
 import { prisma } from "./db";
+import {
+  PLAN_METADATA,
+  PLAN_KEYS,
+  DEFAULT_PLAN,
+  getPlanBillingIntervals,
+  planConfigKey,
+  planConfigKeyYearly,
+  planEnvVar,
+  planEnvVarYearly,
+  type PlanKey,
+  type BillingInterval,
+} from "./constants";
 
 // In-memory cache (per-process, survives across requests within same cold start)
 const cache = new Map<string, string>();
+
+// ---------------------------------------------------------------------------
+// Dynamic plan config key → env var mappings
+// ---------------------------------------------------------------------------
+
+const planEnvEntries: Record<string, string> = {};
+for (const key of PLAN_KEYS) {
+  planEnvEntries[planConfigKey(key)] = planEnvVar(key);
+  if (getPlanBillingIntervals(key).includes("yearly")) {
+    planEnvEntries[planConfigKeyYearly(key)] = planEnvVarYearly(key);
+  }
+}
 
 /** Map of our config keys to their env var fallbacks */
 const ENV_MAP: Record<string, string> = {
   whop_app_id: "NEXT_PUBLIC_WHOP_APP_ID",
   whop_api_key: "WHOP_API_KEY",
   whop_webhook_secret: "WHOP_WEBHOOK_SECRET",
-  whop_free_plan_id: "NEXT_PUBLIC_WHOP_FREE_PLAN_ID",
-  whop_pro_plan_id: "NEXT_PUBLIC_WHOP_PRO_PLAN_ID",
-  whop_pro_plan_id_yearly: "NEXT_PUBLIC_WHOP_PRO_PLAN_ID_YEARLY",
-  whop_enterprise_plan_id: "NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID",
-  whop_enterprise_plan_id_yearly: "NEXT_PUBLIC_WHOP_ENTERPRISE_PLAN_ID_YEARLY",
+  ...planEnvEntries,
   whop_pro_product_id: "WHOP_PRO_PRODUCT_ID",
   whop_enterprise_product_id: "WHOP_ENTERPRISE_PRODUCT_ID",
   app_name: "NEXT_PUBLIC_APP_NAME",
@@ -35,11 +55,13 @@ const ENV_MAP: Record<string, string> = {
 /** Non-sensitive keys that can be returned to the client */
 const PUBLIC_KEYS = new Set([
   "whop_app_id",
-  "whop_free_plan_id",
-  "whop_pro_plan_id",
-  "whop_pro_plan_id_yearly",
-  "whop_enterprise_plan_id",
-  "whop_enterprise_plan_id_yearly",
+  ...PLAN_KEYS.flatMap((key) => {
+    const keys = [planConfigKey(key)];
+    if (getPlanBillingIntervals(key).includes("yearly")) {
+      keys.push(planConfigKeyYearly(key));
+    }
+    return keys;
+  }),
   "app_name",
   "app_url",
   "accent_color",
@@ -143,8 +165,6 @@ export async function isSetupComplete(): Promise<boolean> {
 // Plan config
 // ---------------------------------------------------------------------------
 
-import { PLAN_METADATA, type PlanKey, type BillingInterval } from "./constants";
-
 export interface PlanConfig {
   name: string;
   description: string;
@@ -154,37 +174,35 @@ export interface PlanConfig {
   whopPlanIdYearly: string;
   features: readonly string[];
   highlighted: boolean;
+  trialDays?: number;
+  billingIntervals: BillingInterval[];
 }
 
 export type PlansConfig = Record<PlanKey, PlanConfig>;
 
 /** Build full plan config by merging static metadata with dynamic plan IDs from DB/env */
 export async function getPlansConfig(): Promise<PlansConfig> {
-  const [freeId, proId, proYearlyId, entId, entYearlyId] = await Promise.all([
-    getConfig("whop_free_plan_id"),
-    getConfig("whop_pro_plan_id"),
-    getConfig("whop_pro_plan_id_yearly"),
-    getConfig("whop_enterprise_plan_id"),
-    getConfig("whop_enterprise_plan_id_yearly"),
-  ]);
-
-  return {
-    free: {
-      ...PLAN_METADATA.free,
-      whopPlanId: freeId ?? "",
-      whopPlanIdYearly: freeId ?? "",
-    },
-    pro: {
-      ...PLAN_METADATA.pro,
-      whopPlanId: proId ?? "",
-      whopPlanIdYearly: proYearlyId ?? "",
-    },
-    enterprise: {
-      ...PLAN_METADATA.enterprise,
-      whopPlanId: entId ?? "",
-      whopPlanIdYearly: entYearlyId ?? "",
-    },
-  };
+  const entries = await Promise.all(
+    PLAN_KEYS.map(async (key) => {
+      const intervals = getPlanBillingIntervals(key);
+      const [monthlyId, yearlyId] = await Promise.all([
+        getConfig(planConfigKey(key)),
+        intervals.includes("yearly")
+          ? getConfig(planConfigKeyYearly(key))
+          : Promise.resolve(null),
+      ]);
+      return [
+        key,
+        {
+          ...PLAN_METADATA[key],
+          billingIntervals: intervals,
+          whopPlanId: monthlyId ?? "",
+          whopPlanIdYearly: yearlyId ?? monthlyId ?? "",
+        },
+      ] as const;
+    })
+  );
+  return Object.fromEntries(entries) as unknown as PlansConfig;
 }
 
 /** Get the Whop plan ID for a given plan and billing interval */
@@ -205,7 +223,7 @@ export async function getPlanKeyFromWhopId(whopPlanId: string): Promise<PlanKey>
       return key as PlanKey;
     }
   }
-  return "free";
+  return DEFAULT_PLAN;
 }
 
 /** Clear the in-memory cache (useful after setup saves new values) */

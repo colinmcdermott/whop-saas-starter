@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { getPlanKeyFromWhopId, getConfig } from "@/lib/config";
 import { verifyWebhookSignature } from "@/lib/whop";
+import { DEFAULT_PLAN, PLAN_KEYS } from "@/lib/constants";
 
 // ---------------------------------------------------------------------------
 // Webhook payload types
@@ -122,7 +123,10 @@ async function handleMembershipActivated(data: WebhookData) {
     return;
   }
 
-  const plan = data.plan_id ? await getPlanKeyFromWhopId(data.plan_id) : "pro";
+  // If no plan_id in webhook, assume the first paid tier
+  const plan = data.plan_id
+    ? await getPlanKeyFromWhopId(data.plan_id)
+    : (PLAN_KEYS[1] ?? DEFAULT_PLAN);
 
   await prisma.user.upsert({
     where: { whopUserId: data.user_id },
@@ -148,7 +152,7 @@ async function handleMembershipDeactivated(data: WebhookData) {
 
   await prisma.user.updateMany({
     where: { whopUserId: data.user_id },
-    data: { plan: "free", whopMembershipId: null },
+    data: { plan: DEFAULT_PLAN, whopMembershipId: null },
   });
 
   console.log(`[Webhook] User ${data.user_id} downgraded to free`);
@@ -162,7 +166,7 @@ async function handleRefundOrDispute(data: WebhookData, reason: "refund" | "disp
 
   await prisma.user.updateMany({
     where: { whopUserId: data.user_id },
-    data: { plan: "free", whopMembershipId: null },
+    data: { plan: DEFAULT_PLAN, whopMembershipId: null },
   });
 
   console.log(`[Webhook] User ${data.user_id} downgraded to free (${reason})`);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/auth";
 import { getPlansConfig, getConfig } from "@/lib/config";
+import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const session = await requireSession();
   const plans = await getPlansConfig();
-  const planConfig = plans[session.plan as keyof typeof plans] ?? plans.free;
+  const planConfig = plans[session.plan as PlanKey] ?? plans[DEFAULT_PLAN];
 
   const [user, accentColor] = await Promise.all([
     prisma.user.findUnique({
@@ -57,7 +58,7 @@ export default async function SettingsPage() {
         </div>
 
         <div className="mt-5">
-          {session.plan === "free" ? (
+          {session.plan === DEFAULT_PLAN ? (
             <Link
               href="/pricing"
               className="rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-xs font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"

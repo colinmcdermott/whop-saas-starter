@@ -5,6 +5,7 @@ import { exchangeCodeForTokens, getWhopUser } from "@/lib/whop";
 import { setSessionCookie, type Session } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getConfig } from "@/lib/config";
+import { DEFAULT_PLAN } from "@/lib/constants";
 
 /**
  * GET /api/auth/callback?code=...&state=...
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
         email: whopUser.email ?? null,
         name: whopUser.name ?? whopUser.preferred_username ?? null,
         profileImageUrl: whopUser.picture ?? null,
-        plan: "free",
+        plan: DEFAULT_PLAN,
       },
     });
 

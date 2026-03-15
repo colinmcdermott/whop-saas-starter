@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getSetupStatus, setConfigs, isSetupComplete } from "@/lib/config";
+import { PLAN_KEYS, getPlanBillingIntervals, planConfigKey, planConfigKeyYearly } from "@/lib/constants";
 
 const ALLOWED_KEYS = new Set([
   "whop_app_id",
   "whop_api_key",
   "whop_webhook_secret",
-  "whop_free_plan_id",
-  "whop_pro_plan_id",
-  "whop_pro_plan_id_yearly",
-  "whop_enterprise_plan_id",
-  "whop_enterprise_plan_id_yearly",
+  ...PLAN_KEYS.flatMap((key) => {
+    const keys = [planConfigKey(key)];
+    if (getPlanBillingIntervals(key).includes("yearly")) {
+      keys.push(planConfigKeyYearly(key));
+    }
+    return keys;
+  }),
   "accent_color",
 ]);
 

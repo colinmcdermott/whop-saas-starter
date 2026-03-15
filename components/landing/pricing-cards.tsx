@@ -87,11 +87,11 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
           const whopPlanId =
             interval === "yearly" ? plan.whopPlanIdYearly : plan.whopPlanId;
 
-          // Pro first on mobile, Free last — keeps recommended plan above the fold
+          // Highlighted plan first on mobile, free plan last — keeps recommended plan above the fold
           const orderClass =
-            key === "pro"
+            plan.highlighted
               ? "order-first lg:order-none"
-              : key === "free"
+              : plan.priceMonthly === 0
                 ? "order-last lg:order-none"
                 : "";
 
@@ -147,12 +147,12 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
                     className={`block rounded-lg py-2.5 text-center text-sm font-medium transition-all ${
                       highlighted
                         ? "bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90"
-                        : key === "free"
+                        : plan.priceMonthly === 0
                           ? "border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface)]"
                           : "bg-[var(--foreground)] text-[var(--background)] hover:opacity-90"
                     }`}
                   >
-                    {key === "free" ? "Start Free" : highlighted ? "Get Started" : "Subscribe"}
+                    {plan.priceMonthly === 0 ? "Start Free" : highlighted ? "Get Started" : "Subscribe"}
                   </Link>
                 ) : (
                   <span className="block w-full rounded-lg border border-[var(--border)] py-2.5 text-center text-xs text-[var(--muted)]">

@@ -28,7 +28,8 @@ pnpm db:migrate   # Run migrations
 - `getConfig(key)` / `setConfig(key, value)` — DB-backed with env var fallback and in-memory cache
 - `getPlansConfig()` — merges static plan metadata from `constants.ts` with dynamic plan IDs from DB/env
 - `isSetupComplete()` — checks if app is configured (setup_complete flag or whop_app_id exists)
-- All config keys: whop_app_id, whop_api_key, whop_webhook_secret, plan IDs, product IDs, accent_color, analytics_*, error_tracking_dsn, email_*, setup_complete
+- Config keys for plans are **auto-derived** from `PLAN_METADATA` keys (e.g. `whop_pro_plan_id`, `whop_pro_plan_id_yearly`)
+- Env var names follow pattern: `NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID` / `_YEARLY`
 
 ### Auth Flow
 - OAuth 2.1 + PKCE — Public client mode (no client_secret needed)
@@ -38,11 +39,19 @@ pnpm db:migrate   # Run migrations
 - Session includes `isAdmin` flag for admin-only features and `profileImageUrl` for avatar display
 - Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `getSession()`
 
+### Plan System (data-driven)
+- `PLAN_METADATA` in `lib/constants.ts` is the **single source of truth** for plan tiers
+- `PlanKey` type is derived from `keyof typeof PLAN_METADATA` (not hardcoded)
+- Key order in `PLAN_METADATA` defines the plan hierarchy (first = lowest, last = highest)
+- `PLAN_RANK`, `PLAN_KEYS`, `DEFAULT_PLAN` are all auto-derived from `PLAN_METADATA`
+- To add/remove/modify a tier: edit `PLAN_METADATA` — config keys, env vars, setup wizard, pricing page, plan gating all adapt automatically
+- Optional per-plan fields: `trialDays` (display only — configure actual trial in Whop), `billingIntervals` (defaults to `["monthly", "yearly"]`)
+
 ### Payments
 - Whop embedded checkout via `@whop/checkout` React component (`WhopCheckoutEmbed`)
 - Two-step checkout: native billing form (email, name, address) → Whop embedded payment
 - Pricing buttons link to `/checkout?plan={key}&interval={monthly|yearly}`
-- Billing intervals: monthly/yearly toggle on pricing page; each paid tier has two Whop plan IDs
+- Billing intervals: monthly/yearly toggle on pricing page; each paid tier has Whop plan IDs per interval
 - Checkout pre-fills email for logged-in users
 - Plans fetched from `/api/config/plans` for client components
 - Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
@@ -71,14 +80,14 @@ pnpm db:migrate   # Run migrations
 ## Important Patterns
 - `getSession()` — get current session or null; plan is always fresh from DB (never stale JWT). Deduped per-request via `React.cache()`.
 - `requireSession()` — get session or redirect to `/login` (protected pages)
-- `requirePlan("pro")` — get session or redirect to `/pricing` if plan insufficient. Hierarchy: enterprise > pro > free.
+- `requirePlan("pro")` — get session or redirect to `/pricing` if plan insufficient. Hierarchy is auto-derived from key order in `PLAN_METADATA`.
 - `hasMinimumPlan(userPlan, minimumPlan)` — pure function for plan level comparison in API routes
 - `<PlanGate plan={session.plan} minimum="pro">` — client component for conditional rendering (pass plan from server parent)
 - `checkWhopAccess(whopUserId, productId, apiKey)` / `hasWhopAccess(whopUserId, productId)` — real-time Whop API access checks (for authoritative gating)
 - `getConfig(key)` — read config value (cache → env → DB)
 - `getPlansConfig()` — server-side plan config (use in server components, pass to client as props)
 - `sendEmail({ to, subject, html })` — sends via configured provider (Resend/SendGrid), returns `{ success, error? }`
-- Static plan metadata in `lib/constants.ts`; dynamic plan IDs via `lib/config.ts`
+- Plan system is data-driven: edit `PLAN_METADATA` in `lib/constants.ts` to add/remove/modify tiers; everything else adapts
 - Client components get plan config as props from server parents, or fetch `/api/config/plans`
 - Admin-configurable accent color applied via CSS custom properties (`--accent`, `--accent-foreground`)
 - Admin-configurable integrations (analytics, error tracking, email) via Settings → Integrations
@@ -123,7 +132,7 @@ lib/
 ├── config.ts               # DB-backed config system (getConfig, getPlansConfig)
 ├── whop.ts                 # Whop OAuth, webhook, access check helpers
 ├── db.ts                   # Prisma client singleton
-├── constants.ts            # Static plan metadata, APP_NAME, types
+├── constants.ts            # Plan metadata (single source of truth), APP_NAME, derived types/helpers
 ├── analytics.ts            # Analytics script generation (PostHog, GA, Plausible)
 ├── email.ts                # Email sending (Resend, SendGrid)
 ├── source.ts               # Fumadocs content source loader

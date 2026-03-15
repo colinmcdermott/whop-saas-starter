@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { requireSession } from "@/lib/auth";
 import { getPlansConfig } from "@/lib/config";
+import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 
 export const metadata: Metadata = {
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const session = await requireSession();
   const plans = await getPlansConfig();
-  const planConfig = plans[session.plan as keyof typeof plans] ?? plans.free;
+  const planConfig = plans[session.plan as PlanKey] ?? plans[DEFAULT_PLAN];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -32,7 +33,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Upgrade banner for free users */}
-      {session.plan === "free" && (
+      {session.plan === DEFAULT_PLAN && (
         <div className="animate-slide-up delay-200">
           <UpgradeBanner />
         </div>

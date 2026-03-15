@@ -30,7 +30,7 @@ export default async function ProFeaturePage() {
 }
 ```
 
-The plan hierarchy is: **enterprise > pro > free**. An enterprise user can access pro-gated pages.
+The plan hierarchy is determined by key order in `PLAN_METADATA` (first = lowest). With the default tiers: **enterprise > pro > free**. An enterprise user can access pro-gated pages.
 
 ## Gating API Routes
 
