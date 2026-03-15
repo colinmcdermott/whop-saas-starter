@@ -84,6 +84,8 @@ export default async function RootLayout({
       <head>
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#090909" media="(prefers-color-scheme: dark)" />
+        <link rel="dns-prefetch" href="https://api.whop.com" />
+        <link rel="preconnect" href="https://api.whop.com" crossOrigin="anonymous" />
         {/* Inline script to prevent flash of wrong theme */}
         <script
           id="theme-init"
