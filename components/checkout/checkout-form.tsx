@@ -7,7 +7,8 @@ import {
   WhopCheckoutEmbed,
   useCheckoutEmbedControls,
 } from "@whop/checkout/react";
-import { APP_NAME, type PlanKey, type BillingInterval } from "@/lib/constants";
+import { type PlanKey, type BillingInterval } from "@/lib/constants";
+import { AppLogo } from "@/components/app-logo";
 import type { PlanConfig } from "@/lib/config";
 import { COUNTRIES } from "@/lib/countries";
 
@@ -195,8 +196,8 @@ export function CheckoutForm({
     <div className="flex min-h-screen flex-col">
       {/* Header */}
       <header className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4">
-        <Link href="/" className="text-sm font-semibold">
-          {APP_NAME}
+        <Link href="/">
+          <AppLogo />
         </Link>
         <Link
           href="/pricing"

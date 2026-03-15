@@ -2,14 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Session } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { APP_NAME } from "@/lib/constants";
+import { AppLogo } from "@/components/app-logo";
 
 export function DashboardHeader({ session }: { session: Session }) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-[var(--border)] px-4 sm:px-6">
       {/* Mobile logo — offset for sidebar toggle */}
-      <Link href="/" className="pl-8 text-sm font-semibold tracking-tight lg:hidden lg:pl-0">
-        {APP_NAME}
+      <Link href="/" className="pl-8 lg:pl-0 lg:hidden">
+        <AppLogo />
       </Link>
 
       <div className="hidden lg:block" />

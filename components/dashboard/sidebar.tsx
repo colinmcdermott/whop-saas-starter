@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { APP_NAME } from "@/lib/constants";
+import { AppLogo } from "@/components/app-logo";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: HomeIcon },
@@ -49,8 +49,8 @@ export function Sidebar() {
         )}
       >
         <div className="flex h-14 items-center justify-between border-b border-[var(--border)] px-5">
-          <Link href="/" className="text-sm font-semibold tracking-tight">
-            {APP_NAME}
+          <Link href="/">
+            <AppLogo />
           </Link>
           <button
             type="button"

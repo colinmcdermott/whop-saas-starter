@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { APP_NAME, LINKS } from "@/lib/constants";
+import { LINKS } from "@/lib/constants";
+import { AppLogo } from "@/components/app-logo";
 
 export const metadata: Metadata = {
   title: "Sign In",
@@ -18,8 +19,8 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-xs animate-slide-up">
         <div className="text-center mb-8">
-          <Link href="/" className="text-sm font-semibold tracking-tight">
-            {APP_NAME}
+          <Link href="/">
+            <AppLogo />
           </Link>
           <p className="mt-2 text-xs text-[var(--muted)]">
             Sign in to your account
