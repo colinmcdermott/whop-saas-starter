@@ -19,9 +19,8 @@ export function Header() {
   // Check auth state
   useEffect(() => {
     fetch("/api/auth/me")
-      .then((res) => {
-        setIsLoggedIn(res.ok);
-      })
+      .then((res) => res.json())
+      .then((data) => setIsLoggedIn(data.user !== null))
       .catch(() => setIsLoggedIn(false));
   }, []);
 
