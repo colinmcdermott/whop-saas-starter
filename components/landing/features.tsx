@@ -54,9 +54,9 @@ export function Features() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="bg-[var(--card)] p-6 transition-colors hover:bg-[var(--surface)]"
+              className="bg-[var(--card)] p-6 transition-colors hover:bg-[var(--surface)] dark:hover:bg-[var(--surface)]/80"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--muted)]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-[var(--accent)]">
                 <feature.icon />
               </div>
               <h3 className="mt-3 text-sm font-semibold">{feature.title}</h3>
