@@ -7,13 +7,13 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { AppLogo } from "@/components/app-logo";
 
 /**
- * Check if the session cookie exists (not its value — just presence).
- * This is synchronous and doesn't require a server round-trip, so the
- * homepage can be CDN-cached while still showing the right nav links.
+ * Check if the logged_in indicator cookie exists.
+ * This is a non-httpOnly cookie set alongside the session cookie,
+ * so client JS can detect auth state without exposing the JWT.
  */
-function hasSessionCookie(): boolean {
+function hasLoggedInCookie(): boolean {
   if (typeof document === "undefined") return false;
-  return document.cookie.split(";").some((c) => c.trim().startsWith("session="));
+  return document.cookie.split(";").some((c) => c.trim().startsWith("logged_in="));
 }
 
 export function HeaderClient() {
@@ -21,9 +21,9 @@ export function HeaderClient() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
-  // Check cookie presence on mount (synchronous, no fetch)
+  // Check cookie presence on mount and route change (synchronous, no fetch)
   useEffect(() => {
-    setIsLoggedIn(hasSessionCookie());
+    setIsLoggedIn(hasLoggedInCookie());
   }, [pathname]);
 
   // Close on route change

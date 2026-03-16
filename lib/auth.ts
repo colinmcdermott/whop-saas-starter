@@ -135,12 +135,28 @@ export async function setSessionCookie(session: Session) {
     maxAge: SESSION_MAX_AGE,
     path: "/",
   });
+  // Non-httpOnly indicator so client JS can detect login state
+  // without exposing the session token. Value is not sensitive.
+  cookieStore.set("logged_in", "1", {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: SESSION_MAX_AGE,
+    path: "/",
+  });
 }
 
 export async function clearSessionCookie() {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, "", {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
+  cookieStore.set("logged_in", "", {
+    httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 0,
