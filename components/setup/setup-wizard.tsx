@@ -381,15 +381,15 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium mb-2">2. Add this Redirect URI</p>
+                  <p className="text-sm font-medium mb-2">2. Add a Redirect URI</p>
+                  <p className="text-xs text-[var(--muted)] mb-2">
+                    Click <span className="font-medium text-[var(--foreground)]">Create redirect URL</span>, then paste this value:
+                  </p>
                   <CopyField
                     value={callbackUrl}
                     copied={copied === "callback"}
                     onCopy={() => copyText(callbackUrl, "callback")}
                   />
-                  <p className="mt-1.5 text-[11px] text-[var(--muted)]">
-                    This tells Whop where to send users after they sign in.
-                  </p>
                 </div>
               </div>
 
