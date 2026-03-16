@@ -290,7 +290,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                     <div className="flex gap-3">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">1</span>
                       <p className="text-xs text-[var(--muted)] leading-relaxed">
-                        Click <span className="font-medium text-[var(--foreground)]">Create app</span> on the Developer page
+                        Click <span className="font-medium text-[var(--foreground)]">Create app</span>, give it a name, then click <span className="font-medium text-[var(--foreground)]">Create</span>
                       </p>
                     </div>
                     <div className="flex gap-3">
