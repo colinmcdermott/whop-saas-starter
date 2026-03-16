@@ -271,16 +271,16 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                 Create a Whop app
               </h2>
               <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed text-center">
-                Go to{" "}
+                Open the{" "}
                 <a
                   href="https://whop.com/dashboard/developer"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[var(--accent)] underline underline-offset-2"
                 >
-                  Developer
+                  Developer page
                 </a>
-                {" "}in your Whop sidebar and create a new app.
+                {" "}and click <span className="font-medium text-[var(--foreground)]">Create app</span>.
               </p>
 
               <div className="mt-6 space-y-5">
@@ -290,7 +290,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                     <div className="flex gap-3">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">1</span>
                       <p className="text-xs text-[var(--muted)] leading-relaxed">
-                        Click <span className="font-medium text-[var(--foreground)]">Developer</span> in the bottom-left sidebar, then create a new app
+                        Click <span className="font-medium text-[var(--foreground)]">Create app</span> on the Developer page
                       </p>
                     </div>
                     <div className="flex gap-3">
