@@ -5,6 +5,7 @@
 // Follows the same pattern as getSecret() in auth.ts.
 // ---------------------------------------------------------------------------
 
+import { cache as reactCache } from "react";
 import { prisma } from "./db";
 import {
   PLAN_METADATA,
@@ -150,7 +151,7 @@ export async function getSetupStatus(): Promise<{
 // Setup detection
 // ---------------------------------------------------------------------------
 
-export async function isSetupComplete(): Promise<boolean> {
+export const isSetupComplete = reactCache(async (): Promise<boolean> => {
   const val = await getConfig("setup_complete");
   if (val === "true") return true;
 
@@ -158,7 +159,7 @@ export async function isSetupComplete(): Promise<boolean> {
   // (power user who set everything via env vars, no wizard needed)
   const appId = await getConfig("whop_app_id");
   return !!appId;
-}
+});
 
 // ---------------------------------------------------------------------------
 // Plan config
@@ -179,8 +180,9 @@ export interface PlanConfig {
 
 export type PlansConfig = Record<PlanKey, PlanConfig>;
 
-/** Build full plan config by merging static metadata with dynamic plan IDs from DB/env */
-export async function getPlansConfig(): Promise<PlansConfig> {
+/** Build full plan config by merging static metadata with dynamic plan IDs from DB/env.
+ *  Wrapped in React.cache() for per-request deduplication across the component tree. */
+export const getPlansConfig = reactCache(async (): Promise<PlansConfig> => {
   const entries = await Promise.all(
     PLAN_KEYS.map(async (key) => {
       const intervals = getPlanBillingIntervals(key);
@@ -202,7 +204,7 @@ export async function getPlansConfig(): Promise<PlansConfig> {
     })
   );
   return Object.fromEntries(entries) as unknown as PlansConfig;
-}
+});
 
 /** Get the Whop plan ID for a given plan and billing interval */
 export async function getWhopPlanIdFromConfig(
