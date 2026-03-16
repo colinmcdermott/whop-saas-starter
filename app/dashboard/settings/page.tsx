@@ -18,12 +18,16 @@ export default async function SettingsPage() {
   const plans = await getPlansConfig();
   const planConfig = plans[session.plan as PlanKey] ?? plans[DEFAULT_PLAN];
 
-  const [user, accentColor] = await Promise.all([
+  const [user, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.userId },
       select: { createdAt: true },
     }),
     getConfig("accent_color"),
+    getConfig("analytics_provider"),
+    getConfig("analytics_id"),
+    getConfig("email_provider"),
+    getConfig("email_api_key"),
   ]);
 
   return (
@@ -97,7 +101,14 @@ export default async function SettingsPage() {
             Connect analytics, error tracking, and email services.
           </p>
           <div className="mt-4">
-            <IntegrationsSettings />
+            <IntegrationsSettings
+              initialData={{
+                analytics_provider: analyticsProvider,
+                analytics_id: analyticsId,
+                email_provider: emailProvider,
+                email_api_key: emailApiKey,
+              }}
+            />
           </div>
         </section>
       )}

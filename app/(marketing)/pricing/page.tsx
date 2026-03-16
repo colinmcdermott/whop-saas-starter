@@ -4,6 +4,25 @@ import { PricingCards } from "@/components/landing/pricing-cards";
 import { Footer } from "@/components/landing/footer";
 import { getPlansConfig } from "@/lib/config";
 
+const FAQ = [
+  {
+    q: "Can I cancel my subscription?",
+    a: "Yes, you can cancel anytime. Your access continues until the end of your billing period.",
+  },
+  {
+    q: "What payment methods do you accept?",
+    a: "All major credit cards and PayPal through Whop.",
+  },
+  {
+    q: "Is there a free trial?",
+    a: "The Free plan gives you access to core features. Upgrade when you need more.",
+  },
+  {
+    q: "Can I change plans?",
+    a: "Yes, upgrade or downgrade at any time. Changes take effect immediately.",
+  },
+];
+
 export const metadata: Metadata = {
   title: "Pricing",
   description: "Simple, transparent pricing for every stage of your business.",
@@ -35,24 +54,7 @@ export default async function PricingPage() {
               Frequently asked questions
             </h2>
             <div className="space-y-6">
-              {[
-                {
-                  q: "Can I cancel my subscription?",
-                  a: "Yes, you can cancel anytime. Your access continues until the end of your billing period.",
-                },
-                {
-                  q: "What payment methods do you accept?",
-                  a: "All major credit cards and PayPal through Whop.",
-                },
-                {
-                  q: "Is there a free trial?",
-                  a: "The Free plan gives you access to core features. Upgrade when you need more.",
-                },
-                {
-                  q: "Can I change plans?",
-                  a: "Yes, upgrade or downgrade at any time. Changes take effect immediately.",
-                },
-              ].map((faq) => (
+              {FAQ.map((faq) => (
                 <div key={faq.q}>
                   <h3 className="text-sm font-semibold">{faq.q}</h3>
                   <p className="mt-1 text-sm text-[var(--muted)] leading-relaxed">

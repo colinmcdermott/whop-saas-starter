@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
 
@@ -24,29 +24,15 @@ const EMAIL_OPTIONS = [
   { value: "sendgrid", label: "SendGrid" },
 ];
 
-export function IntegrationsSettings() {
+export function IntegrationsSettings({ initialData }: { initialData: IntegrationsData }) {
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [loading, setLoading] = useState(true);
 
-  const [analyticsProvider, setAnalyticsProvider] = useState("");
-  const [analyticsId, setAnalyticsId] = useState("");
-  const [emailProvider, setEmailProvider] = useState("");
-  const [emailApiKey, setEmailApiKey] = useState("");
-
-  useEffect(() => {
-    fetch("/api/config/integrations")
-      .then((res) => res.json())
-      .then((data: IntegrationsData) => {
-        setAnalyticsProvider(data.analytics_provider ?? "");
-        setAnalyticsId(data.analytics_id ?? "");
-        setEmailProvider(data.email_provider ?? "");
-        setEmailApiKey(data.email_api_key ?? "");
-      })
-      .catch(() => toast("Failed to load integrations", "error"))
-      .finally(() => setLoading(false));
-  }, [toast]);
+  const [analyticsProvider, setAnalyticsProvider] = useState(initialData.analytics_provider ?? "");
+  const [analyticsId, setAnalyticsId] = useState(initialData.analytics_id ?? "");
+  const [emailProvider, setEmailProvider] = useState(initialData.email_provider ?? "");
+  const [emailApiKey, setEmailApiKey] = useState(initialData.email_api_key ?? "");
 
   function handleSave() {
     startTransition(async () => {
@@ -68,16 +54,6 @@ export function IntegrationsSettings() {
         toast("Failed to save integrations", "error");
       }
     });
-  }
-
-  if (loading) {
-    return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-10 rounded-lg bg-[var(--surface)] animate-pulse" />
-        ))}
-      </div>
-    );
   }
 
   return (

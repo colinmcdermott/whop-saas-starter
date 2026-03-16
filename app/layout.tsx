@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { preconnect, prefetchDNS } from "react-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/toast";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
@@ -58,6 +59,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // React DOM resource hints — emitted early in the HTML stream
+  prefetchDNS("https://api.whop.com");
+  preconnect("https://api.whop.com", { crossOrigin: "anonymous" });
+
   // Read accent color and analytics config from DB/env
   let accentCss: string | undefined;
   let analyticsHtml: string | null = null;
@@ -84,8 +89,6 @@ export default async function RootLayout({
       <head>
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#090909" media="(prefers-color-scheme: dark)" />
-        <link rel="dns-prefetch" href="https://api.whop.com" />
-        <link rel="preconnect" href="https://api.whop.com" crossOrigin="anonymous" />
         {/* Inline script to prevent flash of wrong theme */}
         <script
           id="theme-init"

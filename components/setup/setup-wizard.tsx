@@ -8,6 +8,10 @@ interface Props {
   initialStep?: number;
   isSignedIn: boolean;
   isAdmin: boolean;
+  initialConfig?: {
+    whopAppId: string;
+    planIds: Record<string, string>;
+  };
 }
 
 const STEPS = [
@@ -27,43 +31,23 @@ function getPersistedStep(): number | null {
   return saved ? parseInt(saved, 10) : null;
 }
 
-export function SetupWizard({ initialStep, isSignedIn, isAdmin }: Props) {
+export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(initialStep ?? getPersistedStep() ?? 1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
-  // Whop config
-  const [whopAppId, setWhopAppId] = useState("");
+  // Whop config — pre-filled from server
+  const [whopAppId, setWhopAppId] = useState(initialConfig?.whopAppId ?? "");
   const [whopApiKey, setWhopApiKey] = useState("");
   const [whopWebhookSecret, setWhopWebhookSecret] = useState("");
 
-  // Plan IDs (dynamic — keys derived from PLAN_METADATA)
-  const [planIds, setPlanIds] = useState<Record<string, string>>({});
+  // Plan IDs — pre-filled from server
+  const [planIds, setPlanIds] = useState<Record<string, string>>(initialConfig?.planIds ?? {});
   function setPlanId(configKey: string, value: string) {
     setPlanIds((prev) => ({ ...prev, [configKey]: value }));
   }
-
-  // Load existing config if any
-  useEffect(() => {
-    fetch("/api/setup")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.values) {
-          if (data.values.whop_app_id) setWhopAppId(data.values.whop_app_id);
-          const loaded: Record<string, string> = {};
-          for (const key of PLAN_KEYS) {
-            const ck = planConfigKey(key);
-            const cky = planConfigKeyYearly(key);
-            if (data.values[ck]) loaded[ck] = data.values[ck];
-            if (data.values[cky]) loaded[cky] = data.values[cky];
-          }
-          setPlanIds(loaded);
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   // If we returned from OAuth and are now signed in, auto-advance to step 7
   useEffect(() => {
