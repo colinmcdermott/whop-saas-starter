@@ -296,15 +296,41 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                     <div className="flex gap-3">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">2</span>
                       <p className="text-xs text-[var(--muted)] leading-relaxed">
-                        On the <span className="font-medium text-[var(--foreground)]">App details</span> tab, find the <span className="font-medium text-[var(--foreground)]">&quot;Set up your local environment&quot;</span> box in the top-right
+                        Find the <span className="font-medium text-[var(--foreground)]">&quot;Set up your local environment&quot;</span> box and copy the environment variables
                       </p>
                     </div>
-                    <div className="flex gap-3">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">3</span>
-                      <p className="text-xs text-[var(--muted)] leading-relaxed">
-                        Copy the <span className="font-mono text-[var(--foreground)]">app_</span> value (App ID) and <span className="font-mono text-[var(--foreground)]">apik_</span> value (API Key) from that box
-                      </p>
-                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="input-env-paste" className="text-sm font-medium">
+                    Paste environment variables
+                  </label>
+                  <textarea
+                    id="input-env-paste"
+                    rows={3}
+                    placeholder={"WHOP_API_KEY=apik_\u2026\nNEXT_PUBLIC_WHOP_APP_ID=app_\u2026"}
+                    spellCheck={false}
+                    className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm font-mono outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:border-[var(--accent)] transition-colors resize-none"
+                    onChange={(e) => {
+                      const text = e.target.value;
+                      const appIdMatch = text.match(/(?:NEXT_PUBLIC_WHOP_APP_ID|WHOP_APP_ID)\s*=\s*(\S+)/);
+                      const apiKeyMatch = text.match(/WHOP_API_KEY\s*=\s*(\S+)/);
+                      if (appIdMatch) setWhopAppId(appIdMatch[1]);
+                      if (apiKeyMatch) setWhopApiKey(apiKeyMatch[1]);
+                    }}
+                  />
+                  <p className="mt-1 text-[11px] text-[var(--muted)]">
+                    Paste the block from Whop and both fields below will fill automatically
+                  </p>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[var(--border)]" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-[var(--background)] px-2 text-[11px] text-[var(--muted)]">or enter individually</span>
                   </div>
                 </div>
 
@@ -320,7 +346,6 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                   placeholder="apik_xxxxxxxxx"
                   value={whopApiKey}
                   onChange={setWhopApiKey}
-                  hint="Found in the same box as your App ID"
                 />
               </div>
 
