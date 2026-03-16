@@ -35,6 +35,7 @@ export function Hero() {
           </Link>
           <Link
             href="/docs"
+            prefetch={false}
             className="w-full rounded-lg border border-[var(--border)] px-5 py-2.5 text-sm font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--muted)]/40 sm:w-auto"
           >
             View Docs

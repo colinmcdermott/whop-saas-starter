@@ -39,6 +39,7 @@ export function HeaderClient({ isLoggedIn }: { isLoggedIn: boolean }) {
             </Link>
             <Link
               href="/docs"
+              prefetch={false}
               className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
             >
               Docs
@@ -114,6 +115,7 @@ export function HeaderClient({ isLoggedIn }: { isLoggedIn: boolean }) {
               </Link>
               <Link
                 href="/docs"
+                prefetch={false}
                 className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
               >
                 Docs
