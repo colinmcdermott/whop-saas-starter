@@ -4,6 +4,7 @@ import { requireSession } from "@/lib/auth";
 import { getPlansConfig } from "@/lib/config";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
+import { ReactivateBanner } from "@/components/dashboard/reactivate-banner";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -28,6 +29,13 @@ export default async function DashboardPage() {
       <Suspense fallback={<StatsSkeleton />}>
         <StatsSection plan={session.plan} />
       </Suspense>
+
+      {/* Reactivate banner for users with pending cancellation */}
+      {session.cancelAtPeriodEnd && session.plan !== DEFAULT_PLAN && (
+        <div className="animate-slide-up delay-200">
+          <ReactivateBanner />
+        </div>
+      )}
 
       {/* Upgrade banner for free users */}
       {session.plan === DEFAULT_PLAN && (

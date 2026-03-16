@@ -54,7 +54,9 @@ pnpm db:migrate   # Run migrations
 - Billing intervals: monthly/yearly toggle on pricing page; each paid tier has Whop plan IDs per interval
 - Checkout pre-fills email for logged-in users
 - Plans fetched from `/api/config/plans` for client components
-- Webhooks (`membership_activated` / `membership_deactivated`) update user plan in DB
+- Webhooks (`membership_activated` / `membership_deactivated` / `membership_cancel_at_period_end_changed`) update user plan and cancellation state in DB
+- Billing portal: `/api/billing/portal` redirects paid users to Whop's self-service billing portal
+- Uncancel: `/api/billing/uncancel` reverses pending cancellations via Whop API; `cancelAtPeriodEnd` on User model tracks state
 
 ### Key Endpoints
 - `GET /api/auth/login?next=/dashboard` — initiate OAuth
@@ -63,6 +65,8 @@ pnpm db:migrate   # Run migrations
 - `GET /api/auth/me` — current user (for client-side checks)
 - `POST /api/auth/delete-account` — delete user account (requires confirmation)
 - `POST /api/webhooks/whop` — Whop webhook handler
+- `GET /api/billing/portal` — redirect to Whop billing portal (or /pricing for free users)
+- `POST /api/billing/uncancel` — reactivate a pending-cancellation subscription
 - `GET/POST /api/setup` — read/write config during setup (open pre-setup, admin-only after)
 - `POST /api/setup/complete` — mark setup as done (admin-only)
 - `GET /api/config/plans` — plan config for client components
@@ -98,6 +102,7 @@ pnpm db:migrate   # Run migrations
 - `https://api.whop.com/oauth/token` — token exchange
 - `https://api.whop.com/oauth/userinfo` — user profile (OIDC)
 - `https://api.whop.com/api/v1/users/{id}/access/{resource_id}` — check user access to product/experience
+- `https://api.whop.com/api/v1/memberships/{id}/uncancel` — reverse pending cancellation
 
 ## Webhook Verification
 - Whop uses standardwebhooks format (HMAC-SHA256)
@@ -118,13 +123,14 @@ app/                        # Pages and API routes
 ├── error.tsx               # Global error boundary
 └── api/
     ├── auth/               # login, callback, logout, me, delete-account
+    ├── billing/            # portal (redirect to Whop), uncancel
     ├── setup/              # Config read/write + completion
     ├── config/             # plans, accent color, integrations
     ├── search/             # Fumadocs full-text search
     └── webhooks/whop/      # Whop webhook handler
 components/
 ├── landing/                # Hero, features, pricing cards, header, footer
-├── dashboard/              # Sidebar, header, upgrade banner, delete account, integrations
+├── dashboard/              # Sidebar, header, upgrade/reactivate banners, delete account, integrations
 ├── checkout/               # Two-step checkout form
 └── setup/                  # Setup wizard
 content/docs/               # Documentation MDX files

@@ -16,6 +16,7 @@ export interface Session {
   name: string | null;
   profileImageUrl: string | null;
   plan: string;
+  cancelAtPeriodEnd: boolean;
   isAdmin: boolean;
 }
 
@@ -114,6 +115,7 @@ export async function verifySessionToken(token: string): Promise<Session | null>
       name: (payload.name as string) ?? null,
       profileImageUrl: (payload.profileImageUrl as string) ?? null,
       plan: payload.plan,
+      cancelAtPeriodEnd: (payload.cancelAtPeriodEnd as boolean) ?? false,
       isAdmin: (payload.isAdmin as boolean) ?? false,
     };
   } catch {
@@ -184,16 +186,16 @@ export const getSession = cache(async (): Promise<Session | null> => {
   const session = await verifySessionToken(token);
   if (!session) return null;
 
-  // Fetch fresh plan from DB (single column, PK lookup)
+  // Fetch fresh plan + cancellation state from DB (PK lookup)
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { plan: true },
+    select: { plan: true, cancelAtPeriodEnd: true },
   });
 
   // User was deleted — treat as logged out
   if (!user) return null;
 
-  return { ...session, plan: user.plan };
+  return { ...session, plan: user.plan, cancelAtPeriodEnd: user.cancelAtPeriodEnd };
 });
 
 /**

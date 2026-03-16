@@ -21,6 +21,7 @@ interface WebhookData {
   user_id?: string;
   plan_id?: string;
   membership_id?: string;
+  cancel_at_period_end?: boolean;
 }
 
 /**
@@ -101,6 +102,11 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case "membership_cancel_at_period_end_changed": {
+        await handleCancelAtPeriodEndChanged(event.data);
+        break;
+      }
+
       case "refund_created": {
         await handleRefundOrDispute(event.data, "refund");
         break;
@@ -145,6 +151,7 @@ async function handleMembershipActivated(data: WebhookData) {
     update: {
       plan,
       whopMembershipId: data.id ?? null,
+      cancelAtPeriodEnd: false,
     },
     create: {
       whopUserId: data.user_id,
@@ -164,10 +171,28 @@ async function handleMembershipDeactivated(data: WebhookData) {
 
   await prisma.user.updateMany({
     where: { whopUserId: data.user_id },
-    data: { plan: DEFAULT_PLAN, whopMembershipId: null },
+    data: { plan: DEFAULT_PLAN, whopMembershipId: null, cancelAtPeriodEnd: false },
   });
 
   console.log(`[Webhook] User ${data.user_id} downgraded to free`);
+}
+
+async function handleCancelAtPeriodEndChanged(data: WebhookData) {
+  if (!data.user_id) {
+    console.error("[Webhook] membership_cancel_at_period_end_changed missing user_id");
+    return;
+  }
+
+  const cancelAtPeriodEnd = data.cancel_at_period_end ?? false;
+
+  await prisma.user.updateMany({
+    where: { whopUserId: data.user_id },
+    data: { cancelAtPeriodEnd },
+  });
+
+  console.log(
+    `[Webhook] User ${data.user_id} cancel_at_period_end → ${cancelAtPeriodEnd}`
+  );
 }
 
 async function handleRefundOrDispute(data: WebhookData, reason: "refund" | "dispute") {

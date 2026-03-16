@@ -6,6 +6,7 @@ import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
+import { ReactivateButton } from "@/components/dashboard/reactivate-button";
 import { AccentColorPicker } from "@/components/dashboard/accent-color-picker";
 import { IntegrationsSettings } from "@/components/dashboard/integrations-settings";
 
@@ -61,7 +62,7 @@ export default async function SettingsPage() {
           />
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5 flex items-center gap-3">
           {session.plan === DEFAULT_PLAN ? (
             <Link
               href="/pricing"
@@ -69,6 +70,8 @@ export default async function SettingsPage() {
             >
               Upgrade Plan
             </Link>
+          ) : session.cancelAtPeriodEnd ? (
+            <ReactivateButton />
           ) : (
             <Link
               href="/pricing"

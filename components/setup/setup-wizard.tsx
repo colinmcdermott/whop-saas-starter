@@ -428,7 +428,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                     <div className="flex gap-3">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">3</span>
                       <p className="text-xs text-[var(--muted)] leading-relaxed">
-                        Select these events: <span className="font-medium text-[var(--foreground)]">membership_activated</span>, <span className="font-medium text-[var(--foreground)]">membership_deactivated</span>, <span className="font-medium text-[var(--foreground)]">payment_succeeded</span>, <span className="font-medium text-[var(--foreground)]">payment_failed</span>, <span className="font-medium text-[var(--foreground)]">refund_created</span>, and <span className="font-medium text-[var(--foreground)]">dispute_created</span>
+                        Select these events: <span className="font-medium text-[var(--foreground)]">membership_activated</span>, <span className="font-medium text-[var(--foreground)]">membership_deactivated</span>, <span className="font-medium text-[var(--foreground)]">membership_cancel_at_period_end_changed</span>, <span className="font-medium text-[var(--foreground)]">payment_succeeded</span>, <span className="font-medium text-[var(--foreground)]">payment_failed</span>, <span className="font-medium text-[var(--foreground)]">refund_created</span>, and <span className="font-medium text-[var(--foreground)]">dispute_created</span>
                       </p>
                     </div>
                     <div className="flex gap-3">

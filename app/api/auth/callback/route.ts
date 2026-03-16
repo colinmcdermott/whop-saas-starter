@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
       name: user.name,
       profileImageUrl: user.profileImageUrl,
       plan: user.plan,
+      cancelAtPeriodEnd: user.cancelAtPeriodEnd,
       isAdmin,
     };
 
