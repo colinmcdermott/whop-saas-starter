@@ -6,9 +6,25 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AppLogo } from "@/components/app-logo";
 
-export function HeaderClient({ isLoggedIn }: { isLoggedIn: boolean }) {
+/**
+ * Check if the session cookie exists (not its value — just presence).
+ * This is synchronous and doesn't require a server round-trip, so the
+ * homepage can be CDN-cached while still showing the right nav links.
+ */
+function hasSessionCookie(): boolean {
+  if (typeof document === "undefined") return false;
+  return document.cookie.split(";").some((c) => c.trim().startsWith("session="));
+}
+
+export function HeaderClient() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
+
+  // Check cookie presence on mount (synchronous, no fetch)
+  useEffect(() => {
+    setIsLoggedIn(hasSessionCookie());
+  }, [pathname]);
 
   // Close on route change
   useEffect(() => {
