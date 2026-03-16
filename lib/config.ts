@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import { cache as reactCache } from "react";
-import { prisma } from "./db";
+import { prisma } from "@/db";
 import {
   PLAN_METADATA,
   PLAN_KEYS,

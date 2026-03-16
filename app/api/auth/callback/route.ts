@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { exchangeCodeForTokens, getWhopUser } from "@/lib/whop";
 import { setSessionCookie, type Session } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/db";
 import { getConfig } from "@/lib/config";
 import { DEFAULT_PLAN, APP_NAME } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";

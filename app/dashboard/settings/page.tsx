@@ -4,7 +4,7 @@ import { requireSession } from "@/lib/auth";
 import { getPlansConfig, getConfig } from "@/lib/config";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
-import { prisma } from "@/lib/db";
+import { getUserCreatedAt } from "@/lib/subscription";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
 import { ReactivateButton } from "@/components/dashboard/reactivate-button";
 import { AccentColorPicker } from "@/components/dashboard/accent-color-picker";
@@ -19,11 +19,8 @@ export default async function SettingsPage() {
   const plans = await getPlansConfig();
   const planConfig = plans[session.plan as PlanKey] ?? plans[DEFAULT_PLAN];
 
-  const [user, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: session.userId },
-      select: { createdAt: true },
-    }),
+  const [createdAt, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([
+    getUserCreatedAt(session.userId),
     getConfig("accent_color"),
     getConfig("analytics_provider"),
     getConfig("analytics_id"),
@@ -46,7 +43,7 @@ export default async function SettingsPage() {
           <Field label="Email" value={session.email ?? "\u2014"} />
           <Field
             label="Member since"
-            value={user ? formatDate(user.createdAt) : "\u2014"}
+            value={createdAt ? formatDate(createdAt) : "\u2014"}
           />
         </div>
       </section>

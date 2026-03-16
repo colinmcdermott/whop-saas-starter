@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getConfig } from "@/lib/config";
-import { prisma } from "@/lib/db";
+import {
+  getSubscriptionDetails,
+  uncancelSubscription,
+} from "@/lib/subscription";
 
 /**
  * POST /api/billing/uncancel
@@ -15,20 +18,16 @@ export async function POST() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  // Look up the user's membership ID
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { whopMembershipId: true, cancelAtPeriodEnd: true },
-  });
+  const result = await getSubscriptionDetails(session.userId);
 
-  if (!user?.whopMembershipId) {
+  if (!result.hasSubscription || !result.subscription?.whopMembershipId) {
     return NextResponse.json(
       { error: "No active membership found" },
       { status: 400 },
     );
   }
 
-  if (!user.cancelAtPeriodEnd) {
+  if (result.subscription.status !== "canceling") {
     return NextResponse.json(
       { error: "Membership is not pending cancellation" },
       { status: 400 },
@@ -45,7 +44,7 @@ export async function POST() {
 
   // Call Whop's uncancel API
   const res = await fetch(
-    `https://api.whop.com/api/v1/memberships/${user.whopMembershipId}/uncancel`,
+    `https://api.whop.com/api/v1/memberships/${result.subscription.whopMembershipId}/uncancel`,
     {
       method: "POST",
       headers: {
@@ -65,10 +64,7 @@ export async function POST() {
   }
 
   // Update local DB immediately (webhook will also fire, but this is faster)
-  await prisma.user.update({
-    where: { id: session.userId },
-    data: { cancelAtPeriodEnd: false },
-  });
+  await uncancelSubscription(session.userId);
 
   return NextResponse.json({ success: true });
 }

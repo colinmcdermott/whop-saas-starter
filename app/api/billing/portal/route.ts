@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { getSubscriptionDetails } from "@/lib/subscription";
 
 /**
  * GET /api/billing/portal
@@ -19,19 +19,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Look up the user's membership ID from the database
-  const user = await prisma.user.findUnique({
-    where: { id: session.userId },
-    select: { whopMembershipId: true },
-  });
+  const result = await getSubscriptionDetails(session.userId);
 
-  if (!user?.whopMembershipId) {
-    // No active membership — send to pricing
+  if (!result.hasSubscription || !result.subscription?.whopMembershipId) {
     return NextResponse.redirect(new URL("/pricing", request.url));
   }
 
   // Redirect to Whop's billing portal for this membership
   return NextResponse.redirect(
-    `https://whop.com/billing/manage/${user.whopMembershipId}/`
+    `https://whop.com/billing/manage/${result.subscription.whopMembershipId}/`
   );
 }

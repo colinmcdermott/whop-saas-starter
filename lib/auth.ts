@@ -2,7 +2,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
-import { prisma } from "./db";
+import { prisma } from "@/db";
 import { PLAN_RANK, type PlanKey } from "./constants";
 
 // ---------------------------------------------------------------------------

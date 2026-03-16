@@ -184,13 +184,15 @@ app/
 components/
 ├── landing/                 # Marketing page components
 └── dashboard/               # Dashboard components
+db/
+├── index.ts                 # Prisma client singleton
+└── schema.prisma            # Database schema
 lib/
 ├── auth.ts                  # Session management (JWT cookies)
+├── subscription.ts          # Typed subscription/membership query helpers
 ├── whop.ts                  # Whop OAuth + webhook helpers
-├── db.ts                    # Prisma client
 ├── constants.ts             # Plan tiers (single source of truth — edit this!)
 └── utils.ts                 # Utility functions
-prisma/schema.prisma         # Database schema
 proxy.ts                     # Route protection (Next.js 16)
 ```
 

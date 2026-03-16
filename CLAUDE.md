@@ -88,6 +88,10 @@ pnpm db:migrate   # Run migrations
 - `hasMinimumPlan(userPlan, minimumPlan)` — pure function for plan level comparison in API routes
 - `<PlanGate plan={session.plan} minimum="pro">` — client component for conditional rendering (pass plan from server parent)
 - `checkWhopAccess(whopUserId, productId, apiKey)` / `hasWhopAccess(whopUserId, productId)` — real-time Whop API access checks (for authoritative gating)
+- `getSubscriptionDetails(userId)` — typed subscription lookup; returns `{ hasSubscription, subscription?, error? }`
+- `isUserSubscribed(userId)` — boolean check for active paid subscription
+- `getUserSubscriptionStatus(userId)` — returns `"active" | "canceling" | "free"`
+- `activateMembership()` / `deactivateMembership()` / `updateCancelAtPeriodEnd()` — webhook write helpers
 - `getConfig(key)` — read config value (cache → env → DB)
 - `getPlansConfig()` — server-side plan config (use in server components, pass to client as props)
 - `sendEmail({ to, subject, html })` — sends via configured provider (Resend/SendGrid), returns `{ success, error? }`. Used for welcome emails and payment failure notifications.
@@ -134,11 +138,14 @@ components/
 ├── checkout/               # Two-step checkout form
 └── setup/                  # Setup wizard
 content/docs/               # Documentation MDX files
+db/
+├── index.ts                # Prisma client singleton
+└── schema.prisma           # User (with isAdmin, cancelAtPeriodEnd) + SystemConfig models
 lib/
 ├── auth.ts                 # JWT session + plan gating (requirePlan, hasMinimumPlan)
+├── subscription.ts         # Typed subscription/membership query helpers
 ├── config.ts               # DB-backed config system (getConfig, getPlansConfig)
 ├── whop.ts                 # Whop OAuth, webhook, access check helpers
-├── db.ts                   # Prisma client singleton
 ├── constants.ts            # Plan metadata (single source of truth), APP_NAME, derived types/helpers
 ├── analytics.ts            # Analytics script generation (PostHog, GA, Plausible)
 ├── email.ts                # Email sending (Resend, SendGrid)
@@ -148,8 +155,7 @@ lib/
 proxy.ts                   # Protects /dashboard/* routes (Next.js 16 proxy)
 source.config.ts            # Fumadocs MDX content config
 mdx-components.tsx          # MDX component overrides
-prisma/schema.prisma        # User (with isAdmin) + SystemConfig models
-prisma.config.ts            # Prisma 7 configuration
+prisma.config.ts            # Prisma 7 configuration (points to db/schema.prisma)
 ```
 
 ## Pre-Commit Checklist

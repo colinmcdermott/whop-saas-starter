@@ -4,7 +4,7 @@ import { execSync } from "node:child_process";
 
 if (process.env.DATABASE_URL) {
   console.log("Pushing database schema...");
-  execSync(`prisma db push --url "${process.env.DATABASE_URL}"`, {
+  execSync(`prisma db push --schema db/schema.prisma --url "${process.env.DATABASE_URL}"`, {
     stdio: "inherit",
   });
 } else {
