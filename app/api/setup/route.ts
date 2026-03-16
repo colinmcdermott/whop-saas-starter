@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getSetupStatus, setConfigs, isSetupComplete } from "@/lib/config";
+import { getConfig, getSetupStatus, setConfigs } from "@/lib/config";
 import { PLAN_KEYS, getPlanBillingIntervals, planConfigKey, planConfigKeyYearly } from "@/lib/constants";
 
 const ALLOWED_KEYS = new Set([
@@ -19,10 +19,13 @@ const ALLOWED_KEYS = new Set([
 
 /**
  * GET /api/setup — Returns current setup status.
- * Open before setup is complete; admin-only after.
+ * Open during setup wizard; admin-only after explicit completion.
+ *
+ * Uses setup_complete flag directly (not isSetupComplete()) so that
+ * saving whop_app_id mid-wizard doesn't lock out subsequent steps.
  */
 export async function GET() {
-  const setupDone = await isSetupComplete();
+  const setupDone = (await getConfig("setup_complete")) === "true";
 
   if (setupDone) {
     const session = await getSession();
@@ -48,7 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const setupDone = await isSetupComplete();
+  const setupDone = (await getConfig("setup_complete")) === "true";
 
   if (setupDone) {
     const session = await getSession();
