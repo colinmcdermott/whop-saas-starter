@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { requireSession } from "@/lib/auth";
 import { getPlansConfig } from "@/lib/config";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
@@ -10,12 +11,10 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await requireSession();
-  const plans = await getPlansConfig();
-  const planConfig = plans[session.plan as PlanKey] ?? plans[DEFAULT_PLAN];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      {/* Welcome */}
+      {/* Welcome — renders immediately (session already available from layout) */}
       <div className="animate-slide-up">
         <h1 className="text-lg font-semibold tracking-tight">
           Welcome back{session.name ? `, ${session.name}` : ""}
@@ -25,12 +24,10 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* TODO: Replace these placeholder stats with your product's metrics */}
-      <div className="animate-slide-up delay-100 grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
-        <StatCard label="Current Plan" value={planConfig.name} />
-        <StatCard label="Projects" value="0 / 3" />
-        <StatCard label="Storage" value="0 GB" />
-      </div>
+      {/* Stats stream in while welcome text paints immediately */}
+      <Suspense fallback={<StatsSkeleton />}>
+        <StatsSection plan={session.plan} />
+      </Suspense>
 
       {/* Upgrade banner for free users */}
       {session.plan === DEFAULT_PLAN && (
@@ -53,6 +50,32 @@ export default async function DashboardPage() {
           <Step number={4} title="Deploy to Vercel" done={false} />
         </div>
       </div>
+    </div>
+  );
+}
+
+async function StatsSection({ plan }: { plan: string }) {
+  const plans = await getPlansConfig();
+  const planConfig = plans[plan as PlanKey] ?? plans[DEFAULT_PLAN];
+
+  return (
+    <div className="animate-slide-up delay-100 grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
+      <StatCard label="Current Plan" value={planConfig.name} />
+      <StatCard label="Projects" value="0 / 3" />
+      <StatCard label="Storage" value="0 GB" />
+    </div>
+  );
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-[var(--card)] p-5">
+          <div className="h-3 w-20 rounded bg-[var(--surface)] animate-pulse" />
+          <div className="mt-2 h-6 w-12 rounded bg-[var(--surface)] animate-pulse" />
+        </div>
+      ))}
     </div>
   );
 }
