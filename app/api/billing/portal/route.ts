@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
@@ -12,10 +13,10 @@ import { prisma } from "@/lib/db";
  * - Paid users → Whop billing portal for their membership
  * - Free users → /pricing (no active membership to manage)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Look up the user's membership ID from the database
@@ -26,7 +27,7 @@ export async function GET() {
 
   if (!user?.whopMembershipId) {
     // No active membership — send to pricing
-    return NextResponse.redirect(new URL("/pricing", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"));
+    return NextResponse.redirect(new URL("/pricing", request.url));
   }
 
   // Redirect to Whop's billing portal for this membership
