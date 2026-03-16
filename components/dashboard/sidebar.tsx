@@ -8,6 +8,7 @@ import { AppLogo } from "@/components/app-logo";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: HomeIcon },
+  { href: "/api/billing/portal", label: "Billing", icon: BillingIcon, external: true },
   { href: "/dashboard/settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -71,21 +72,29 @@ export function Sidebar() {
         <nav className="p-2 space-y-0.5">
           {navItems.map((item) => {
             const isActive =
-              item.href === "/dashboard"
+              !item.external &&
+              (item.href === "/dashboard"
                 ? pathname === "/dashboard"
-                : pathname.startsWith(item.href);
+                : pathname.startsWith(item.href));
+
+            const classes = cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+              isActive
+                ? "bg-[var(--surface)] text-[var(--foreground)] font-medium"
+                : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+            );
+
+            if (item.external) {
+              return (
+                <a key={item.href} href={item.href} className={classes}>
+                  <item.icon />
+                  {item.label}
+                </a>
+              );
+            }
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
-                  isActive
-                    ? "bg-[var(--surface)] text-[var(--foreground)] font-medium"
-                    : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
-                )}
-              >
+              <Link key={item.href} href={item.href} className={classes}>
                 <item.icon />
                 {item.label}
               </Link>
@@ -101,6 +110,14 @@ function HomeIcon() {
   return (
     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+    </svg>
+  );
+}
+
+function BillingIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
     </svg>
   );
 }
