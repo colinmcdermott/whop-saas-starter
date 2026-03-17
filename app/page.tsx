@@ -10,10 +10,10 @@ import { Footer } from "@/components/landing/footer";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} — ${APP_DESCRIPTION}`,
+  title: `${APP_NAME} -${APP_DESCRIPTION}`,
   description: APP_DESCRIPTION,
   openGraph: {
-    title: `${APP_NAME} — ${APP_DESCRIPTION}`,
+    title: `${APP_NAME} -${APP_DESCRIPTION}`,
     description: APP_DESCRIPTION,
   },
 };

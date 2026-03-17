@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Email templates — simple HTML strings, no dependencies
+// Email templates -simple HTML strings, no dependencies
 // ---------------------------------------------------------------------------
 // Replace these with your own templates or integrate React Email.
 // Each function returns { subject, html } ready for sendEmail().
@@ -29,7 +29,7 @@ function wrapper(body: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Welcome email — sent on first sign-up via OAuth
+// Welcome email -sent on first sign-up via OAuth
 // ---------------------------------------------------------------------------
 
 export function welcomeEmail(name: string | null) {
@@ -51,12 +51,12 @@ export function welcomeEmail(name: string | null) {
 }
 
 // ---------------------------------------------------------------------------
-// Payment failed — sent when a Whop payment_failed webhook fires
+// Payment failed -sent when a Whop payment_failed webhook fires
 // ---------------------------------------------------------------------------
 
 export function paymentFailedEmail(name: string | null) {
   return {
-    subject: `Action needed: Payment failed — ${APP_NAME}`,
+    subject: `Action needed: Payment failed -${APP_NAME}`,
     html: wrapper(`
       <h1 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#18181b">${greeting(name)}</h1>
       <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#3f3f46">

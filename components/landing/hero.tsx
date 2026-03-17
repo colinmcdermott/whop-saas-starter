@@ -22,7 +22,7 @@ export function Hero() {
         </h1>
 
         <p className="animate-slide-up delay-100 mx-auto mt-5 max-w-lg text-base text-[var(--muted)] leading-relaxed">
-          Authentication, payments, and subscriptions — all wired up. Just add your product.
+          Authentication, payments, and subscriptions -all wired up. Just add your product.
         </p>
 
         <div className="animate-slide-up delay-200 mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

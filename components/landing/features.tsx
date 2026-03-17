@@ -3,7 +3,7 @@ const features = [
     icon: LockIcon,
     title: "Authentication",
     description:
-      "OAuth 2.1 + PKCE with Whop. Secure sessions, protected routes, and middleware — ready to go.",
+      "OAuth 2.1 + PKCE with Whop. Secure sessions, protected routes, and middleware -ready to go.",
   },
   {
     icon: CreditCardIcon,
