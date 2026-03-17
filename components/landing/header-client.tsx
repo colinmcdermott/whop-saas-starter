@@ -40,13 +40,14 @@ export function HeaderClient() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-5xl items-center px-4 sm:px-6">
+          {/* Left — logo */}
           <Link href="/" className="flex items-center">
             <AppLogo />
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 sm:flex">
+          {/* Center — nav links (desktop) */}
+          <nav className="hidden flex-1 items-center justify-center gap-1 sm:flex">
             <Link
               href="/pricing"
               className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
@@ -60,13 +61,20 @@ export function HeaderClient() {
             >
               Docs
             </Link>
+          </nav>
+
+          {/* Right — actions (desktop) */}
+          <div className="hidden items-center gap-1 sm:flex">
             {isLoggedIn ? (
-              <Link
-                href="/dashboard"
-                className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
-              >
-                Dashboard
-              </Link>
+              <>
+                <ThemeToggle />
+                <Link
+                  href="/dashboard"
+                  className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
+                >
+                  Dashboard
+                </Link>
+              </>
             ) : (
               <>
                 <Link
@@ -75,6 +83,7 @@ export function HeaderClient() {
                 >
                   Sign in
                 </Link>
+                <ThemeToggle />
                 <Link
                   href="/pricing"
                   className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
@@ -83,8 +92,7 @@ export function HeaderClient() {
                 </Link>
               </>
             )}
-            <ThemeToggle />
-          </nav>
+          </div>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-1 sm:hidden">
