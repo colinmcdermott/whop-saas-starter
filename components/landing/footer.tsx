@@ -36,6 +36,7 @@ export function Footer() {
           </Link>
           <Link
             href="/docs"
+            prefetch={false}
             className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
           >
             Docs

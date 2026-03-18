@@ -38,7 +38,7 @@ export function HeaderClient() {
       <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-5xl items-center px-4 sm:px-6">
           {/* Left — logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" prefetch={false} className="flex items-center">
             <AppLogo />
           </Link>
 
@@ -82,6 +82,7 @@ export function HeaderClient() {
                 <ThemeToggle />
                 <Link
                   href="/pricing"
+                  prefetch={false}
                   className="ml-2 rounded-lg bg-[var(--accent)] px-3.5 py-1.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
                 >
                   Get Started

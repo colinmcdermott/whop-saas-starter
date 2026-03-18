@@ -28,6 +28,7 @@ export function Hero() {
         <div className="animate-slide-up delay-200 mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/pricing"
+            prefetch={false}
             className="group w-full rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80 sm:w-auto"
           >
             Start Building
