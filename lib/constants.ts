@@ -111,7 +111,7 @@ export const DEFAULT_PLAN: PlanKey = PLAN_KEYS[0];
 
 /** Get the billing intervals a plan supports */
 export function getPlanBillingIntervals(key: PlanKey): BillingInterval[] {
-  const meta = PLAN_METADATA[key] as PlanMetadataEntry;
+  const meta: PlanMetadataEntry = PLAN_METADATA[key];
   return [...(meta.billingIntervals ?? ["monthly", "yearly"])];
 }
 

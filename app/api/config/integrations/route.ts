@@ -26,9 +26,13 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const keys = Array.from(INTEGRATION_KEYS);
+  const values = await Promise.all(keys.map((key) => getConfig(key)));
+
   const result: Record<string, string | null> = {};
-  for (const key of INTEGRATION_KEYS) {
-    const value = await getConfig(key);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const value = values[i];
     if (!value) {
       result[key] = null;
     } else if (SAFE_KEYS.has(key)) {
@@ -55,13 +59,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Only save allowed keys
-  for (const [key, value] of Object.entries(body)) {
-    if (!INTEGRATION_KEYS.has(key)) continue;
-    // Skip masked values (user didn't change them)
-    if (typeof value === "string" && value.startsWith("****")) continue;
-    await setConfig(key, value);
-  }
+  // Only save allowed keys (parallel writes)
+  await Promise.all(
+    Object.entries(body)
+      .filter(([key, value]) =>
+        INTEGRATION_KEYS.has(key) &&
+        !(typeof value === "string" && value.startsWith("****"))
+      )
+      .map(([key, value]) => setConfig(key, value))
+  );
 
   revalidatePath("/", "layout");
   return NextResponse.json({ saved: true });

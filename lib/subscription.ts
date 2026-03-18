@@ -101,8 +101,8 @@ export async function getUserSubscriptionStatus(
   userId: string,
 ): Promise<SubscriptionStatus> {
   const result = await getSubscriptionDetails(userId);
-  if (!result.hasSubscription) return "free";
-  return result.subscription!.status;
+  if (!result.hasSubscription || !result.subscription) return "free";
+  return result.subscription.status;
 }
 
 /**

@@ -21,13 +21,9 @@ export function HeaderClient() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
-  // Check cookie presence on mount and route change (synchronous, no fetch)
+  // Check cookie presence and close mobile nav on route change
   useEffect(() => {
     setIsLoggedIn(hasLoggedInCookie());
-  }, [pathname]);
-
-  // Close on route change
-  useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 

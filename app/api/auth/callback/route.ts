@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { exchangeCodeForTokens, getWhopUser } from "@/lib/whop";
 import { setSessionCookie, type Session } from "@/lib/auth";
@@ -164,12 +164,15 @@ export async function GET(request: NextRequest) {
 
     await setSessionCookie(session);
 
-    // Send welcome email for new users (non-blocking)
+    // Send welcome email for new users (runs after response is sent)
     if (!existingUser && user.email) {
-      const email = welcomeEmail(user.name);
-      sendEmail({ to: user.email, ...email }).catch((err) =>
-        console.error("[Email] Welcome email failed:", err)
-      );
+      const { email: userEmail, name: userName } = user;
+      after(async () => {
+        const emailContent = welcomeEmail(userName);
+        await sendEmail({ to: userEmail, ...emailContent }).catch((err) =>
+          console.error("[Email] Welcome email failed:", err)
+        );
+      });
     }
 
     return NextResponse.redirect(new URL(next, request.url));

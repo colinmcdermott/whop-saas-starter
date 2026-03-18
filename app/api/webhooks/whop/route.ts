@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getPlanKeyFromWhopId, getConfig } from "@/lib/config";
 import { verifyWebhookSignature } from "@/lib/whop";
@@ -122,14 +122,17 @@ export async function POST(request: NextRequest) {
 
       case "payment_failed": {
         console.log("[Webhook] Payment failed:", event.data);
-        if (event.data.user_id) {
-          const user = await getUserForNotification(event.data.user_id);
-          if (user) {
-            const email = paymentFailedEmail(user.name);
-            sendEmail({ to: user.email, ...email }).catch((err) =>
-              console.error("[Email] Payment failed email error:", err)
-            );
-          }
+        const failedUserId = event.data.user_id;
+        if (failedUserId) {
+          after(async () => {
+            const user = await getUserForNotification(failedUserId);
+            if (user) {
+              const email = paymentFailedEmail(user.name);
+              await sendEmail({ to: user.email, ...email }).catch((err) =>
+                console.error("[Email] Payment failed email error:", err)
+              );
+            }
+          });
         }
         break;
       }

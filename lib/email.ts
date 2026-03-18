@@ -28,9 +28,10 @@ interface SendEmailResult {
  * });
  */
 export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
-  const [provider, apiKey] = await Promise.all([
+  const [provider, apiKey, fromAddress] = await Promise.all([
     getConfig("email_provider"),
     getConfig("email_api_key"),
+    getConfig("email_from_address"),
   ]);
 
   if (!provider || !apiKey) {
@@ -38,7 +39,6 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     return { success: false, error: "Email provider not configured" };
   }
 
-  const fromAddress = await getConfig("email_from_address");
   const from = options.from || fromAddress;
   if (!from) {
     console.warn("[Email] No from address configured — skipping send");

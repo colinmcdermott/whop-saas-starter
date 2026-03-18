@@ -15,8 +15,10 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-  const session = await requireSession();
-  const plans = await getPlansConfig();
+  const [session, plans] = await Promise.all([
+    requireSession(),
+    getPlansConfig(),
+  ]);
   const planConfig = plans[session.plan] ?? plans[DEFAULT_PLAN];
 
   const [createdAt, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([

@@ -117,9 +117,11 @@ export async function setConfig(key: string, value: string): Promise<void> {
 
 /** Bulk set config values */
 export async function setConfigs(configs: Record<string, string>): Promise<void> {
-  for (const [key, value] of Object.entries(configs)) {
-    if (value) await setConfig(key, value);
-  }
+  await Promise.all(
+    Object.entries(configs)
+      .filter(([, value]) => !!value)
+      .map(([key, value]) => setConfig(key, value))
+  );
 }
 
 /** Get setup status for each config key (true = configured, false = missing) */
@@ -128,13 +130,15 @@ export async function getSetupStatus(): Promise<{
   configured: Record<string, boolean>;
   values: Record<string, string>;
 }> {
+  const keys = Array.from(VALID_KEYS);
+  const results = await Promise.all(keys.map((key) => getConfig(key)));
+
   const configured: Record<string, boolean> = {};
   const values: Record<string, string> = {};
-
-  for (const key of VALID_KEYS) {
-    const val = await getConfig(key);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const val = results[i];
     configured[key] = !!val;
-    // Only expose non-sensitive values
     if (val && PUBLIC_KEYS.has(key)) {
       values[key] = val;
     }
@@ -183,7 +187,7 @@ export type PlansConfig = Record<PlanKey, PlanConfig>;
 /** Build full plan config by merging static metadata with dynamic plan IDs from DB/env.
  *  Wrapped in React.cache() for per-request deduplication across the component tree. */
 export const getPlansConfig = reactCache(async (): Promise<PlansConfig> => {
-  const entries = await Promise.all(
+  const configs = await Promise.all(
     PLAN_KEYS.map(async (key) => {
       const intervals = getPlanBillingIntervals(key);
       const [monthlyId, yearlyId] = await Promise.all([
@@ -192,18 +196,22 @@ export const getPlansConfig = reactCache(async (): Promise<PlansConfig> => {
           ? getConfig(planConfigKeyYearly(key))
           : Promise.resolve(null),
       ]);
-      return [
+      return {
         key,
-        {
+        config: {
           ...PLAN_METADATA[key],
           billingIntervals: intervals,
           whopPlanId: monthlyId ?? "",
           whopPlanIdYearly: yearlyId ?? monthlyId ?? "",
-        },
-      ] as const;
+        } satisfies PlanConfig,
+      };
     })
   );
-  return Object.fromEntries(entries) as unknown as PlansConfig;
+  const plans = {} as PlansConfig;
+  for (const { key, config } of configs) {
+    plans[key] = config;
+  }
+  return plans;
 });
 
 /** Get the Whop plan ID for a given plan and billing interval */
