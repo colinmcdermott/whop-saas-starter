@@ -32,7 +32,7 @@ export default async function HomePage() {
         <Features />
 
         {/* Pricing streams in while Hero + Features paint immediately */}
-        <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+        <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Simple, transparent pricing
