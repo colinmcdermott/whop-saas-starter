@@ -55,6 +55,7 @@ app/
 ├── setup/               # First-run setup wizard
 └── api/
     ├── auth/            # login, callback, logout, me, delete-account
+    ├── billing/         # portal redirect, uncancel subscription
     ├── config/          # plans, accent color, integrations
     ├── search/          # Full-text docs search
     ├── setup/           # Setup wizard API
@@ -65,13 +66,17 @@ components/
 ├── dashboard/           # Sidebar, header, settings
 └── setup/               # Setup wizard
 content/docs/            # Documentation (MDX files — you're reading them!)
+db/
+├── index.ts             # Prisma client singleton
+└── schema.prisma        # User + SystemConfig models
 lib/
 ├── auth.ts              # Session + plan gating (requirePlan, hasMinimumPlan)
 ├── config.ts            # DB-backed configuration
 ├── whop.ts              # Whop OAuth, webhooks, access checks
+├── subscription.ts      # Subscription/membership query helpers
 ├── analytics.ts         # Analytics script generation
 ├── email.ts             # Transactional email (Resend, SendGrid)
-├── db.ts                # Prisma client singleton
+├── email-templates.ts   # HTML email templates (welcome, payment failed)
 ├── constants.ts         # Plans, app name, links
 └── source.ts            # Fumadocs content loader
 ```

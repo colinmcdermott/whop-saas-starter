@@ -44,11 +44,18 @@ export async function GET() {
  * Open before setup is complete; admin-only after.
  */
 export async function POST(request: Request) {
-  // Basic CSRF check: verify the request originated from our own site
+  // CSRF check: verify the request originated from our own site
   const origin = request.headers.get("origin");
   const host = request.headers.get("host");
-  if (origin && host && !origin.includes(host)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (origin && host) {
+    try {
+      const originHost = new URL(origin).host;
+      if (originHost !== host) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    } catch {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   const setupDone = (await getConfig("setup_complete")) === "true";

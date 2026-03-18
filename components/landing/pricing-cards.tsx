@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PlanKey, BillingInterval } from "@/lib/constants";
+import { monthlyEquivalent } from "@/lib/utils";
 import type { PlansConfig } from "@/lib/config";
 
 function CheckIcon({ accent }: { accent?: boolean }) {
@@ -80,12 +81,10 @@ export function PricingCards({ plans }: { plans: PlansConfig }) {
           const highlighted = plan.highlighted;
           const price = plan.priceMonthly;
           const yearlyTotal = plan.priceYearly;
-          const monthlyEquivalent =
-            yearlyTotal > 0
-              ? Math.round((yearlyTotal / 12) * 100) / 100
-              : 0;
+          const perMonth =
+            yearlyTotal > 0 ? monthlyEquivalent(yearlyTotal) : 0;
           const displayPrice =
-            interval === "yearly" ? monthlyEquivalent : price;
+            interval === "yearly" ? perMonth : price;
           const whopPlanId =
             interval === "yearly" ? plan.whopPlanIdYearly : plan.whopPlanId;
 

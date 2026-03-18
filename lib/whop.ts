@@ -44,7 +44,6 @@ export async function buildAuthorizationUrl(redirectUri: string, clientId?: stri
   const codeVerifier = randomString(32);
   const codeChallenge = await sha256(codeVerifier);
   const state = randomString(16);
-  const nonce = randomString(16);
 
   const params = new URLSearchParams({
     response_type: "code",
@@ -52,7 +51,6 @@ export async function buildAuthorizationUrl(redirectUri: string, clientId?: stri
     redirect_uri: redirectUri,
     scope: "openid profile email",
     state,
-    nonce,
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
   });

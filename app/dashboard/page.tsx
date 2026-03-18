@@ -62,9 +62,9 @@ export default async function DashboardPage() {
   );
 }
 
-async function StatsSection({ plan }: { plan: string }) {
+async function StatsSection({ plan }: { plan: PlanKey }) {
   const plans = await getPlansConfig();
-  const planConfig = plans[plan as PlanKey] ?? plans[DEFAULT_PLAN];
+  const planConfig = plans[plan] ?? plans[DEFAULT_PLAN];
 
   return (
     <div className="animate-slide-up delay-100 grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">

@@ -5,7 +5,7 @@ import { exchangeCodeForTokens, getWhopUser } from "@/lib/whop";
 import { setSessionCookie, type Session } from "@/lib/auth";
 import { prisma } from "@/db";
 import { getConfig } from "@/lib/config";
-import { DEFAULT_PLAN, APP_NAME } from "@/lib/constants";
+import { DEFAULT_PLAN, PLAN_KEYS, type PlanKey, APP_NAME } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";
 import { welcomeEmail } from "@/lib/email-templates";
 
@@ -58,10 +58,14 @@ export async function GET(request: NextRequest) {
     expectedState = parsed.state;
     next = parsed.next || "/dashboard";
   } catch {
+    cookieStore.delete("oauth_state");
     return NextResponse.redirect(
       new URL("/auth-error?error=invalid_state", request.url)
     );
   }
+
+  // Clear the OAuth state cookie (always, regardless of outcome)
+  cookieStore.delete("oauth_state");
 
   // Verify state matches to prevent CSRF
   if (returnedState !== expectedState) {
@@ -69,9 +73,6 @@ export async function GET(request: NextRequest) {
       new URL("/auth-error?error=state_mismatch", request.url)
     );
   }
-
-  // Clear the OAuth state cookie
-  cookieStore.delete("oauth_state");
 
   // Build the redirect URI (must match exactly what was sent to /authorize)
   const proto =
@@ -136,7 +137,9 @@ export async function GET(request: NextRequest) {
       email: user.email,
       name: user.name,
       profileImageUrl: user.profileImageUrl,
-      plan: user.plan,
+      plan: PLAN_KEYS.includes(user.plan as PlanKey)
+        ? (user.plan as PlanKey)
+        : DEFAULT_PLAN,
       cancelAtPeriodEnd: user.cancelAtPeriodEnd,
       isAdmin,
     };

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getPlanKeyFromWhopId, getConfig } from "@/lib/config";
 import { verifyWebhookSignature } from "@/lib/whop";
-import { PLAN_KEYS, DEFAULT_PLAN } from "@/lib/constants";
+
 import { sendEmail } from "@/lib/email";
 import { paymentFailedEmail } from "@/lib/email-templates";
 import {
@@ -82,9 +82,11 @@ export async function POST(request: NextRequest) {
           console.error("[Webhook] membership_activated missing user_id");
           break;
         }
-        const plan = plan_id
-          ? await getPlanKeyFromWhopId(plan_id)
-          : (PLAN_KEYS[1] ?? DEFAULT_PLAN);
+        if (!plan_id) {
+          console.error("[Webhook] membership_activated missing plan_id");
+          break;
+        }
+        const plan = await getPlanKeyFromWhopId(plan_id);
         await activateMembership(user_id, plan, id ?? null);
         console.log(`[Webhook] User ${user_id} upgraded to ${plan}`);
         break;
@@ -161,9 +163,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (err) {
-    // Return 200 to prevent Whop from retrying indefinitely.
-    // The event was received and authenticated; processing failed internally.
+    // Return 500 so Whop retries the webhook — the event was authenticated
+    // but processing failed (likely a DB error). Returning 200 here would
+    // silently lose payment events.
     console.error(`[Webhook] Error processing ${eventType}:`, err);
-    return NextResponse.json({ received: true, error: "processing_failed" });
+    return NextResponse.json(
+      { error: "processing_failed" },
+      { status: 500 },
+    );
   }
 }

@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 
 import { prisma } from "@/db";
-import { DEFAULT_PLAN, type PlanKey } from "./constants";
+import { DEFAULT_PLAN, PLAN_KEYS, type PlanKey } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -62,7 +62,9 @@ export async function getSubscriptionDetails(
       return { hasSubscription: false, error: "User not found" };
     }
 
-    const plan = user.plan as PlanKey;
+    const plan = PLAN_KEYS.includes(user.plan as PlanKey)
+      ? (user.plan as PlanKey)
+      : DEFAULT_PLAN;
     const isPaid = plan !== DEFAULT_PLAN;
 
     if (!isPaid) {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { getPlansConfig } from "@/lib/config";
-import type { PlanKey, BillingInterval } from "@/lib/constants";
+import { PLAN_KEYS, type PlanKey, type BillingInterval } from "@/lib/constants";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 
 export default async function CheckoutPage({
@@ -11,7 +11,10 @@ export default async function CheckoutPage({
 }) {
   const { plan: planParam, interval: intervalParam } = await searchParams;
 
-  const planKey = (planParam ?? null) as PlanKey | null;
+  const planKey: PlanKey | null =
+    planParam && PLAN_KEYS.includes(planParam as PlanKey)
+      ? (planParam as PlanKey)
+      : null;
   const interval: BillingInterval =
     intervalParam === "monthly" ? "monthly" : "yearly";
 

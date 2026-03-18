@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import { prisma } from "@/db";
-import { PLAN_RANK, type PlanKey } from "./constants";
+import { PLAN_KEYS, PLAN_RANK, DEFAULT_PLAN, type PlanKey } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,7 +15,7 @@ export interface Session {
   email: string | null;
   name: string | null;
   profileImageUrl: string | null;
-  plan: string;
+  plan: PlanKey;
   cancelAtPeriodEnd: boolean;
   isAdmin: boolean;
 }
@@ -108,13 +108,17 @@ export async function verifySessionToken(token: string): Promise<Session | null>
       return null;
     }
 
+    const plan = PLAN_KEYS.includes(payload.plan as PlanKey)
+      ? (payload.plan as PlanKey)
+      : DEFAULT_PLAN;
+
     return {
       userId: payload.userId,
       whopUserId: payload.whopUserId,
       email: (payload.email as string) ?? null,
       name: (payload.name as string) ?? null,
       profileImageUrl: (payload.profileImageUrl as string) ?? null,
-      plan: payload.plan,
+      plan,
       cancelAtPeriodEnd: (payload.cancelAtPeriodEnd as boolean) ?? false,
       isAdmin: (payload.isAdmin as boolean) ?? false,
     };
@@ -195,7 +199,11 @@ export const getSession = cache(async (): Promise<Session | null> => {
   // User was deleted — treat as logged out
   if (!user) return null;
 
-  return { ...session, plan: user.plan, cancelAtPeriodEnd: user.cancelAtPeriodEnd };
+  const freshPlan = PLAN_KEYS.includes(user.plan as PlanKey)
+    ? (user.plan as PlanKey)
+    : DEFAULT_PLAN;
+
+  return { ...session, plan: freshPlan, cancelAtPeriodEnd: user.cancelAtPeriodEnd };
 });
 
 /**
@@ -235,7 +243,7 @@ export async function requirePlan(
   redirectTo = "/pricing"
 ): Promise<Session> {
   const session = await requireSession();
-  if (!hasMinimumPlan(session.plan as PlanKey, minimumPlan)) {
+  if (!hasMinimumPlan(session.plan, minimumPlan)) {
     redirect(redirectTo);
   }
   return session;

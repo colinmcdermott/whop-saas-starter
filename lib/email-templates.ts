@@ -7,8 +7,17 @@
 
 import { APP_NAME } from "./constants";
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function greeting(name: string | null): string {
-  return name ? `Hi ${name},` : "Hi there,";
+  return name ? `Hi ${escapeHtml(name)},` : "Hi there,";
 }
 
 function wrapper(body: string): string {

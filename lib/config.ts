@@ -226,8 +226,3 @@ export async function getPlanKeyFromWhopId(whopPlanId: string): Promise<PlanKey>
   }
   return DEFAULT_PLAN;
 }
-
-/** Clear the in-memory cache (useful after setup saves new values) */
-export function clearConfigCache(): void {
-  cache.clear();
-}

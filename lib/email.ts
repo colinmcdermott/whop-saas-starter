@@ -38,7 +38,12 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     return { success: false, error: "Email provider not configured" };
   }
 
-  const from = options.from || "noreply@example.com";
+  const fromAddress = await getConfig("email_from_address");
+  const from = options.from || fromAddress;
+  if (!from) {
+    console.warn("[Email] No from address configured — skipping send");
+    return { success: false, error: "Email from address not configured" };
+  }
 
   try {
     switch (provider as EmailProvider) {

@@ -14,10 +14,9 @@ const INTEGRATION_KEYS = new Set([
 /** Keys that are safe to return in full (not secrets) */
 const SAFE_KEYS = new Set(["analytics_provider", "email_provider"]);
 
-/** Mask a secret value — show only last 4 chars */
+/** Mask a secret value — fixed mask to avoid leaking length or suffix */
 function maskSecret(value: string): string {
-  if (value.length <= 4) return "****";
-  return "****" + value.slice(-4);
+  return value ? "••••••••" : "";
 }
 
 /** GET /api/config/integrations — Get integration status (admin only) */

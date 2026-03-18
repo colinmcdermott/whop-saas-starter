@@ -76,7 +76,7 @@ Pure function for plan comparison without redirects:
 import { getSession, hasMinimumPlan } from "@/lib/auth";
 
 const session = await getSession();
-if (!session || !hasMinimumPlan(session.plan as PlanKey, "pro")) {
+if (!session || !hasMinimumPlan(session.plan, "pro")) {
   return NextResponse.json({ error: "Upgrade required" }, { status: 403 });
 }
 ```

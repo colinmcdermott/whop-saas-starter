@@ -8,6 +8,7 @@ import {
   useCheckoutEmbedControls,
 } from "@whop/checkout/react";
 import { type PlanKey, type BillingInterval } from "@/lib/constants";
+import { monthlyEquivalent } from "@/lib/utils";
 import { AppLogo } from "@/components/app-logo";
 import type { PlanConfig } from "@/lib/config";
 import { COUNTRIES } from "@/lib/countries";
@@ -504,7 +505,7 @@ export function CheckoutForm({
                   </div>
                   {interval === "yearly" && price > 0 && (
                     <p className="text-[11px] text-[var(--muted)] text-right">
-                      ${Math.round((price / 12) * 100) / 100}/mo billed yearly
+                      ${monthlyEquivalent(price)}/mo billed yearly
                     </p>
                   )}
                 </div>

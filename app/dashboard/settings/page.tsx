@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession } from "@/lib/auth";
 import { getPlansConfig, getConfig } from "@/lib/config";
-import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
+import { DEFAULT_PLAN } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { getUserCreatedAt } from "@/lib/subscription";
 import { DeleteAccountButton } from "@/components/dashboard/delete-account-button";
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const session = await requireSession();
   const plans = await getPlansConfig();
-  const planConfig = plans[session.plan as PlanKey] ?? plans[DEFAULT_PLAN];
+  const planConfig = plans[session.plan] ?? plans[DEFAULT_PLAN];
 
   const [createdAt, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([
     getUserCreatedAt(session.userId),
