@@ -39,11 +39,11 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${proto}://${host}/api/auth/callback`;
 
   // Generate PKCE values and build the authorization URL
-  const { url, codeVerifier, state } = await buildAuthorizationUrl(redirectUri, whopAppId);
+  const { url, codeVerifier, state, nonce } = await buildAuthorizationUrl(redirectUri, whopAppId);
 
-  // Store PKCE verifier and redirect path in a cookie (httpOnly, short-lived)
+  // Store PKCE verifier, nonce, and redirect path in a cookie (httpOnly, short-lived)
   const cookieStore = await cookies();
-  cookieStore.set("oauth_state", JSON.stringify({ codeVerifier, state, next }), {
+  cookieStore.set("oauth_state", JSON.stringify({ codeVerifier, state, nonce, next }), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

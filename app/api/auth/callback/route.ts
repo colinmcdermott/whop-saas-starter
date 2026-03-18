@@ -51,11 +51,13 @@ export async function GET(request: NextRequest) {
 
   let codeVerifier: string;
   let expectedState: string;
+  let expectedNonce: string;
   let next: string;
   try {
     const parsed = JSON.parse(storedOAuthState);
     codeVerifier = parsed.codeVerifier;
     expectedState = parsed.state;
+    expectedNonce = parsed.nonce;
     next = parsed.next || "/dashboard";
   } catch {
     cookieStore.delete("oauth_state");
@@ -87,6 +89,22 @@ export async function GET(request: NextRequest) {
   try {
     // Exchange the code for tokens
     const tokens = await exchangeCodeForTokens(code, codeVerifier, redirectUri, whopAppId ?? undefined);
+
+    // Validate the nonce from the id_token to prevent token substitution
+    if (expectedNonce && tokens.id_token) {
+      try {
+        const [, payload] = tokens.id_token.split(".");
+        const claims = JSON.parse(atob(payload));
+        if (claims.nonce !== expectedNonce) {
+          return NextResponse.redirect(
+            new URL("/auth-error?error=nonce_mismatch", request.url),
+          );
+        }
+      } catch {
+        // If id_token can't be decoded, skip nonce check — userinfo is the
+        // authoritative source for identity, and we already verified state + PKCE.
+      }
+    }
 
     // Fetch user profile from Whop
     const whopUser = await getWhopUser(tokens.access_token);
