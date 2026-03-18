@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   // Ensure Turbopack resolves the workspace root to this project
   turbopack: { root: resolve(".") },
 
+  // Inline CSS into HTML to eliminate render-blocking stylesheet requests
+  experimental: { inlineCss: true },
+
   // Allow Whop CDN images (user profile pictures)
   images: {
     remotePatterns: [

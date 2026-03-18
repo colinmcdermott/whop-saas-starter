@@ -62,6 +62,7 @@ export default async function RootLayout({
   // React DOM resource hints — emitted early in the HTML stream
   prefetchDNS("https://api.whop.com");
   preconnect("https://api.whop.com", { crossOrigin: "anonymous" });
+  preconnect("https://fonts.gstatic.com", { crossOrigin: "anonymous" });
 
   // Read accent color and analytics config from DB/env
   let accentCss: string | undefined;
