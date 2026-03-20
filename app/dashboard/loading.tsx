@@ -6,7 +6,7 @@ export default function DashboardLoading() {
         <div className="mt-1.5 h-4 w-56 rounded bg-[var(--surface)]" />
       </div>
 
-      <div className="grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+      <div className="grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="bg-[var(--card)] p-5">
             <div className="h-3 w-16 rounded bg-[var(--surface)]" />

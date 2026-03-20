@@ -67,7 +67,7 @@ async function StatsSection({ plan }: { plan: PlanKey }) {
   const planConfig = plans[plan] ?? plans[DEFAULT_PLAN];
 
   return (
-    <div className="animate-slide-up delay-100 grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+    <div className="animate-slide-up delay-100 grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
       <StatCard label="Current Plan" value={planConfig.name} />
       <StatCard label="Projects" value="0 / 3" />
       <StatCard label="Storage" value="0 GB" />
@@ -77,7 +77,7 @@ async function StatsSection({ plan }: { plan: PlanKey }) {
 
 function StatsSkeleton() {
   return (
-    <div className="grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+    <div className="grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
       {[1, 2, 3].map((i) => (
         <div key={i} className="bg-[var(--card)] p-5">
           <div className="h-3 w-20 rounded bg-[var(--surface)] animate-pulse" />
