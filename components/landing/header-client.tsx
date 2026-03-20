@@ -92,7 +92,7 @@ export function HeaderClient() {
           </div>
 
           {/* Mobile controls */}
-          <div className="flex items-center gap-1 sm:hidden">
+          <div className="ml-auto flex items-center gap-1 sm:hidden">
             <ThemeToggle />
             <button
               type="button"

@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   turbopack: { root: resolve(".") },
 
   // Inline CSS into HTML to eliminate render-blocking stylesheet requests
-  experimental: { inlineCss: true },
+  experimental: { inlineCss: true, prefetchInlining: true },
 
   // Allow Whop CDN images (user profile pictures)
   images: {
