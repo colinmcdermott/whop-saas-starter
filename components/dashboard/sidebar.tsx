@@ -44,7 +44,7 @@ export function Sidebar() {
       {/* ── Mobile: overlay + dropdown sheet (matches landing page) ── */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
+          "fixed inset-x-0 top-14 bottom-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
           mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={() => setMobileOpen(false)}
