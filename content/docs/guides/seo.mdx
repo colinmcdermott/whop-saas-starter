@@ -1,0 +1,148 @@
+---
+title: SEO
+description: Built-in SEO features and how to customize them
+---
+
+The template includes production-ready SEO out of the box — sitemap, robots.txt, Open Graph metadata, security headers, and per-page metadata. Everything works automatically on Vercel with zero configuration.
+
+## What's Included
+
+| Feature | File | Description |
+|---------|------|-------------|
+| Sitemap | `app/sitemap.ts` | Dynamic `sitemap.xml` with all public pages |
+| Robots | `app/robots.ts` | `robots.txt` that blocks `/dashboard/`, `/api/`, `/setup/`, `/checkout/` |
+| Metadata | `app/layout.tsx` | Global Open Graph, Twitter cards, and `metadataBase` |
+| Per-page titles | Each `page.tsx` | `export const metadata` with page-specific title/description |
+| Favicon | `app/icon.svg` | SVG favicon (works in all modern browsers) |
+| Security headers | `next.config.ts` | X-Frame-Options, Content-Type-Options, Referrer-Policy, Permissions-Policy |
+| DNS prefetch | `app/layout.tsx` | Preconnects to `api.whop.com` for faster auth/checkout |
+
+## Base URL Resolution
+
+The sitemap, robots.txt, and OG metadata URLs need to know your app's public URL. This is resolved automatically:
+
+1. `NEXT_PUBLIC_APP_URL` (if set — recommended for production)
+2. `VERCEL_PROJECT_PRODUCTION_URL` (auto-set by Vercel)
+3. `VERCEL_URL` (auto-set by Vercel for preview deployments)
+4. Request `host` header (fallback for any platform)
+
+On Vercel, you don't need to set anything. On other platforms, set `NEXT_PUBLIC_APP_URL` to your domain.
+
+## Metadata
+
+### Global metadata
+
+Defined in `app/layout.tsx`. Uses `APP_NAME` and `APP_DESCRIPTION` from `lib/constants.ts`:
+
+```tsx
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`, // Page titles become "Page | App Name"
+  },
+  description: APP_DESCRIPTION,
+  openGraph: { type: "website", siteName: APP_NAME, ... },
+  twitter: { card: "summary_large_image", ... },
+};
+```
+
+### Per-page metadata
+
+Each page exports its own `metadata` object. The title uses the template from the root layout:
+
+```tsx
+// app/dashboard/page.tsx
+export const metadata: Metadata = {
+  title: "Dashboard", // Renders as "Dashboard | App Name"
+};
+```
+
+### Dynamic metadata
+
+For pages with dynamic content (like docs), use `generateMetadata`:
+
+```tsx
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const page = getPage(slug);
+  return { title: page?.data.title, description: page?.data.description };
+}
+```
+
+## Sitemap
+
+`app/sitemap.ts` generates `/sitemap.xml` with all public pages. To add new pages:
+
+```tsx
+const staticRoutes = [
+  { path: "/", priority: 1.0 },
+  { path: "/pricing", priority: 0.8 },
+  { path: "/your-new-page", priority: 0.7 }, // ← add here
+  // ...
+];
+```
+
+The sitemap URL is automatically referenced in `robots.txt`.
+
+## Robots.txt
+
+`app/robots.ts` generates `/robots.txt`. Protected and internal routes are blocked:
+
+```
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /setup/
+Disallow: /checkout/
+Sitemap: https://yourdomain.com/sitemap.xml
+```
+
+## Favicon
+
+Replace `app/icon.svg` with your own SVG favicon. Next.js serves it automatically at `/icon.svg`. For PNG/ICO favicons, rename accordingly (`icon.png`, `favicon.ico`).
+
+## Open Graph Images
+
+To add an OG image that appears when your site is shared on social media:
+
+1. Add `opengraph-image.png` (1200x630) to `app/` or any route folder
+2. Next.js serves it automatically and adds the `<meta>` tag
+
+For dynamic OG images, create `app/opengraph-image.tsx` using `next/og`:
+
+```tsx
+import { ImageResponse } from "next/og";
+
+export default async function Image() {
+  return new ImageResponse(
+    <div style={{ fontSize: 48, background: "#0a0a0a", color: "#fff", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      Your App Name
+    </div>,
+    { width: 1200, height: 630 }
+  );
+}
+```
+
+## Security Headers
+
+Configured in `next.config.ts` and applied to all routes:
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| `X-DNS-Prefetch-Control` | `on` | Enable DNS prefetching |
+| `X-Frame-Options` | `DENY` | Prevent clickjacking |
+| `X-Content-Type-Options` | `nosniff` | Prevent MIME sniffing |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Control referrer info |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disable unused browser APIs |
+
+## Custom Domain SEO Checklist
+
+When moving to a custom domain:
+
+1. Set `NEXT_PUBLIC_APP_URL` to your domain (e.g., `https://yourdomain.com`)
+2. Update the OAuth callback URL in your Whop app settings
+3. Update the webhook URL in your Whop app settings
+4. Verify `/sitemap.xml` and `/robots.txt` show the correct domain
+5. Add an `opengraph-image.png` for social sharing

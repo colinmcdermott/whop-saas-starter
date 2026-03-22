@@ -45,6 +45,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/docs/guides/plan-gating", priority: 0.6 },
     { path: "/docs/guides/payments", priority: 0.6 },
     { path: "/docs/guides/customization", priority: 0.6 },
+    { path: "/docs/guides/database", priority: 0.6 },
+    { path: "/docs/guides/api-reference", priority: 0.6 },
     { path: "/docs/guides/deployment", priority: 0.6 },
   ];
 
