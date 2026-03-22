@@ -2,7 +2,7 @@
  * Activity Feed — placeholder component for the dashboard overview.
  *
  * Replace the static `activities` array with real data from your database.
- * Each entry needs: type (for the icon), description, and timestamp.
+ * Each entry needs: type (for the icon), description, and timestamp (ISO string).
  */
 
 const activities: Activity[] = [
@@ -38,7 +38,8 @@ type ActivityType = "sign_in" | "plan_change" | "setting" | "account";
 interface Activity {
   type: ActivityType;
   description: string;
-  timestamp: Date;
+  /** ISO 8601 string — safe to pass across server/client boundary */
+  timestamp: string;
 }
 
 export function ActivityFeed() {
@@ -62,9 +63,7 @@ export function ActivityFeed() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm">{activity.description}</p>
-              <p className="mt-0.5 text-xs text-[var(--muted)]">
-                {formatRelativeTime(activity.timestamp)}
-              </p>
+              <RelativeTime iso={activity.timestamp} />
             </div>
           </div>
         ))}
@@ -95,6 +94,10 @@ export function ActivityFeedSkeleton() {
     </div>
   );
 }
+
+/* ── Client component for hydration-safe relative timestamps ── */
+
+import { RelativeTime } from "./relative-time";
 
 /* ── Helpers ─────────────────────────────────────────────── */
 
@@ -141,28 +144,10 @@ function ActivityIcon({ type }: { type: ActivityType }) {
   }
 }
 
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60_000);
-  const diffHours = Math.floor(diffMs / 3_600_000);
-  const diffDays = Math.floor(diffMs / 86_400_000);
-
-  if (diffMins < 1) return "Just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 30) return `${diffDays}d ago`;
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+function hoursAgo(n: number): string {
+  return new Date(Date.now() - n * 3_600_000).toISOString();
 }
 
-function hoursAgo(n: number): Date {
-  return new Date(Date.now() - n * 3_600_000);
-}
-
-function daysAgo(n: number): Date {
-  return new Date(Date.now() - n * 86_400_000);
+function daysAgo(n: number): string {
+  return new Date(Date.now() - n * 86_400_000).toISOString();
 }

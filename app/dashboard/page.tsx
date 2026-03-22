@@ -5,13 +5,19 @@ import { getPlansConfig } from "@/lib/config";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { ReactivateBanner } from "@/components/dashboard/reactivate-banner";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import {
+  ActivityFeed,
+  ActivityFeedSkeleton,
+} from "@/components/dashboard/activity-feed";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
 export default async function DashboardPage() {
+  // requireSession() is also called in the layout — React.cache() deduplicates
+  // the JWT verification, so there is no extra cost. This is the idiomatic
+  // App Router pattern since layouts cannot pass props to pages.
   const session = await requireSession();
 
   return (
@@ -46,9 +52,11 @@ export default async function DashboardPage() {
       )}
 
       {/* Activity feed — replace placeholder data with real events from your DB */}
-      <div className="animate-slide-up delay-300">
-        <ActivityFeed />
-      </div>
+      <Suspense fallback={<ActivityFeedSkeleton />}>
+        <div className="animate-slide-up delay-300">
+          <ActivityFeed />
+        </div>
+      </Suspense>
 
       {/* TODO: Replace these onboarding steps with your product's setup flow */}
       <div className="animate-slide-up delay-400 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
