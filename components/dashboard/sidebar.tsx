@@ -16,13 +16,14 @@ export function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Close on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
   // Listen for toggle events from the header's SidebarToggle button
   useEffect(() => {
-    const handler = () => setMobileOpen(true);
+    const handler = () => setMobileOpen((prev) => !prev);
     window.addEventListener("toggle-sidebar", handler);
     return () => window.removeEventListener("toggle-sidebar", handler);
   }, []);
@@ -35,7 +36,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* ── Mobile: overlay + dropdown sheet (matches landing page) ── */}
       <div
         className={cn(
           "fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
@@ -48,27 +49,60 @@ export function Sidebar() {
         aria-label="Close sidebar"
       />
 
-      {/* Sidebar */}
-      <aside
+      <nav
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-56 shrink-0 border-r border-[var(--border)] bg-[var(--background)] transition-transform duration-200 lg:static lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed top-14 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--background)] px-4 pb-4 pt-2 transition-all duration-200 lg:hidden",
+          mobileOpen
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-2 opacity-0 pointer-events-none"
         )}
+        style={{ overscrollBehavior: "contain" }}
       >
-        <div className="flex h-14 items-center justify-between border-b border-[var(--border)] px-5">
+        <div className="mx-auto flex max-w-5xl flex-col gap-0.5">
+          {navItems.map((item) => {
+            const isActive =
+              !item.external &&
+              (item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(item.href));
+
+            return item.external ? (
+              <a
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                  "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+                )}
+              >
+                <item.icon />
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                  isActive
+                    ? "text-[var(--foreground)] font-medium bg-[var(--surface)]"
+                    : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+                )}
+              >
+                <item.icon />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* ── Desktop: fixed sidebar ── */}
+      <aside className="hidden lg:flex inset-y-0 left-0 w-56 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background)]">
+        <div className="flex h-14 items-center border-b border-[var(--border)] px-5">
           <Link href="/">
             <AppLogo />
           </Link>
-          <button
-            type="button"
-            onClick={() => setMobileOpen(false)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] active:bg-[var(--surface)] transition-colors lg:hidden"
-            aria-label="Close sidebar"
-          >
-            <svg className="h-[15px] w-[15px]" fill="none" viewBox="0 0 15 15" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeWidth={1.25} d="M3.5 3.5l8 8M11.5 3.5l-8 8" />
-            </svg>
-          </button>
         </div>
 
         <nav className="p-2 space-y-0.5">
