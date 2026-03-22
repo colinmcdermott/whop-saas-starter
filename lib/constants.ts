@@ -12,8 +12,8 @@ export const APP_DESCRIPTION =
 /** External links — update these before launching */
 export const LINKS = {
   github: "https://github.com/colinmcdermott/whop-saas-starter",
-  terms: "/terms", // TODO: Add your terms of service page
-  privacy: "/privacy", // TODO: Add your privacy policy page
+  terms: "/terms",
+  privacy: "/privacy",
 } as const;
 
 // ---------------------------------------------------------------------------

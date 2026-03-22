@@ -58,7 +58,7 @@ export default async function DashboardPage() {
         </div>
       </Suspense>
 
-      {/* TODO: Replace these onboarding steps with your product's setup flow */}
+      {/* Replace these onboarding steps with your product's setup flow */}
       <div className="animate-slide-up delay-400 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
         <h2 className="text-sm font-semibold">Get started</h2>
         <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
