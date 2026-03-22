@@ -2,7 +2,7 @@
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 
-/* Align Fumadocs backgrounds with the site theme */
+/* Align Fumadocs with the site theme */
 :root {
   --color-fd-background: #ffffff;
   --color-fd-foreground: hsl(0, 0%, 3.9%);
@@ -11,4 +11,15 @@
 .dark {
   --color-fd-background: #090909;
   --color-fd-foreground: hsl(0, 0%, 92%);
+}
+
+/* Match sidebar to the site's --surface color */
+#nd-sidebar {
+  --color-fd-muted: #f7f7f8;
+  --color-fd-secondary: #ebebef;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #111113;
+  --color-fd-secondary: #1c1c21;
 }
