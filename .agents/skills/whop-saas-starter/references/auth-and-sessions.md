@@ -58,9 +58,13 @@ All are wrapped in `React.cache()` — safe to call multiple times per request.
 
 Client components detect login state via the `logged_in` cookie (non-httpOnly, separate from the session JWT). This avoids exposing the JWT to JavaScript.
 
-## Whop OAuth Docs
+## Whop Docs
 
-For Whop OAuth configuration (redirect URIs, app settings), use the `mcp__claude_ai_Whop__search_whop_docs` tool and search for "oauth" or "authentication".
+| Topic | Link |
+|-------|------|
+| OAuth 2.1 + PKCE guide | https://docs.whop.com/developer/guides/oauth |
+| Authentication overview | https://docs.whop.com/developer/guides/authentication |
+| API getting started (tokens) | https://docs.whop.com/developer/api/getting-started |
 
 Key setup steps:
 1. Enable "Public client" mode in your Whop app settings

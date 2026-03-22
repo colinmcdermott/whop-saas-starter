@@ -57,13 +57,13 @@ Located in `lib/subscription.ts`:
 2. Copy the webhook secret
 3. Enter in setup wizard or set `WHOP_WEBHOOK_SECRET` env var
 
-## Whop Webhook Events
+## Whop Docs
 
-For the full list of Whop webhook events, use the `mcp__claude_ai_Whop__search_whop_docs` tool and search for "webhooks" or "webhook events".
-
-Common events:
-- `membership_activated` — user purchases or is granted access
-- `membership_deactivated` — membership expires, refunded, or chargebacked
-- `membership_cancel_at_period_end_changed` — user cancels or uncancels
-- `payment_succeeded` — payment processed successfully
-- `payment_failed` — payment attempt failed
+| Topic | Link |
+|-------|------|
+| Webhooks guide | https://docs.whop.com/developer/guides/webhooks |
+| `membership_activated` event | https://docs.whop.com/api-reference/memberships/membership-activated |
+| `membership_deactivated` event | https://docs.whop.com/api-reference/memberships/membership-deactivated |
+| `membership_cancel_at_period_end_changed` | https://docs.whop.com/api-reference/memberships/membership-cancel-at-period-end-changed |
+| Cancel membership API | https://docs.whop.com/api-reference/memberships/cancel-membership |
+| Uncancel membership API | https://docs.whop.com/api-reference/memberships/uncancel-membership |

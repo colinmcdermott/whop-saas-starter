@@ -96,4 +96,12 @@ Key endpoints used by this template:
 - `GET /api/v1/users/{id}/access/{resource_id}` — check access
 - `POST /api/v1/memberships/{id}/uncancel` — reverse cancellation
 
-For full Whop API docs, use the `mcp__claude_ai_Whop__search_whop_docs` tool.
+### Whop API Docs
+
+| Topic | Link |
+|-------|------|
+| API getting started | https://docs.whop.com/developer/api/getting-started |
+| Memberships API | https://docs.whop.com/api-reference/memberships/list-memberships |
+| Uncancel membership | https://docs.whop.com/api-reference/memberships/uncancel-membership |
+| Plans API | https://docs.whop.com/api-reference/plans/create-plan |
+| Products API | https://docs.whop.com/api-reference/products/create-product |

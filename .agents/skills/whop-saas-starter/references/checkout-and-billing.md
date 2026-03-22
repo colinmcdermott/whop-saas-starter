@@ -56,6 +56,16 @@ const hasAccess = await hasWhopAccess(whopUserId, productId);
 // Calls Whop API directly — use for sensitive operations
 ```
 
-## Whop Checkout Docs
+## Whop Docs
 
-For Whop checkout customization, plan creation, and billing portal setup, use the `mcp__claude_ai_Whop__search_whop_docs` tool and search for "checkout", "plans", or "billing".
+| Topic | Link |
+|-------|------|
+| Embedded checkout (`@whop/checkout`) | https://docs.whop.com/payments/checkout-embed |
+| Pre-filled embedded checkout | https://docs.whop.com/third-party-integrations/embedded-checkouts/prefill-embedded-checkouts |
+| Billing portal | https://docs.whop.com/payments-and-billing/manage-billing/billing-portal |
+| Uncancel membership API | https://docs.whop.com/api-reference/memberships/uncancel-membership |
+| Cancel membership API | https://docs.whop.com/api-reference/memberships/cancel-membership |
+| Set up pricing | https://docs.whop.com/manage-your-business/payment-processing/set-up-pricing |
+| Create a plan (API) | https://docs.whop.com/api-reference/plans/create-plan |
+
+This template uses `WhopCheckoutEmbed` and `useCheckoutEmbedControls` from `@whop/checkout/react` for the embedded payment step.

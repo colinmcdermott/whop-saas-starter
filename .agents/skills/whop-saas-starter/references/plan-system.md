@@ -92,4 +92,11 @@ if (!hasMinimumPlan(session.plan, "pro")) {
 2. Copy the plan IDs
 3. Enter them in the setup wizard or set as env vars
 
-Whop docs: Use the `mcp__claude_ai_Whop__search_whop_docs` tool to search for current Whop documentation on plans, products, and pricing configuration.
+### Whop Docs
+
+| Topic | Link |
+|-------|------|
+| Set up pricing | https://docs.whop.com/manage-your-business/payment-processing/set-up-pricing |
+| Create a plan (API) | https://docs.whop.com/api-reference/plans/create-plan |
+| Create a product | https://docs.whop.com/manage-your-business/products/create-product |
+| Manage products | https://docs.whop.com/manage-your-business/products/manage-products |
