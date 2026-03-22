@@ -177,6 +177,31 @@ DATABASE_POOL_SIZE=3
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb"
 ```
 
+## Security
+
+The template includes several security measures out of the box:
+
+- **Session cookies** — httpOnly, Secure (in production), SameSite=Lax
+- **PKCE** — no client secret stored or transmitted
+- **Webhook verification** — HMAC-SHA256 with constant-time comparison and 5-minute timestamp tolerance
+- **Security headers** — X-Frame-Options DENY, X-Content-Type-Options nosniff, strict Referrer-Policy, Permissions-Policy
+- **Auth on every mutation** — all POST endpoints verify session before acting
+- **XSS prevention** — analytics IDs are regex-validated before injection
+
+### What you should add before launch
+
+**Rate limiting** — the template doesn't include rate limiting. For production, add it to auth and API routes to prevent brute-force and abuse. Options:
+
+- [Vercel WAF](https://vercel.com/docs/security/vercel-waf) — zero-config if you're on Vercel Pro/Enterprise
+- [Upstash Ratelimit](https://upstash.com/docs/oss/sdks/ts/ratelimit/overview) — serverless-friendly, works anywhere
+- Custom middleware using a simple in-memory or Redis-backed counter
+
+Priority endpoints to rate limit: `/api/auth/login`, `/api/auth/callback`, `/api/webhooks/whop`, `/api/billing/uncancel`.
+
+**Input validation** — Prisma provides type safety at the query level, but you should validate user input at the API boundary for any routes you add. Consider [Zod](https://zod.dev) for schema validation on request bodies.
+
+**Content Security Policy** — the template doesn't set a CSP header because it depends on which third-party scripts you integrate (analytics, checkout embed, etc.). Once you know your external domains, add a CSP header in `next.config.ts`.
+
 ## Database Migrations
 
 For schema changes in production:
