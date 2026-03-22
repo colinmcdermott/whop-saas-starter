@@ -79,7 +79,28 @@ The dashboard layout is in `app/dashboard/layout.tsx` with components in `compon
 
 - `sidebar.tsx` — Navigation sidebar
 - `header.tsx` — Dashboard header with user menu
+- `activity-feed.tsx` — Recent activity log (placeholder data)
 - `upgrade-banner.tsx` — Shown to free-tier users
+- `reactivate-banner.tsx` — Shown when subscription is pending cancellation
+
+### Activity Feed
+
+The activity feed in `components/dashboard/activity-feed.tsx` shows recent account events on the dashboard overview. Replace the placeholder `activities` array with real data from your database:
+
+```tsx
+const activities: Activity[] = [
+  {
+    type: "sign_in",       // "sign_in" | "plan_change" | "setting" | "account"
+    description: "You signed in",
+    timestamp: new Date(),
+  },
+  // Add your own activity types and entries
+];
+```
+
+Each activity type has a distinct icon and color. To add new types, extend the `ActivityType` union and add cases to `iconStyle()` and `ActivityIcon()`.
+
+A matching `ActivityFeedSkeleton` is exported for use in Suspense boundaries.
 
 ## Adding Pages
 

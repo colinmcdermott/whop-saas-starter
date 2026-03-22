@@ -5,6 +5,7 @@ import { getPlansConfig } from "@/lib/config";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { ReactivateBanner } from "@/components/dashboard/reactivate-banner";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -44,8 +45,13 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Activity feed — replace placeholder data with real events from your DB */}
+      <div className="animate-slide-up delay-300">
+        <ActivityFeed />
+      </div>
+
       {/* TODO: Replace these onboarding steps with your product's setup flow */}
-      <div className="animate-slide-up delay-300 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+      <div className="animate-slide-up delay-400 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
         <h2 className="text-sm font-semibold">Get started</h2>
         <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
           Replace this with your product. Auth, payments, and webhooks are ready.

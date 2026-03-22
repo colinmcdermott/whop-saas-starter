@@ -134,7 +134,7 @@ app/                        # Pages and API routes
     └── webhooks/whop/      # Whop webhook handler
 components/
 ├── landing/                # Hero, features, testimonials, pricing cards, CTA, header, footer
-├── dashboard/              # Sidebar, header, upgrade/reactivate banners, delete account, integrations
+├── dashboard/              # Sidebar, header, activity feed, upgrade/reactivate banners, delete account, integrations
 ├── checkout/               # Two-step checkout form
 └── setup/                  # Setup wizard
 content/docs/               # Documentation MDX files
