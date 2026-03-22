@@ -44,3 +44,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent skills — gitignore third-party, keep our own
+.agents/skills/*
+!.agents/skills/whop-saas-starter/
+.claude/skills/*
+!.claude/skills/whop-saas-starter
+skills-lock.json
