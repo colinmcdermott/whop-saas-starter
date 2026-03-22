@@ -15,20 +15,21 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-  const [session, plans] = await Promise.all([
-    requireSession(),
-    getPlansConfig(),
-  ]);
-  const planConfig = plans[session.plan] ?? plans[DEFAULT_PLAN];
+  // Start session early so getUserCreatedAt can chain off it without
+  // blocking the config reads that don't need session at all.
+  const sessionPromise = requireSession();
 
-  const [createdAt, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([
-    getUserCreatedAt(session.userId),
+  const [session, plans, createdAt, accentColor, analyticsProvider, analyticsId, emailProvider, emailApiKey] = await Promise.all([
+    sessionPromise,
+    getPlansConfig(),
+    sessionPromise.then((s) => getUserCreatedAt(s.userId)),
     getConfig("accent_color"),
     getConfig("analytics_provider"),
     getConfig("analytics_id"),
     getConfig("email_provider"),
     getConfig("email_api_key"),
   ]);
+  const planConfig = plans[session.plan] ?? plans[DEFAULT_PLAN];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

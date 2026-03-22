@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/toast";
 
+const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
 const PRESETS = [
   { label: "Indigo", value: "#5b4cff" },
   { label: "Blue", value: "#2563eb" },
@@ -32,7 +34,7 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
   const [selected, setSelected] = useState(currentColor ?? PRESETS[0].value);
   const [custom, setCustom] = useState("");
 
-  const activeColor = custom && /^#[0-9a-fA-F]{6}$/.test(custom) ? custom : selected;
+  const activeColor = custom && HEX_RE.test(custom) ? custom : selected;
 
   function applyPreview(hex: string) {
     const root = document.documentElement;
@@ -51,7 +53,7 @@ export function AccentColorPicker({ currentColor }: { currentColor: string | nul
 
   function handleCustomChange(value: string) {
     setCustom(value);
-    if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+    if (HEX_RE.test(value)) {
       applyPreview(value);
     }
   }
