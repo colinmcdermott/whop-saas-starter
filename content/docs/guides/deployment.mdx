@@ -169,6 +169,8 @@ The template works with any PostgreSQL provider. SSL and pool sizing are auto-co
 DATABASE_POOL_SIZE=3
 ```
 
+**Prisma Postgres** — provision a database via the [Prisma Console](https://console.prisma.io) or `npx create-db@latest`. Use the direct TCP connection string with `sslmode=require`.
+
 **Local development** — SSL is disabled automatically when your connection string has no `sslmode` parameter:
 
 ```bash
