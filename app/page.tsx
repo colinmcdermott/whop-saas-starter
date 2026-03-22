@@ -6,6 +6,8 @@ import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { PricingCards } from "@/components/landing/pricing-cards";
+import { Testimonials } from "@/components/landing/testimonials";
+import { CTA } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 
@@ -30,21 +32,26 @@ export default async function HomePage() {
       <main id="main-content" className="flex-1">
         <Hero />
         <Features />
+        <Testimonials />
 
         {/* Pricing streams in while Hero + Features paint immediately */}
-        <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Simple, transparent pricing
-            </h2>
-            <p className="mt-4 text-[var(--muted)]">
-              Start free. Upgrade when you&apos;re ready.
-            </p>
+        <section className="border-t border-[var(--border)]">
+          <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+                Simple, transparent pricing
+              </h2>
+              <p className="mt-3 text-sm text-[var(--muted)]">
+                Start free. Upgrade when you&apos;re ready.
+              </p>
+            </div>
+            <Suspense fallback={<PricingCardsSkeleton />}>
+              <PricingSection />
+            </Suspense>
           </div>
-          <Suspense fallback={<PricingCardsSkeleton />}>
-            <PricingSection />
-          </Suspense>
         </section>
+
+        <CTA />
       </main>
       <Footer />
     </div>
