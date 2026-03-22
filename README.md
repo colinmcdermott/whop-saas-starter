@@ -165,6 +165,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Route protection** — Middleware protects `/dashboard/*` routes
 - **Landing page** — Marketing page with hero, features, and pricing sections
 - **Dark mode** — Automatic dark/light mode based on system preference
+- **AI-ready** — Bundled [agent skill](/.agents/skills/whop-saas-starter/) guides Claude Code, Cursor, Copilot, and other AI agents on how to extend this template
 
 ## Project Structure
 
