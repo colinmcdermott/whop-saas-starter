@@ -11,7 +11,7 @@ export function DashboardHeader({ session }: { session: Session }) {
       {/* Left — hamburger + logo (mobile only) */}
       <div className="flex items-center gap-2 lg:hidden">
         <SidebarToggle />
-        <Link href="/">
+        <Link href="/" className="flex h-9 items-center">
           <AppLogo />
         </Link>
       </div>
