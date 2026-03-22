@@ -86,6 +86,28 @@ if (!hasMinimumPlan(session.plan, "pro")) {
 </PlanGate>
 ```
 
+## Common Recipes
+
+### Remove yearly billing
+Set `billingIntervals: ["monthly"]` on each plan. The toggle hides.
+
+### Remove the free plan
+Delete the `free` key. Update `@default("starter")` in `db/schema.prisma` to match the new lowest tier. Run `pnpm db:push`.
+
+### Add a free trial
+Set `trialDays: 7` on the plan (display only). Configure the actual trial in Whop Dashboard → Product → Plan → Edit → Free trial.
+
+### Two plans only
+Delete the unwanted key. Pricing page adapts layout automatically.
+
+### Add a tier
+Insert the key at the right position in `PLAN_METADATA` — key order = hierarchy. Connect Whop plan IDs via setup wizard or env vars.
+
+### Monthly-only (no toggle)
+Set `billingIntervals: ["monthly"]` on all plans.
+
+See the [Payments docs](/docs/guides/payments#common-pricing-recipes) for full code examples of each recipe.
+
 ## Whop Dashboard Setup
 
 1. Create plans in your Whop dashboard (whop.com/dash)

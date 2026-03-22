@@ -78,12 +78,159 @@ Whop sends webhooks when a membership status changes. The handler at `/api/webho
 2. Add a webhook endpoint: `https://your-domain.com/api/webhooks/whop`
 3. Copy the webhook secret and add it to your config (via setup wizard or `WHOP_WEBHOOK_SECRET` env var)
 
+## Common Pricing Recipes
+
+All changes below are made in `PLAN_METADATA` in `lib/constants.ts`. The pricing page, setup wizard, plan gating, and config keys all adapt automatically.
+
+### Remove yearly billing
+
+Set `billingIntervals: ["monthly"]` on each plan. The yearly toggle disappears from the pricing page.
+
+```tsx
+pro: {
+  name: "Pro",
+  priceMonthly: 29,
+  priceYearly: 0, // not used
+  billingIntervals: ["monthly"], // ← disables yearly
+  features: [...],
+  highlighted: true,
+},
+```
+
+You can also set this per-plan — e.g., monthly-only for Pro but both intervals for Enterprise.
+
+### Remove the free plan
+
+Delete the `free` key from `PLAN_METADATA`. The first remaining key becomes the default (lowest tier):
+
+```tsx
+export const PLAN_METADATA = {
+  // no free plan — "starter" is now the lowest tier
+  starter: {
+    name: "Starter",
+    description: "For individuals",
+    priceMonthly: 9,
+    priceYearly: 90,
+    features: ["5 projects", "Basic analytics"],
+    highlighted: false,
+  },
+  pro: {
+    name: "Pro",
+    description: "For teams",
+    priceMonthly: 29,
+    priceYearly: 290,
+    features: ["Unlimited projects", "Priority support"],
+    highlighted: true,
+  },
+} as const satisfies Record<string, PlanMetadataEntry>;
+```
+
+Update the default plan value in `db/schema.prisma` to match:
+
+```prisma
+plan String @default("starter")
+```
+
+Then run `pnpm db:push`.
+
+### Add a free trial
+
+Two steps — display and configuration:
+
+1. **Display:** Set `trialDays` on the plan in `PLAN_METADATA`. This shows "7-day free trial" on the pricing card.
+
+```tsx
+pro: {
+  name: "Pro",
+  priceMonthly: 29,
+  priceYearly: 290,
+  trialDays: 7, // ← shows on pricing page
+  features: [...],
+  highlighted: true,
+},
+```
+
+2. **Actual trial:** Configure the trial in your [Whop Dashboard](https://whop.com/dash) → Product → Plan → Edit → Free trial. Whop handles the trial billing logic — `trialDays` in the template is display-only.
+
+### Two plans only (e.g., Free + Pro)
+
+Delete the `enterprise` key:
+
+```tsx
+export const PLAN_METADATA = {
+  free: {
+    name: "Free",
+    description: "Get started",
+    priceMonthly: 0,
+    priceYearly: 0,
+    features: ["3 projects", "Basic analytics"],
+    highlighted: false,
+  },
+  pro: {
+    name: "Pro",
+    description: "Everything you need",
+    priceMonthly: 19,
+    priceYearly: 190,
+    features: ["Unlimited projects", "Priority support", "Advanced analytics"],
+    highlighted: true,
+  },
+} as const satisfies Record<string, PlanMetadataEntry>;
+```
+
+The pricing page automatically renders a 2-column layout.
+
+### Add a tier between existing ones
+
+Insert the key in the right position — key order = hierarchy:
+
+```tsx
+export const PLAN_METADATA = {
+  free: { ... },
+  starter: { // ← new tier, above free, below pro
+    name: "Starter",
+    description: "For side projects",
+    priceMonthly: 9,
+    priceYearly: 90,
+    features: ["10 projects", "Basic analytics", "Email support"],
+    highlighted: false,
+  },
+  pro: { ..., highlighted: true },
+  enterprise: { ... },
+} as const satisfies Record<string, PlanMetadataEntry>;
+```
+
+After adding, connect the Whop plan IDs via the setup wizard or env vars (`NEXT_PUBLIC_WHOP_STARTER_PLAN_ID`).
+
+### Change which plan is highlighted
+
+Set `highlighted: true` on exactly one plan. This adds the "Most Popular" badge, accent border, and prioritizes it on mobile:
+
+```tsx
+pro: {
+  highlighted: true, // ← accent border + "Most Popular" badge
+},
+```
+
+### Monthly-only pricing (no toggle)
+
+Set `billingIntervals: ["monthly"]` on **every** plan. The toggle hides automatically when all plans share the same interval:
+
+```tsx
+free: { ..., billingIntervals: ["monthly"] },
+pro: { ..., billingIntervals: ["monthly"] },
+enterprise: { ..., billingIntervals: ["monthly"] },
+```
+
 ## Billing Intervals
 
-Each paid plan supports monthly and yearly billing by default. You can customize this per-plan by setting `billingIntervals` in `PLAN_METADATA` (e.g., `["monthly"]` to offer monthly only). The pricing page includes a toggle, and the yearly price is typically discounted (~17% off).
+Each paid plan supports monthly and yearly billing by default. The pricing page shows a toggle, and yearly prices show the monthly equivalent (e.g., "$24/mo billed annually"). The discount is calculated automatically from your `priceMonthly` and `priceYearly` values.
 
-The checkout page resolves the correct Whop plan ID based on the selected plan and interval.
+### How it works:
+- `priceMonthly` → shown when toggle is on "Monthly"
+- `priceYearly` → divided by 12 and shown as "/mo" when toggle is on "Yearly", with "billed annually" subtitle
+- The "Save ~17%" badge appears automatically when yearly is selected
+- Each interval maps to a separate Whop plan ID (`_PLAN_ID` for monthly, `_PLAN_ID_YEARLY` for yearly)
 
 ## Free Trials
 
-To offer a free trial, set `trialDays` on a plan in `PLAN_METADATA` for display purposes (e.g., "7-day free trial" on the pricing page). The actual trial is configured in your Whop Dashboard when creating the checkout link (Checkout links → Edit → Free trial).
+Set `trialDays` on a plan in `PLAN_METADATA` for display. The actual trial logic is handled by Whop — configure it in your Whop Dashboard when setting up the plan's checkout (Product → Plan → Edit → Free trial).
