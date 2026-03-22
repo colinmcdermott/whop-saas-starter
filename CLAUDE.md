@@ -74,6 +74,15 @@ pnpm db:migrate   # Run migrations
 - `GET/POST /api/config/integrations` — read/save integration settings (admin-only)
 - `GET /api/search` — Fumadocs full-text search
 
+## Database
+- **Prisma 7** + PostgreSQL via `@prisma/adapter-pg` (native `pg` driver)
+- Compatible with **Neon**, **Supabase**, **Vercel Postgres**, and any PostgreSQL provider
+- SSL is derived from the connection string automatically (no hardcoded `ssl: true`)
+- Pool size defaults to 5 (serverless-friendly); override with `DATABASE_POOL_SIZE`
+- Force SSL on/off with `DATABASE_SSL=true|false` if needed
+- Schema auto-pushed on `pnpm build` if `DATABASE_URL` is set (via `scripts/db-push.mjs`)
+- Indexes: `whopUserId` (unique), `email`, `plan`
+
 ## Tech Stack
 - **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS v4**
 - **Prisma 7** + PostgreSQL (pg driver adapter via `@prisma/adapter-pg`)

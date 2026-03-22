@@ -105,6 +105,13 @@ If you add custom tiers to `PLAN_METADATA`, the corresponding env vars follow th
 | `WHOP_PRO_PRODUCT_ID` | Pro product ID for `hasWhopAccess()` verification |
 | `WHOP_ENTERPRISE_PRODUCT_ID` | Enterprise product ID for `hasWhopAccess()` verification |
 
+### Database Tuning (optional)
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_POOL_SIZE` | Max connections per serverless instance (default: `5`) |
+| `DATABASE_SSL` | Force SSL on (`true`) or off (`false`); auto-detected from connection string if not set |
+
 ### App Configuration (optional)
 
 | Variable | Description |
@@ -146,6 +153,26 @@ Also update the webhook URL in your Whop app settings:
 
 ```
 https://your-domain.com/api/webhooks/whop
+```
+
+## Database Providers
+
+The template works with any PostgreSQL provider. SSL and pool sizing are auto-configured from your connection string.
+
+**Vercel Postgres** — zero config. `DATABASE_URL` is set automatically when you add a Postgres store.
+
+**Neon** — works out of the box. Use the pooled connection string from your Neon dashboard.
+
+**Supabase** — use the **Session mode** connection string from Settings → Database → Connection string. If you hit connection limit errors on the free tier (60 max), reduce the pool size:
+
+```bash
+DATABASE_POOL_SIZE=3
+```
+
+**Local development** — SSL is disabled automatically when your connection string has no `sslmode` parameter:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb"
 ```
 
 ## Database Migrations

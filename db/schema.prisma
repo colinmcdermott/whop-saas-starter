@@ -20,6 +20,7 @@ model User {
   updatedAt       DateTime @updatedAt
 
   @@index([email])
+  @@index([plan])
 }
 
 /// Internal key-value config (e.g. auto-generated SESSION_SECRET).
