@@ -3,14 +3,18 @@ import Link from "next/link";
 import type { Session } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AppLogo } from "@/components/app-logo";
+import { SidebarToggle } from "./sidebar-toggle";
 
 export function DashboardHeader({ session }: { session: Session }) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-[var(--border)] px-4 sm:px-6">
-      {/* Mobile logo — offset for sidebar toggle */}
-      <Link href="/" className="pl-8 lg:pl-0 lg:hidden">
-        <AppLogo />
-      </Link>
+      {/* Left — hamburger + logo (mobile) */}
+      <div className="flex items-center gap-2 lg:hidden">
+        <SidebarToggle />
+        <Link href="/">
+          <AppLogo />
+        </Link>
+      </div>
 
       <div className="hidden lg:block" />
 

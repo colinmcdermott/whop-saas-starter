@@ -20,31 +20,33 @@ export function Sidebar() {
     setMobileOpen(false);
   }, [pathname]);
 
+  // Listen for toggle events from the header's SidebarToggle button
+  useEffect(() => {
+    const handler = () => setMobileOpen(true);
+    window.addEventListener("toggle-sidebar", handler);
+    return () => window.removeEventListener("toggle-sidebar", handler);
+  }, []);
+
+  // Lock body scroll when sidebar is open on mobile
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        type="button"
-        onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-4 z-40 inline-flex items-center justify-center rounded-lg p-1.5 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors lg:hidden"
-        aria-label="Open sidebar"
-      >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-        </svg>
-      </button>
-
       {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          onKeyDown={(e) => { if (e.key === "Escape") setMobileOpen(false); }}
-          role="button"
-          tabIndex={-1}
-          aria-label="Close sidebar"
-        />
-      )}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
+          mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => setMobileOpen(false)}
+        onKeyDown={(e) => { if (e.key === "Escape") setMobileOpen(false); }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close sidebar"
+      />
 
       {/* Sidebar */}
       <aside
@@ -60,11 +62,11 @@ export function Sidebar() {
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="inline-flex items-center justify-center rounded-lg p-1 text-[var(--muted)] hover:text-[var(--foreground)] lg:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] active:bg-[var(--surface)] transition-colors lg:hidden"
             aria-label="Close sidebar"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg className="h-[15px] w-[15px]" fill="none" viewBox="0 0 15 15" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeWidth={1.25} d="M3.5 3.5l8 8M11.5 3.5l-8 8" />
             </svg>
           </button>
         </div>
