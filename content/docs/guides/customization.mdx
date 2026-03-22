@@ -42,13 +42,36 @@ Connect Whop plan IDs via the setup wizard at `/setup` or environment variables 
 
 ## Landing Page
 
-The landing page components are in `components/landing/`:
+The landing page renders sections in this order: **Hero → Features → Testimonials → Pricing → CTA**. All components are in `components/landing/`:
 
-- `hero.tsx` — Main headline and CTA buttons
-- `features.tsx` — Feature grid
-- `pricing-cards.tsx` — Pricing comparison table
+- `hero.tsx` — Main headline, CTA buttons, and product screenshot placeholder
+- `features.tsx` — Feature grid (6 cards, 3 columns on desktop)
+- `testimonials.tsx` — Social proof section (3-column card grid)
+- `pricing-cards.tsx` — Pricing tiers with monthly/yearly toggle
+- `cta.tsx` — Closing call-to-action banner with accent glow
 - `header.tsx` — Navigation header
 - `footer.tsx` — Footer links
+
+### Testimonials
+
+Edit the `testimonials` array in `components/landing/testimonials.tsx` to replace the placeholder quotes with real customer feedback:
+
+```tsx
+const testimonials = [
+  {
+    quote: "Your customer's testimonial here.",
+    name: "Customer Name",
+    role: "Role, Company",
+  },
+  // Add or remove entries — the grid adapts automatically
+];
+```
+
+Each card shows the first letter of the name as an accent-colored avatar. To use real profile images instead, replace the avatar `<div>` with an `<Image>` component.
+
+### CTA Section
+
+The closing CTA in `components/landing/cta.tsx` mirrors the Hero's button style. Update the headline, description, and button links to match your product messaging.
 
 ## Dashboard
 

@@ -133,7 +133,7 @@ app/                        # Pages and API routes
     ├── search/             # Fumadocs full-text search
     └── webhooks/whop/      # Whop webhook handler
 components/
-├── landing/                # Hero, features, pricing cards, header, footer
+├── landing/                # Hero, features, testimonials, pricing cards, CTA, header, footer
 ├── dashboard/              # Sidebar, header, upgrade/reactivate banners, delete account, integrations
 ├── checkout/               # Two-step checkout form
 └── setup/                  # Setup wizard
