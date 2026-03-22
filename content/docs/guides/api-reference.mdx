@@ -1,0 +1,164 @@
+---
+title: API Reference
+description: All API endpoints with auth requirements and usage
+---
+
+All API routes are in `app/api/`. Every mutation endpoint verifies authentication — do not rely on the proxy alone.
+
+## Authentication
+
+### `GET /api/auth/login`
+
+Initiates the Whop OAuth flow. Generates PKCE challenge, stores state in a cookie, and redirects to Whop.
+
+| Param | Description |
+|-------|-------------|
+| `next` | URL to redirect to after login (default: `/dashboard`) |
+
+### `GET /api/auth/callback`
+
+OAuth callback. Exchanges the authorization code for tokens, creates/updates the user, sets the session cookie, and redirects to the `next` URL.
+
+- First user to sign in becomes admin (`isAdmin: true`)
+- Sends welcome email to new users (if email provider configured)
+
+### `GET /api/auth/logout`
+
+Clears the session cookie and redirects to `/`.
+
+### `GET /api/auth/me`
+
+Returns the current user session (for client-side checks).
+
+**Auth:** Required
+**Response:** `{ userId, email, name, plan, isAdmin, ... }` or `{ error: "Not authenticated" }` (401)
+
+### `POST /api/auth/delete-account`
+
+Permanently deletes the authenticated user's account.
+
+**Auth:** Required
+**Body:** `{ "confirmation": "DELETE" }`
+**Response:** `{ success: true }` or `{ error }` (400/401)
+
+## Billing
+
+### `GET /api/billing/portal`
+
+Redirects paid users to Whop's self-service billing portal. Free users are redirected to `/pricing`.
+
+**Auth:** Required (via session cookie)
+
+### `POST /api/billing/uncancel`
+
+Reverses a pending subscription cancellation via the Whop API.
+
+**Auth:** Required
+**Response:** `{ success: true }` or `{ error }` (400/401/500)
+
+## Webhooks
+
+### `POST /api/webhooks/whop`
+
+Receives webhook events from Whop. Verified via HMAC-SHA256 (standardwebhooks format).
+
+**Auth:** Webhook signature verification (not session-based)
+
+**Handled events:**
+
+| Event | Effect |
+|-------|--------|
+| `membership_activated` | Sets user plan + membership ID |
+| `membership_deactivated` | Resets user to free plan |
+| `membership_cancel_at_period_end_changed` | Updates cancellation flag |
+| `payment_succeeded` | Sends confirmation (if email configured) |
+| `payment_failed` | Sends failure notification (if email configured) |
+
+## Configuration
+
+### `GET /api/config/plans`
+
+Returns plan configuration for client components.
+
+**Auth:** None (public — only returns non-sensitive plan metadata)
+**Response:** `{ free: { name, description, priceMonthly, ... }, pro: { ... }, ... }`
+
+### `GET /api/config/accent`
+
+Returns the current accent color.
+
+**Auth:** None
+**Response:** `{ color: "#5b4cff" }` or `{ color: null }`
+
+### `POST /api/config/accent`
+
+Saves a new accent color.
+
+**Auth:** Admin only (403 if not admin)
+**Body:** `{ "color": "#5b4cff" }`
+
+### `GET /api/config/integrations`
+
+Returns current integration settings (analytics provider, email provider).
+
+**Auth:** Admin only
+
+### `POST /api/config/integrations`
+
+Saves integration settings.
+
+**Auth:** Admin only
+**Body:** `{ "analytics_provider": "posthog", "analytics_id": "phc_xxx", "email_provider": "resend", "email_api_key": "re_xxx" }`
+
+## Setup
+
+### `GET /api/setup`
+
+Returns current setup status and configured values.
+
+**Auth:** Open before setup is complete; admin only after.
+
+### `POST /api/setup`
+
+Saves configuration values during setup.
+
+**Auth:** Open before setup is complete; admin only after.
+**Body:** `{ "configs": { "whop_app_id": "app_xxx", ... } }`
+
+### `POST /api/setup/complete`
+
+Marks setup as complete.
+
+**Auth:** Admin only
+**Response:** `{ success: true }`
+
+## Search
+
+### `GET /api/search`
+
+Full-text search across documentation pages (powered by Fumadocs).
+
+**Auth:** None
+**Params:** `q` (search query)
+
+## Adding a New API Route
+
+```tsx
+// app/api/your-route/route.ts
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+
+export async function POST(request: Request) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  // ... your logic
+
+  return NextResponse.json({ success: true });
+}
+```
+
+For admin-only routes, check `session.isAdmin`. For plan-gated routes, use `hasMinimumPlan(session.plan, "pro")`.

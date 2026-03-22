@@ -116,6 +116,65 @@ Add to `app/dashboard/` — these are automatically protected by the dashboard l
 
 Add `.mdx` files to `content/docs/`. They automatically appear in the docs sidebar. Use `meta.json` files in folders to control ordering.
 
-## Theme
+## Theme & Dark Mode
 
-The template supports light and dark mode via CSS class toggling. Theme variables are in `app/globals.css`.
+The template supports light and dark mode via CSS class toggling on the `<html>` element. Theme preference is stored in `localStorage` and respects the system setting by default.
+
+### CSS Custom Properties
+
+All colors use CSS custom properties defined in `app/globals.css`. Override these to change the entire look:
+
+```css
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #ffffff;
+  --surface: #f9fafb;
+  --accent: #5b4cff;
+  --accent-foreground: #ffffff;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --card: #111111;
+  --surface: #1a1a1a;
+  --accent: #7b6fff;
+  --accent-foreground: #ffffff;
+}
+```
+
+Use them in Tailwind with the bracket syntax: `bg-[var(--card)]`, `text-[var(--muted)]`, `border-[var(--border)]`.
+
+### Animations
+
+Built-in animation classes with staggered delays:
+
+- `animate-fade-in` — opacity 0 → 1
+- `animate-slide-up` — translate up + fade in
+- `animate-scale-in` — scale up + fade in
+- `delay-100` through `delay-500` — stagger entrance animations
+
+All animations respect `prefers-reduced-motion`.
+
+### Theme Toggle
+
+The `ThemeToggle` component in the header lets users switch between light and dark. It's powered by the `ThemeProvider` in `components/theme-provider.tsx`.
+
+## Removing the Docs Site
+
+If you don't need the built-in documentation:
+
+1. Delete `content/docs/` and `app/docs/`
+2. Delete `source.config.ts` and `mdx-components.tsx`
+3. Remove fumadocs dependencies from `package.json`:
+   ```bash
+   pnpm remove fumadocs-core fumadocs-mdx fumadocs-ui @types/mdx
+   ```
+4. Remove the docs link from `components/landing/header-client.tsx` and `components/landing/footer.tsx`
+5. Remove the `/api/search` route (`app/api/search/`)
+6. Remove `createMDX` from `next.config.ts`

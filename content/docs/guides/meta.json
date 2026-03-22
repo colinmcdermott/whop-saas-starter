@@ -1,4 +1,14 @@
 {
   "title": "Guides",
-  "pages": ["authentication", "plan-gating", "payments", "email", "customization", "deployment", "troubleshooting"]
+  "pages": [
+    "authentication",
+    "plan-gating",
+    "payments",
+    "email",
+    "database",
+    "api-reference",
+    "customization",
+    "deployment",
+    "troubleshooting"
+  ]
 }
