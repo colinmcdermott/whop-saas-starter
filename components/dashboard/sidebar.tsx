@@ -28,6 +28,11 @@ export function Sidebar() {
     return () => window.removeEventListener("toggle-sidebar", handler);
   }, []);
 
+  // Broadcast state to SidebarToggle so icon can sync
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("sidebar-state", { detail: { open: mobileOpen } }));
+  }, [mobileOpen]);
+
   // Lock body scroll when sidebar is open on mobile
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";

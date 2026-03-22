@@ -40,7 +40,7 @@ export function UserMenu({ name, email, profileImageUrl }: UserMenuProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-opacity hover:opacity-80"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-80"
         aria-label="User menu"
         aria-expanded={open}
       >
@@ -48,12 +48,12 @@ export function UserMenu({ name, email, profileImageUrl }: UserMenuProps) {
           <Image
             src={profileImageUrl}
             alt={name ?? email ?? "User"}
-            width={32}
-            height={32}
-            className="h-8 w-8 rounded-full object-cover"
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--surface)]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--surface)]">
             <svg className="h-4 w-4 text-[var(--muted)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
             </svg>
@@ -63,7 +63,7 @@ export function UserMenu({ name, email, profileImageUrl }: UserMenuProps) {
 
       {/* Dropdown */}
       <div
-        className={`absolute right-0 top-full mt-2 w-56 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1 shadow-lg transition-all duration-150 ${
+        className={`absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1 shadow-lg transition-all duration-150 ${
           open
             ? "opacity-100 translate-y-0"
             : "opacity-0 -translate-y-1 pointer-events-none"
