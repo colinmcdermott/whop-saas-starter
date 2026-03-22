@@ -94,17 +94,13 @@ export function HeaderClient() {
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
             >
-              {/* Animated hamburger → X */}
-              <span className="absolute h-[18px] w-[18px]">
-                <span
-                  className="absolute left-0 top-[3px] h-[1.5px] w-[18px] rounded-full bg-current transition-all duration-200"
-                  style={mobileOpen ? { top: "8px", rotate: "45deg" } : undefined}
-                />
-                <span
-                  className="absolute left-0 bottom-[3px] h-[1.5px] w-[18px] rounded-full bg-current transition-all duration-200"
-                  style={mobileOpen ? { bottom: "8px", rotate: "-45deg" } : undefined}
-                />
-              </span>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+                {mobileOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+                )}
+              </svg>
             </button>
           </div>
         </div>
