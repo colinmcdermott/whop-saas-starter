@@ -16,6 +16,43 @@ export const APP_DESCRIPTION = "Your app description";
 
 This updates the header, sidebar, login page, and HTML metadata.
 
+## Logo & Favicon
+
+The logo is in `components/app-logo.tsx` — a lightning bolt icon with the app name. To replace it:
+
+1. **Logo icon:** Replace the `LogoMark` SVG in `components/app-logo.tsx` with your own, or swap it for a `next/image` import
+2. **Favicon:** Replace `app/icon.svg` with your own SVG (or `icon.png` / `favicon.ico`). It currently matches the logo — accent-colored square with lightning bolt
+
+The logo appears in the header, sidebar, login page, and checkout.
+
+## Footer Links
+
+Edit `components/landing/footer.tsx` to update navigation links. Update `LINKS` in `lib/constants.ts` for the GitHub, terms, and privacy URLs:
+
+```tsx
+export const LINKS = {
+  github: "https://github.com/your-org/your-repo",
+  terms: "/terms",
+  privacy: "/privacy",
+};
+```
+
+## Hero Screenshot
+
+The hero section in `components/landing/hero.tsx` has a placeholder where it says "Replace with a screenshot of your product". Replace the placeholder `<div>` with a `next/image` or a demo video:
+
+```tsx
+<Image
+  src="/screenshot.png"
+  alt="Product screenshot"
+  width={1200}
+  height={675}
+  priority
+/>
+```
+
+Add your image to the `public/` folder.
+
 ## Branding / Accent Color
 
 Admins can change the accent color from **Dashboard → Settings → Branding**. This updates all primary buttons and accents across the site.
