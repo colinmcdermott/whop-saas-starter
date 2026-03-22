@@ -18,7 +18,7 @@ pnpm db:migrate   # Run migrations
 ## Architecture
 
 ### Setup & Configuration
-- Zero-config deploy: only `DATABASE_URL` needed (auto-set by Vercel Postgres)
+- Zero-config deploy: only `DATABASE_URL` needed (auto-set by Neon via Vercel Marketplace)
 - In-app setup wizard (`/setup`) guides through Whop config on first visit
 - All config stored in `SystemConfig` DB table via `lib/config.ts`
 - Env vars work as fallback for power users (checked before DB)
@@ -76,7 +76,7 @@ pnpm db:migrate   # Run migrations
 
 ## Database
 - **Prisma 7** + PostgreSQL via `@prisma/adapter-pg` (native `pg` driver)
-- Compatible with **Neon**, **Supabase**, **Vercel Postgres**, and any PostgreSQL provider
+- Compatible with **Neon**, **Supabase**, and any PostgreSQL provider
 - SSL is derived from the connection string automatically (no hardcoded `ssl: true`)
 - Pool size defaults to 5 (serverless-friendly); override with `DATABASE_POOL_SIZE`
 - Force SSL on/off with `DATABASE_SSL=true|false` if needed

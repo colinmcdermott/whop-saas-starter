@@ -16,8 +16,8 @@ model User {
   whopMembershipId   String?
   cancelAtPeriodEnd  Boolean  @default(false)
   isAdmin            Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
 
   @@index([email])
   @@index([plan])

@@ -9,7 +9,7 @@ This template works on any platform that supports Next.js. It's optimized for **
 
 1. Push your repo to GitHub
 2. Import the project on [vercel.com](https://vercel.com)
-3. Add a Postgres database from the Vercel dashboard (Storage → Create → Postgres)
+3. Add Neon Postgres from the Vercel Marketplace (Storage → Browse Marketplace → Neon)
 4. Vercel automatically sets `DATABASE_URL` — no manual config needed
 5. Deploy
 
@@ -68,7 +68,7 @@ All Whop-related variables can be set either via environment variables **or** th
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string (auto-set by Vercel Postgres) |
+| `DATABASE_URL` | PostgreSQL connection string (auto-set by Neon via Vercel Marketplace) |
 | `NEXT_PUBLIC_APP_URL` | Your app's public URL — **required on non-Vercel platforms** |
 
 ### Whop OAuth (required for auth)
@@ -159,9 +159,9 @@ https://your-domain.com/api/webhooks/whop
 
 The template works with any PostgreSQL provider. SSL and pool sizing are auto-configured from your connection string.
 
-**Vercel Postgres** — zero config. `DATABASE_URL` is set automatically when you add a Postgres store.
+**Neon (Vercel Marketplace)** — add Neon from the Vercel Marketplace (Storage → Browse Marketplace → Neon). `DATABASE_URL` is set automatically. For best serverless performance, use the **pooled** connection string from your Neon dashboard (the hostname contains `-pooler`).
 
-**Neon** — works out of the box. Use the pooled connection string from your Neon dashboard.
+**Neon (standalone)** — use the pooled connection string from your Neon dashboard. The pooled hostname contains `-pooler` and routes through PgBouncer for better connection reuse in serverless environments.
 
 **Supabase** — use the **Session mode** connection string from Settings → Database → Connection string. If you hit connection limit errors on the free tier (60 max), reduce the pool size:
 

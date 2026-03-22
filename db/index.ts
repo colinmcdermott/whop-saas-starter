@@ -8,7 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 
 /**
  * Derive SSL config from the connection string rather than hardcoding.
- * - Cloud providers (Neon, Supabase, Vercel Postgres): connection strings
+ * - Cloud providers (Neon, Supabase): connection strings
  *   include sslmode=require or similar — SSL is enabled automatically.
  * - Local development: no sslmode param → SSL is disabled, no breakage.
  * - Explicit override: set DATABASE_SSL=true/false to force behavior.
@@ -36,7 +36,7 @@ function createPrismaClient() {
     ssl: sslConfig(connectionString),
     // Serverless-friendly pool size. Each Vercel function instance gets
     // its own pool — keep it small to avoid exhausting connection limits
-    // on Supabase (60), Neon (100), or Vercel Postgres (pool-dependent).
+    // on Supabase (60) or Neon shared compute (100).
     // Override with DATABASE_POOL_SIZE if needed.
     max: parseInt(process.env.DATABASE_POOL_SIZE ?? "5", 10),
   });
