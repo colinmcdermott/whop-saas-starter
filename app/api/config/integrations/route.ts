@@ -59,12 +59,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Only save allowed keys (parallel writes)
+  // Only save allowed keys with sane length limits (parallel writes)
+  const MAX_VALUE_LENGTH = 500;
   await Promise.all(
     Object.entries(body)
       .filter(([key, value]) =>
         INTEGRATION_KEYS.has(key) &&
-        !(typeof value === "string" && value.startsWith("****"))
+        typeof value === "string" &&
+        value.length <= MAX_VALUE_LENGTH &&
+        !value.startsWith("****")
       )
       .map(([key, value]) => setConfig(key, value))
   );

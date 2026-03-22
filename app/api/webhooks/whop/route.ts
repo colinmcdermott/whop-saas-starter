@@ -50,6 +50,12 @@ interface WebhookData {
  *    or enter it during the setup wizard
  */
 export async function POST(request: NextRequest) {
+  // Guard against oversized payloads before processing
+  const contentLength = parseInt(request.headers.get("content-length") ?? "0", 10);
+  if (contentLength > 1_000_000) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   const body = await request.text();
 
   // Get webhook secret from config (DB or env)

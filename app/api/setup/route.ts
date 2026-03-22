@@ -81,10 +81,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // Filter to only allowed keys
+  // Filter to only allowed keys with sane length limits
+  const MAX_VALUE_LENGTH = 500;
   const filtered: Record<string, string> = {};
   for (const [key, value] of Object.entries(body.configs)) {
-    if (ALLOWED_KEYS.has(key) && typeof value === "string") {
+    if (ALLOWED_KEYS.has(key) && typeof value === "string" && value.length <= MAX_VALUE_LENGTH) {
       filtered[key] = value;
     }
   }
