@@ -41,6 +41,20 @@ export function Footer() {
           >
             Docs
           </Link>
+          <Link
+            href={LINKS.terms}
+            prefetch={false}
+            className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Terms
+          </Link>
+          <Link
+            href={LINKS.privacy}
+            prefetch={false}
+            className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Privacy
+          </Link>
           <a
             href={LINKS.github}
             className="text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
