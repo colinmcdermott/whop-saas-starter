@@ -44,19 +44,12 @@ export function HeaderClient() {
 
           {/* Center — nav links (desktop) */}
           <nav className="hidden flex-1 items-center justify-center gap-1 sm:flex">
-            <Link
-              href="/pricing"
-              className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
-            >
+            <NavLink href="/pricing" active={pathname === "/pricing"}>
               Pricing
-            </Link>
-            <Link
-              href="/docs"
-              prefetch={false}
-              className="rounded-md px-3 py-1.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
-            >
+            </NavLink>
+            <NavLink href="/docs" active={pathname.startsWith("/docs")} prefetch={false}>
               Docs
-            </Link>
+            </NavLink>
           </nav>
 
           {/* Right — actions (desktop) */}
@@ -97,77 +90,131 @@ export function HeaderClient() {
             <button
               type="button"
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="inline-flex items-center justify-center rounded-lg p-2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+              className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] active:bg-[var(--surface)] transition-colors"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                {mobileOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-                )}
-              </svg>
+              {/* Animated hamburger → X */}
+              <span className="absolute h-[18px] w-[18px]">
+                <span
+                  className="absolute left-0 top-[3px] h-[1.5px] w-[18px] rounded-full bg-current transition-all duration-200"
+                  style={mobileOpen ? { top: "8px", rotate: "45deg" } : undefined}
+                />
+                <span
+                  className="absolute left-0 bottom-[3px] h-[1.5px] w-[18px] rounded-full bg-current transition-all duration-200"
+                  style={mobileOpen ? { bottom: "8px", rotate: "-45deg" } : undefined}
+                />
+              </span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile nav — fixed overlay, no layout shift */}
-      {mobileOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm sm:hidden"
-            onClick={() => setMobileOpen(false)}
-            onKeyDown={(e) => { if (e.key === "Escape") setMobileOpen(false); }}
-            role="button"
-            tabIndex={-1}
-            aria-label="Close menu"
-          />
-          <nav className="fixed top-14 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--background)] p-4 sm:hidden animate-slide-up overscroll-contain"
-            style={{ animationDuration: "150ms", overscrollBehavior: "contain" }}
-          >
-            <div className="mx-auto flex max-w-5xl flex-col gap-0.5">
+      {/* Mobile nav overlay */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-200 sm:hidden ${
+          mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileOpen(false)}
+        onKeyDown={(e) => { if (e.key === "Escape") setMobileOpen(false); }}
+        role="button"
+        tabIndex={-1}
+        aria-label="Close menu"
+      />
+
+      {/* Mobile nav panel */}
+      <nav
+        className={`fixed top-14 left-0 right-0 z-50 border-b border-[var(--border)] bg-[var(--background)] px-4 pb-4 pt-2 sm:hidden transition-all duration-200 ${
+          mobileOpen
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-2 opacity-0 pointer-events-none"
+        }`}
+        style={{ overscrollBehavior: "contain" }}
+      >
+        <div className="mx-auto flex max-w-5xl flex-col gap-0.5">
+          <MobileNavLink href="/pricing" active={pathname === "/pricing"}>
+            Pricing
+          </MobileNavLink>
+          <MobileNavLink href="/docs" active={pathname.startsWith("/docs")}>
+            Docs
+          </MobileNavLink>
+
+          {/* Divider between nav and CTAs */}
+          <div className="my-2 border-t border-[var(--border)]" />
+
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <MobileNavLink href="/login" active={pathname === "/login"}>
+                Sign in
+              </MobileNavLink>
               <Link
                 href="/pricing"
-                className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+                className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
               >
-                Pricing
+                Get Started
               </Link>
-              <Link
-                href="/docs"
-                prefetch={false}
-                className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
-              >
-                Docs
-              </Link>
-              {isLoggedIn ? (
-                <Link
-                  href="/dashboard"
-                  className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="rounded-lg px-3 py-2.5 text-sm text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/pricing"
-                    className="mt-1 rounded-lg bg-[var(--accent)] px-3 py-2.5 text-center text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-80"
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
-            </div>
-          </nav>
-        </>
-      )}
+            </>
+          )}
+        </div>
+      </nav>
     </>
+  );
+}
+
+/* ── Shared link components ─────────────────────────────── */
+
+function NavLink({
+  href,
+  active,
+  prefetch,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  prefetch?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      prefetch={prefetch}
+      className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+        active
+          ? "text-[var(--foreground)] font-medium"
+          : "text-[var(--muted)] hover:text-[var(--foreground)]"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-lg px-3 py-2.5 text-sm transition-colors ${
+        active
+          ? "text-[var(--foreground)] font-medium bg-[var(--surface)]"
+          : "text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--surface)]"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
