@@ -19,12 +19,14 @@ export function DashboardHeader({ session }: { session: Session }) {
       {/* Spacer on desktop (sidebar provides the logo) */}
       <div className="hidden lg:block" />
 
-      {/* Right — email (desktop), theme toggle, avatar dropdown */}
+      {/* Right — email + theme toggle (desktop), avatar dropdown */}
       <div className="flex items-center gap-3">
         <span className="hidden text-xs text-[var(--muted)] lg:block">
           {session.email}
         </span>
-        <ThemeToggle />
+        <div className="hidden lg:block">
+          <ThemeToggle />
+        </div>
         <UserMenu
           name={session.name}
           email={session.email}
