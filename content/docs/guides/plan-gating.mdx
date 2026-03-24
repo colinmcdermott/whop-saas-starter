@@ -1,0 +1,136 @@
+---
+title: Plan Gating
+description: How to gate features and pages behind subscription plans
+---
+
+This template includes built-in plan gating that works out of the box. When a user subscribes via Whop, their plan updates instantly via webhooks — no logout/login required.
+
+## How Plans Stay Fresh
+
+The JWT session cookie carries the user's identity. The **plan is always read fresh from the database** on every request (not cached in the JWT). Whop webhooks keep the database in sync:
+
+```
+User pays → Whop webhook fires → DB updated → Next page load sees new plan
+```
+
+This means there's zero delay between payment and access.
+
+## Gating Entire Pages
+
+Use `requirePlan()` in server components to redirect users who don't meet the minimum plan:
+
+```tsx
+import { requirePlan } from "@/lib/auth";
+
+export default async function StarterFeaturePage() {
+  // Redirects to /pricing if user is on free plan
+  const session = await requirePlan("starter");
+
+  return <div>Welcome, {session.name}! You have Starter access.</div>;
+}
+```
+
+The plan hierarchy is determined by key order in `PLAN_METADATA` (first = lowest). With the default tiers: **pro > starter > free**. A pro user can access starter-gated pages.
+
+## Gating API Routes
+
+Use `hasMinimumPlan()` in API routes where you want to return a 403 instead of redirecting:
+
+```tsx
+import { NextResponse } from "next/server";
+import { getSession, hasMinimumPlan } from "@/lib/auth";
+import type { PlanKey } from "@/lib/constants";
+
+export async function POST(request: Request) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!hasMinimumPlan(session.plan, "starter")) {
+    return NextResponse.json({ error: "Starter plan required" }, { status: 403 });
+  }
+
+  // Handle the request...
+}
+```
+
+## Gating UI Elements
+
+Use the `<PlanGate>` component to conditionally show or hide parts of a page:
+
+```tsx
+import { requireSession } from "@/lib/auth";
+import { PlanGate } from "@/components/plan-gate";
+
+export default async function DashboardPage() {
+  const session = await requireSession();
+
+  return (
+    <div>
+      {/* Always visible */}
+      <BasicStats />
+
+      {/* Only visible to starter+ users */}
+      <PlanGate plan={session.plan} minimum="starter">
+        <AdvancedAnalytics />
+      </PlanGate>
+
+      {/* Show upgrade prompt for free users, feature for starter+ */}
+      <PlanGate
+        plan={session.plan}
+        minimum="starter"
+        fallback={<UpgradeBanner />}
+      >
+        <TeamCollaboration />
+      </PlanGate>
+    </div>
+  );
+}
+```
+
+The `plan` prop comes from the server component (always fresh from DB), so there's no stale data.
+
+## Real-Time Whop API Verification
+
+For high-value operations where you want to verify access directly with Whop (not just the database), use `hasWhopAccess()`:
+
+```tsx
+import { hasWhopAccess } from "@/lib/whop";
+
+// Check if user has access to a specific Whop product
+const { hasAccess, accessLevel } = await hasWhopAccess(
+  session.whopUserId,
+  "prod_xxxxx" // Your Whop product ID
+);
+
+if (!hasAccess) {
+  return NextResponse.json({ error: "No access" }, { status: 403 });
+}
+```
+
+This calls the Whop API directly (`GET /api/v1/users/{id}/access/{resource_id}`) and is the authoritative source of truth. Use it for operations like:
+
+- Processing sensitive data
+- Generating expensive resources
+- Any action where a stale plan check could cost you money
+
+For most UI and page gating, the database check (via `requirePlan` or `hasMinimumPlan`) is sufficient since webhooks keep it in sync.
+
+## Setting Up Product IDs
+
+To use `hasWhopAccess()`, configure your Whop product IDs:
+
+- **Environment variables**: `WHOP_STARTER_PRODUCT_ID` and `WHOP_PRO_PRODUCT_ID`
+- **Or via admin settings**: these can also be stored in the database config
+
+Product IDs (`prod_xxxxx`) are different from plan IDs (`plan_xxxxx`). Products represent your tiers; plans are the pricing options within each product (monthly, yearly).
+
+## Quick Reference
+
+| Helper | Use Case | Location |
+|--------|----------|----------|
+| `requirePlan("starter")` | Gate entire pages (redirect) | Server components |
+| `hasMinimumPlan(plan, "starter")` | Check plan level (boolean) | API routes, logic |
+| `<PlanGate minimum="starter">` | Conditional UI rendering | Client components |
+| `hasWhopAccess(userId, productId)` | Real-time Whop verification | Critical operations |

@@ -1,0 +1,83 @@
+---
+title: Introduction
+description: Getting started with the SaaS Starter template
+---
+
+Welcome to the **SaaS Starter** documentation. This template gives you everything you need to launch a SaaS product — authentication, payments, subscriptions, and a dashboard — all wired up and ready to go.
+
+## What's Included
+
+- **Authentication** — OAuth 2.1 + PKCE via Whop (no client secret needed)
+- **Payments** — Embedded checkout with monthly/yearly billing
+- **Plan Gating** — `requirePlan()`, `<PlanGate>`, and Whop API access checks
+- **Dashboard** — Protected area with plan-gated features
+- **Admin Settings** — Branding, integrations (analytics, email, error tracking), and setup wizard
+- **Docs** — This documentation site (powered by [Fumadocs](https://fumadocs.vercel.app))
+- **AI Skill** — Bundled agent skill that guides AI tools (Claude Code, Cursor, Copilot) on extending this template
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL + Prisma 7 |
+| Auth & Payments | Whop |
+| Docs | Fumadocs + MDX |
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/whopio/whop-saas-starter.git
+cd whop-saas-starter
+pnpm install
+
+# Set up your database
+cp .env.example .env.local
+# Add your DATABASE_URL to .env.local
+
+# Start developing
+pnpm dev
+```
+
+Visit `http://localhost:3000` and the setup wizard will guide you through connecting Whop.
+
+## Project Structure
+
+```
+app/
+├── (auth)/              # Login, auth error pages
+├── (marketing)/         # Pricing page
+├── dashboard/           # Protected user area
+├── checkout/            # Two-step payment flow
+├── docs/                # This documentation
+├── setup/               # First-run setup wizard
+└── api/
+    ├── auth/            # login, callback, logout, me, delete-account
+    ├── billing/         # portal redirect, uncancel subscription
+    ├── config/          # plans, accent color, integrations
+    ├── search/          # Full-text docs search
+    ├── setup/           # Setup wizard API
+    └── webhooks/whop/   # Whop webhook handler
+components/
+├── landing/             # Hero, features, testimonials, pricing, CTA, header, footer
+├── checkout/            # Billing form + Whop embed
+├── dashboard/           # Sidebar, header, settings
+└── setup/               # Setup wizard
+content/docs/            # Documentation (MDX files — you're reading them!)
+db/
+├── index.ts             # Prisma client singleton
+└── schema.prisma        # User + SystemConfig models
+lib/
+├── auth.ts              # Session + plan gating (requirePlan, hasMinimumPlan)
+├── config.ts            # DB-backed configuration
+├── whop.ts              # Whop OAuth, webhooks, access checks
+├── subscription.ts      # Subscription/membership query helpers
+├── analytics.ts         # Analytics script generation
+├── email.ts             # Transactional email (Resend, SendGrid)
+├── email-templates.ts   # HTML email templates (welcome, payment failed)
+├── constants.ts         # Plans, app name, links
+└── source.ts            # Fumadocs content loader
+```

@@ -1,0 +1,217 @@
+---
+title: Deployment
+description: Deploying your SaaS to production
+---
+
+This template works on any platform that supports Next.js. It's optimized for **Vercel** but also works on Railway, Fly.io, Render, AWS, and self-hosted setups.
+
+## Deploy to Vercel
+
+1. Push your repo to GitHub
+2. Import the project on [vercel.com](https://vercel.com)
+3. Add a Postgres database from the Vercel Marketplace (Neon, Supabase, Prisma Postgres, or Nile)
+4. Vercel automatically sets the database connection — no manual config needed
+5. Deploy
+
+That's it. The build script automatically runs `prisma generate` and `prisma db push`. SEO URLs (sitemap, OG metadata) are auto-detected from Vercel's system environment variables.
+
+## Deploy to Other Platforms
+
+The template runs anywhere you can host a Next.js app with a PostgreSQL database.
+
+### Requirements
+
+- **Node.js 18+** and `pnpm`
+- **PostgreSQL** database (Supabase, Neon, PlanetScale, RDS, self-hosted, etc.)
+- A platform that supports Next.js server-side rendering (not static export)
+
+### Steps
+
+1. Set up a PostgreSQL database and get the connection string
+2. Set the required environment variables (see below)
+3. Build and start:
+
+```bash
+pnpm install
+pnpm build   # runs prisma generate + db push + next build
+pnpm start
+```
+
+### Required Environment Variables
+
+On non-Vercel platforms, you **must** set `NEXT_PUBLIC_APP_URL`. This is used for OAuth redirect URLs, sitemap generation, and Open Graph metadata. On Vercel this is auto-detected.
+
+```bash
+# Required on all platforms
+DATABASE_URL="postgresql://user:password@host:5432/dbname"
+
+# Required on non-Vercel platforms (Vercel auto-detects this)
+NEXT_PUBLIC_APP_URL="https://yourdomain.com"
+```
+
+### Platform-Specific Notes
+
+**Railway / Render / Fly.io:**
+- Set `DATABASE_URL` and `NEXT_PUBLIC_APP_URL` in your platform's environment settings
+- The build command is `pnpm build`, start command is `pnpm start`
+- Port is auto-detected from the `PORT` environment variable
+
+**Docker / Self-hosted:**
+- Use `node .next/standalone/server.js` after build for a minimal production server
+- Ensure your reverse proxy forwards the `host` header (needed for sitemap URL detection)
+
+## Environment Variables
+
+All Whop-related variables can be set either via environment variables **or** the in-app setup wizard at `/setup`. Environment variables take priority if both are set.
+
+### Required
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string (auto-set by Neon via Vercel Marketplace) |
+| `NEXT_PUBLIC_APP_URL` | Your app's public URL — **required on non-Vercel platforms** |
+
+### Whop OAuth (required for auth)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_WHOP_APP_ID` | Your Whop app ID (used as OAuth client_id) |
+| `WHOP_API_KEY` | Your Whop API key (server-side only) |
+
+### Whop Webhooks (required for payments)
+
+| Variable | Description |
+|----------|-------------|
+| `WHOP_WEBHOOK_SECRET` | Webhook signing secret from your Whop app settings |
+
+### Whop Plan IDs (required for paid tiers)
+
+Env var names are auto-derived from plan keys in `PLAN_METADATA` (`lib/constants.ts`). Pattern: `NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID` and `_YEARLY`. For the default tiers:
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_WHOP_FREE_PLAN_ID` | Free tier plan ID |
+| `NEXT_PUBLIC_WHOP_STARTER_PLAN_ID` | Starter monthly plan ID |
+| `NEXT_PUBLIC_WHOP_STARTER_PLAN_ID_YEARLY` | Starter yearly plan ID |
+| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID` | Pro monthly plan ID |
+| `NEXT_PUBLIC_WHOP_PRO_PLAN_ID_YEARLY` | Pro yearly plan ID |
+
+If you add custom tiers to `PLAN_METADATA`, the corresponding env vars follow the same pattern.
+
+### Whop Product IDs (optional — for real-time access checks)
+
+| Variable | Description |
+|----------|-------------|
+| `WHOP_STARTER_PRODUCT_ID` | Starter product ID for `hasWhopAccess()` verification |
+| `WHOP_PRO_PRODUCT_ID` | Pro product ID for `hasWhopAccess()` verification |
+
+### Database Tuning (optional)
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_POOL_SIZE` | Max connections per serverless instance (default: `5`) |
+| `DATABASE_SSL` | Force SSL on (`true`) or off (`false`); auto-detected from connection string if not set |
+
+### App Configuration (optional)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_APP_NAME` | Override the app name from `lib/constants.ts` |
+| `NEXT_PUBLIC_ACCENT_COLOR` | Default accent color hex (e.g. `#5b4cff`) |
+| `SESSION_SECRET` | JWT signing secret (auto-generated and stored in DB if not set) |
+
+### Integrations (optional)
+
+These can also be configured via the admin Settings page instead of env vars.
+
+| Variable | Description |
+|----------|-------------|
+| `ANALYTICS_PROVIDER` | `"posthog"`, `"google"`, or `"plausible"` |
+| `ANALYTICS_ID` | Tracking ID or project key for your analytics provider |
+| `EMAIL_PROVIDER` | `"resend"` or `"sendgrid"` |
+| `EMAIL_API_KEY` | API key for your email provider |
+
+## First Visit
+
+After deploying, visit your site. If Whop isn't configured yet, you'll be redirected to the setup wizard at `/setup` which guides you through:
+
+1. Entering your Whop app ID and API key
+2. Connecting your plan IDs
+3. Setting up webhooks
+
+The first user to sign in via OAuth automatically becomes the admin.
+
+## Custom Domain
+
+Update your Whop app's redirect URL to match your domain:
+
+```
+https://your-domain.com/api/auth/callback
+```
+
+Also update the webhook URL in your Whop app settings:
+
+```
+https://your-domain.com/api/webhooks/whop
+```
+
+## Database Providers
+
+The template works with any PostgreSQL provider. SSL and pool sizing are auto-configured from your connection string. The Deploy to Vercel button pre-selects the four tested providers below — all are zero-config.
+
+**Neon (Vercel Marketplace)** — add Neon from the Vercel Marketplace (Storage → Browse Marketplace → Neon). `DATABASE_URL` is set automatically. For best serverless performance, use the **pooled** connection string from your Neon dashboard (the hostname contains `-pooler`).
+
+**Neon (standalone)** — use the pooled connection string from your Neon dashboard. The pooled hostname contains `-pooler` and routes through PgBouncer for better connection reuse in serverless environments.
+
+**Supabase (Vercel Marketplace)** — `DATABASE_URL` is set automatically. If you hit connection limit errors on the free tier (60 max), reduce the pool size. For standalone use, use the **Session mode** connection string from Settings → Database → Connection string.
+
+```bash
+DATABASE_POOL_SIZE=3
+```
+
+**Prisma Postgres (Vercel Marketplace)** — `DATABASE_URL` is set automatically. For standalone use, provision via the [Prisma Console](https://console.prisma.io) or `npx create-db@latest` and use the direct TCP connection string with `sslmode=require`.
+
+**Nile** — add Nile from the Vercel Marketplace (Storage → Browse Marketplace → Nile). The integration sets `NILEDB_POSTGRES_URL` which is auto-detected — no manual `DATABASE_URL` config needed. For standalone use, set `DATABASE_URL` to your Nile connection string (`postgres://...@<region>.db.thenile.dev:5432/<database>`).
+
+**Local development** — SSL is disabled automatically when your connection string has no `sslmode` parameter:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb"
+```
+
+## Security
+
+The template includes several security measures out of the box:
+
+- **Session cookies** — httpOnly, Secure (in production), SameSite=Lax
+- **PKCE** — no client secret stored or transmitted
+- **Webhook verification** — HMAC-SHA256 with constant-time comparison and 5-minute timestamp tolerance
+- **Security headers** — X-Frame-Options DENY, X-Content-Type-Options nosniff, strict Referrer-Policy, Permissions-Policy
+- **Auth on every mutation** — all POST endpoints verify session before acting
+- **XSS prevention** — analytics IDs are regex-validated before injection
+
+### What you should add before launch
+
+**Rate limiting** — the template doesn't include rate limiting. For production, add it to auth and API routes to prevent brute-force and abuse. Options:
+
+- [Vercel WAF](https://vercel.com/docs/security/vercel-waf) — zero-config if you're on Vercel Pro/Enterprise
+- [Upstash Ratelimit](https://upstash.com/docs/oss/sdks/ts/ratelimit/overview) — serverless-friendly, works anywhere
+- Custom middleware using a simple in-memory or Redis-backed counter
+
+Priority endpoints to rate limit: `/api/auth/login`, `/api/auth/callback`, `/api/webhooks/whop`, `/api/billing/uncancel`.
+
+**Input validation** — Prisma provides type safety at the query level, but you should validate user input at the API boundary for any routes you add. Consider [Zod](https://zod.dev) for schema validation on request bodies.
+
+**Content Security Policy** — the template doesn't set a CSP header because it depends on which third-party scripts you integrate (analytics, checkout embed, etc.). Once you know your external domains, add a CSP header in `next.config.ts`.
+
+## Database Migrations
+
+For schema changes in production:
+
+```bash
+# Generate migration
+pnpm db:migrate
+
+# Or push directly (for simple changes)
+pnpm db:push
+```

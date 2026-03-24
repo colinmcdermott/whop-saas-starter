@@ -1,0 +1,15 @@
+{
+  "title": "Guides",
+  "pages": [
+    "authentication",
+    "plan-gating",
+    "payments",
+    "email",
+    "database",
+    "api-reference",
+    "customization",
+    "seo",
+    "deployment",
+    "troubleshooting"
+  ]
+}

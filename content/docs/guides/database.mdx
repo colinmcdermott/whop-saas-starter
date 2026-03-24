@@ -1,0 +1,168 @@
+---
+title: Database
+description: Schema, queries, and extending the data model
+---
+
+The template uses **Prisma 7** with PostgreSQL via the native `pg` driver adapter. The schema lives at `db/schema.prisma` and the client singleton at `db/index.ts`.
+
+## Schema
+
+### User
+
+Stores authenticated users. Created on first OAuth sign-in, updated by webhooks.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | `String` (cuid) | Primary key |
+| `whopUserId` | `String` (unique) | Whop's user ID from OAuth |
+| `email` | `String?` | From Whop profile |
+| `name` | `String?` | From Whop profile |
+| `profileImageUrl` | `String?` | Avatar URL from Whop CDN |
+| `plan` | `String` | Current plan key (default: `"free"`) |
+| `whopMembershipId` | `String?` | Active Whop membership ID |
+| `cancelAtPeriodEnd` | `Boolean` | Pending cancellation flag |
+| `isAdmin` | `Boolean` | First user to sign in becomes admin |
+| `createdAt` | `DateTime` | Account creation (timestamptz) |
+| `updatedAt` | `DateTime` | Last update (timestamptz) |
+
+**Indexes:** `whopUserId` (unique), `email`, `plan`
+
+### SystemConfig
+
+Key-value store for app configuration (Whop credentials, accent color, integration settings).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `key` | `String` | Config key (primary key) |
+| `value` | `String` | Config value |
+
+## How Plan Updates Work
+
+```
+User subscribes on Whop
+  → Whop sends membership_activated webhook
+  → Webhook handler calls activateMembership()
+  → prisma.user.upsert() sets plan + whopMembershipId
+  → Next request: getSession() reads fresh plan from DB
+  → User sees upgraded features
+```
+
+The JWT cookie carries identity, but **plan is always read from the database** in `getSession()`. This means webhook-driven plan changes are reflected immediately without requiring the user to re-authenticate.
+
+## Common Queries
+
+### Read user data (select only what you need)
+
+```tsx
+import { prisma } from "@/db";
+
+const user = await prisma.user.findUnique({
+  where: { id: userId },
+  select: { plan: true, cancelAtPeriodEnd: true },
+});
+```
+
+### Upsert (create or update)
+
+Used in OAuth callback and webhook handlers:
+
+```tsx
+await prisma.user.upsert({
+  where: { whopUserId },
+  update: { plan, whopMembershipId: membershipId },
+  create: { whopUserId, plan, whopMembershipId: membershipId },
+});
+```
+
+### Bulk update by Whop user ID
+
+Webhook handlers use `updateMany` for safety:
+
+```tsx
+await prisma.user.updateMany({
+  where: { whopUserId },
+  data: { plan: "free", whopMembershipId: null },
+});
+```
+
+### Read config
+
+```tsx
+import { getConfig, setConfig } from "@/lib/config";
+
+const value = await getConfig("accent_color"); // string | null
+await setConfig("accent_color", "#5b4cff");
+```
+
+## Adding a New Model
+
+1. Add the model to `db/schema.prisma`:
+
+```prisma
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([userId])
+}
+```
+
+2. Add the relation to the `User` model:
+
+```prisma
+model User {
+  // ... existing fields
+  projects Project[]
+}
+```
+
+3. Push the schema:
+
+```bash
+pnpm db:push      # Development (no migration files)
+pnpm db:migrate   # Production (creates migration files)
+```
+
+## Best Practices
+
+- **Always use `select`** to fetch only the fields you need
+- **Use `Promise.all`** for independent queries (avoid waterfalls)
+- **Use `@db.Timestamptz(3)`** for all DateTime fields (timezone-safe)
+- **Index columns** used in WHERE clauses, JOINs, and foreign keys
+- **Use `upsert`** for create-or-update patterns (maps to `ON CONFLICT`)
+- **Use `updateMany`** in webhook handlers (handles edge cases)
+
+## Push vs Migrate
+
+| Command | Use case |
+|---------|----------|
+| `pnpm db:push` | Development — applies schema directly, no migration files |
+| `pnpm db:migrate` | Production — creates versioned migration files for reproducibility |
+
+The build script (`pnpm build`) runs `db:push` automatically if `DATABASE_URL` is set.
+
+## Database Providers
+
+Works with any PostgreSQL provider. SSL and pool sizing are auto-configured.
+
+- **Neon** — use the pooled connection string (hostname contains `-pooler`)
+- **Supabase** — use Session mode connection string; reduce pool size to 3 on free tier
+- **Prisma Postgres** — use direct TCP connection string with `sslmode=require`
+- **Nile** — zero-config via Vercel Marketplace; `NILEDB_POSTGRES_URL` is detected automatically
+- **Local** — no SSL needed; just `postgresql://postgres:postgres@localhost:5432/mydb`
+
+See [Deployment](/docs/guides/deployment#database-providers) for provider-specific setup.
+
+## Prisma Studio
+
+Browse and edit your data visually:
+
+```bash
+pnpm db:studio
+```
+
+Opens a web UI at `http://localhost:5555`.

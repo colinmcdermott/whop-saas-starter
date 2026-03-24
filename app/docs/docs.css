@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Align Fumadocs with the site theme */
+@layer base {
+  :root {
+    --color-fd-background: #ffffff;
+    --color-fd-foreground: #0a0a0a;
+    --color-fd-muted: #f7f7f8;
+    --color-fd-secondary: #ebebef;
+    --color-fd-card: #ffffff;
+    --color-fd-border: hsla(0, 0%, 80%, 50%);
+  }
+
+  .dark {
+    --color-fd-background: #090909;
+    --color-fd-foreground: #ededef;
+    --color-fd-muted: #111113;
+    --color-fd-secondary: #1c1c21;
+    --color-fd-card: #111113;
+    --color-fd-border: hsla(0, 0%, 40%, 20%);
+  }
+
+  .dark #nd-sidebar {
+    --color-fd-muted: #111113;
+    --color-fd-secondary: #1c1c21;
+    --color-fd-muted-foreground: #9494a0;
+  }
+}

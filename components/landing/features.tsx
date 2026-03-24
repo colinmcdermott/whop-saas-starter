@@ -1,0 +1,120 @@
+const features = [
+  {
+    icon: LockIcon,
+    title: "Authentication",
+    description:
+      "OAuth 2.1 + PKCE with Whop. Secure sessions, protected routes, and middleware -ready to go.",
+  },
+  {
+    icon: CreditCardIcon,
+    title: "Payments",
+    description:
+      "Embedded checkout, subscriptions, and free tiers. All powered by Whop.",
+  },
+  {
+    icon: ChartIcon,
+    title: "Dashboard",
+    description:
+      "Clean, responsive dashboard with sidebar nav. Role-based access built in.",
+  },
+  {
+    icon: RocketIcon,
+    title: "One-Click Deploy",
+    description:
+      "Optimized for Vercel. Deploy in seconds with automatic previews.",
+  },
+  {
+    icon: DatabaseIcon,
+    title: "Database",
+    description:
+      "PostgreSQL with Prisma ORM. Type-safe queries, migrations, and studio.",
+  },
+  {
+    icon: BellIcon,
+    title: "Webhooks",
+    description:
+      "Subscription lifecycle handled automatically via verified webhooks.",
+  },
+];
+
+export function Features() {
+  return (
+    <section>
+      <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+            Everything you need to launch
+          </h2>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            Stop rebuilding infrastructure. Start shipping your product.
+          </p>
+        </div>
+
+        <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--border)] sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="bg-[var(--card)] p-6 transition-colors hover:bg-[var(--surface)] dark:hover:bg-[var(--surface)]/80"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-[var(--accent)]">
+                <feature.icon />
+              </div>
+              <h3 className="mt-3 text-sm font-semibold">{feature.title}</h3>
+              <p className="mt-1.5 text-sm text-[var(--muted)] leading-relaxed">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LockIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+    </svg>
+  );
+}
+
+function CreditCardIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+    </svg>
+  );
+}
+
+function RocketIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+    </svg>
+  );
+}
+
+function DatabaseIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+    </svg>
+  );
+}
+
+function BellIcon() {
+  return (
+    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+    </svg>
+  );
+}

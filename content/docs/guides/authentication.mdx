@@ -1,0 +1,125 @@
+---
+title: Authentication
+description: How authentication works in this template
+---
+
+This template uses **Whop OAuth 2.1 + PKCE** for authentication. Users sign in with their Whop account — no passwords to manage, no client secret required.
+
+## How It Works
+
+1. User clicks "Sign in" → redirected to Whop's authorize page
+2. User approves → redirected back with an authorization code
+3. The callback exchanges the code for user info via PKCE
+4. A JWT session cookie is created (7-day expiry)
+
+## Protecting Pages
+
+The dashboard layout calls `requireSession()` which redirects unauthenticated users to `/login`:
+
+```tsx
+// app/dashboard/layout.tsx
+import { requireSession } from "@/lib/auth";
+
+export default async function DashboardLayout({ children }) {
+  const session = await requireSession();
+  // session.userId, session.email, session.plan, session.isAdmin
+  return <>{children}</>;
+}
+```
+
+## Session Helpers
+
+### `getSession()` — Optional auth check
+
+Returns the session or `null`. Use in server components and API routes where auth is optional:
+
+```tsx
+import { getSession } from "@/lib/auth";
+
+const session = await getSession();
+if (session) {
+  // User is logged in
+}
+```
+
+### `requireSession()` — Required auth check
+
+Returns the session or redirects to `/login`. Use in protected pages:
+
+```tsx
+import { requireSession } from "@/lib/auth";
+
+const session = await requireSession();
+// Always authenticated here
+```
+
+## Plan Gating
+
+The user's plan is always fresh from the database (kept up-to-date by Whop webhooks). Several helpers make plan gating easy:
+
+### `requirePlan()` — Gate entire pages
+
+Redirects to `/pricing` if the user's plan is below the required level:
+
+```tsx
+import { requirePlan } from "@/lib/auth";
+
+// Only starter and pro users can access this page
+const session = await requirePlan("starter");
+```
+
+### `hasMinimumPlan()` — Check plan level in API routes
+
+Pure function for plan comparison without redirects:
+
+```tsx
+import { getSession, hasMinimumPlan } from "@/lib/auth";
+
+const session = await getSession();
+if (!session || !hasMinimumPlan(session.plan, "starter")) {
+  return NextResponse.json({ error: "Upgrade required" }, { status: 403 });
+}
+```
+
+### `<PlanGate>` — Conditional rendering in client components
+
+Pass the plan from a server parent to gate UI elements:
+
+```tsx
+import { PlanGate } from "@/components/plan-gate";
+
+// In a server component
+const session = await requireSession();
+
+return (
+  <PlanGate plan={session.plan} minimum="starter" fallback={<UpgradeBanner />}>
+    <AdvancedFeature />
+  </PlanGate>
+);
+```
+
+### Direct Whop API access check
+
+For authoritative real-time access verification (e.g., before high-value operations):
+
+```tsx
+import { hasWhopAccess } from "@/lib/whop";
+
+const { hasAccess } = await hasWhopAccess(session.whopUserId, "prod_xxxxx");
+```
+
+### Plan hierarchy
+
+The plan hierarchy is auto-derived from key order in `PLAN_METADATA` (`lib/constants.ts`). With the default tiers: `pro` > `starter` > `free`. All helpers respect this hierarchy — a pro user can access starter-gated features. If you add or remove tiers, the hierarchy updates automatically.
+
+## Admin Access
+
+The first user to sign in becomes the admin. Check `session.isAdmin` for admin-only features:
+
+```tsx
+const session = await requireSession();
+
+if (session.isAdmin) {
+  // Show admin settings
+}
+```

@@ -1,0 +1,217 @@
+---
+title: Customization
+description: How to customize the template for your product
+---
+
+This template is designed to be easily customized. Here are the key places to make it your own.
+
+## App Name & Description
+
+Edit `lib/constants.ts`:
+
+```tsx
+export const APP_NAME = "Your App Name";
+export const APP_DESCRIPTION = "Your app description";
+```
+
+This updates the header, sidebar, login page, and HTML metadata.
+
+## Logo & Favicon
+
+The logo is in `components/app-logo.tsx` — a lightning bolt icon with the app name. To replace it:
+
+1. **Logo icon:** Replace the `LogoMark` SVG in `components/app-logo.tsx` with your own, or swap it for a `next/image` import
+2. **Favicon:** Replace `app/icon.svg` with your own SVG (or `icon.png` / `favicon.ico`). It currently matches the logo — accent-colored square with lightning bolt
+
+The logo appears in the header, sidebar, login page, and checkout.
+
+## Footer Links
+
+Edit `components/landing/footer.tsx` to update navigation links. Update `LINKS` in `lib/constants.ts` for the GitHub, terms, and privacy URLs:
+
+```tsx
+export const LINKS = {
+  github: "https://github.com/your-org/your-repo",
+  terms: "/terms",
+  privacy: "/privacy",
+};
+```
+
+## Hero Screenshot
+
+The hero section in `components/landing/hero.tsx` has a placeholder where it says "Replace with a screenshot of your product". Replace the placeholder `<div>` with a `next/image` or a demo video:
+
+```tsx
+<Image
+  src="/screenshot.png"
+  alt="Product screenshot"
+  width={1200}
+  height={675}
+  priority
+/>
+```
+
+Add your image to the `public/` folder.
+
+## Branding / Accent Color
+
+Admins can change the accent color from **Dashboard → Settings → Branding**. This updates all primary buttons and accents across the site.
+
+You can also set the default accent color in `app/globals.css`:
+
+```css
+:root {
+  --accent: #5b4cff;
+  --accent-foreground: #ffffff;
+}
+```
+
+## Plans & Pricing
+
+The plan system is **data-driven** from `PLAN_METADATA` in `lib/constants.ts`. To customize:
+
+- **Edit tiers** — change names, descriptions, prices, features in `PLAN_METADATA`
+- **Add/remove tiers** — add or remove keys. The pricing page, setup wizard, plan gating, and config keys all adapt automatically
+- **Billing intervals** — set `billingIntervals: ["monthly"]` on a plan to disable yearly
+- **Free trials** — set `trialDays: 7` for display; configure the actual trial in your Whop Dashboard
+
+Connect Whop plan IDs via the setup wizard at `/setup` or environment variables (pattern: `NEXT_PUBLIC_WHOP_{PLAN_KEY}_PLAN_ID`).
+
+## Landing Page
+
+The landing page renders sections in this order: **Hero → Features → Testimonials → Pricing → CTA**. All components are in `components/landing/`:
+
+- `hero.tsx` — Main headline, CTA buttons, and product screenshot placeholder
+- `features.tsx` — Feature grid (6 cards, 3 columns on desktop)
+- `testimonials.tsx` — Social proof section (3-column card grid)
+- `pricing-cards.tsx` — Pricing tiers with monthly/yearly toggle
+- `cta.tsx` — Closing call-to-action banner with accent glow
+- `header.tsx` — Navigation header
+- `footer.tsx` — Footer links
+
+### Testimonials
+
+Edit the `testimonials` array in `components/landing/testimonials.tsx` to replace the placeholder quotes with real customer feedback:
+
+```tsx
+const testimonials = [
+  {
+    quote: "Your customer's testimonial here.",
+    name: "Customer Name",
+    role: "Role, Company",
+  },
+  // Add or remove entries — the grid adapts automatically
+];
+```
+
+Each card shows the first letter of the name as an accent-colored avatar. To use real profile images instead, replace the avatar `<div>` with an `<Image>` component.
+
+### CTA Section
+
+The closing CTA in `components/landing/cta.tsx` mirrors the Hero's button style. Update the headline, description, and button links to match your product messaging.
+
+## Dashboard
+
+The dashboard layout is in `app/dashboard/layout.tsx` with components in `components/dashboard/`:
+
+- `sidebar.tsx` — Navigation sidebar
+- `header.tsx` — Dashboard header with user menu
+- `activity-feed.tsx` — Recent activity log (placeholder data)
+- `upgrade-banner.tsx` — Shown to free-tier users
+- `reactivate-banner.tsx` — Shown when subscription is pending cancellation
+
+### Activity Feed
+
+The activity feed in `components/dashboard/activity-feed.tsx` shows recent account events on the dashboard overview. Replace the placeholder `activities` array with real data from your database:
+
+```tsx
+const activities: Activity[] = [
+  {
+    type: "sign_in",       // "sign_in" | "plan_change" | "setting" | "account"
+    description: "You signed in",
+    timestamp: new Date(),
+  },
+  // Add your own activity types and entries
+];
+```
+
+Each activity type has a distinct icon and color. To add new types, extend the `ActivityType` union and add cases to `iconStyle()` and `ActivityIcon()`.
+
+A matching `ActivityFeedSkeleton` is exported for use in Suspense boundaries.
+
+## Adding Pages
+
+### Public pages
+
+Add to `app/(marketing)/` — these share the landing page header and footer.
+
+### Protected pages
+
+Add to `app/dashboard/` — these are automatically protected by the dashboard layout's `requireSession()` call.
+
+### Documentation
+
+Add `.mdx` files to `content/docs/`. They automatically appear in the docs sidebar. Use `meta.json` files in folders to control ordering.
+
+## Theme & Dark Mode
+
+The template supports light and dark mode via CSS class toggling on the `<html>` element. Theme preference is stored in `localStorage` and respects the system setting by default.
+
+### CSS Custom Properties
+
+All colors use CSS custom properties defined in `app/globals.css`. Override these to change the entire look:
+
+```css
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #ffffff;
+  --surface: #f9fafb;
+  --accent: #5b4cff;
+  --accent-foreground: #ffffff;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --card: #111111;
+  --surface: #1a1a1a;
+  --accent: #7b6fff;
+  --accent-foreground: #ffffff;
+}
+```
+
+Use them in Tailwind with the bracket syntax: `bg-[var(--card)]`, `text-[var(--muted)]`, `border-[var(--border)]`.
+
+### Animations
+
+Built-in animation classes with staggered delays:
+
+- `animate-fade-in` — opacity 0 → 1
+- `animate-slide-up` — translate up + fade in
+- `animate-scale-in` — scale up + fade in
+- `delay-100` through `delay-500` — stagger entrance animations
+
+All animations respect `prefers-reduced-motion`.
+
+### Theme Toggle
+
+The `ThemeToggle` component in the header lets users switch between light and dark. It's powered by the `ThemeProvider` in `components/theme-provider.tsx`.
+
+## Removing the Docs Site
+
+If you don't need the built-in documentation:
+
+1. Delete `content/docs/` and `app/docs/`
+2. Delete `source.config.ts` and `mdx-components.tsx`
+3. Remove fumadocs dependencies from `package.json`:
+   ```bash
+   pnpm remove fumadocs-core fumadocs-mdx fumadocs-ui @types/mdx
+   ```
+4. Remove the docs link from `components/landing/header-client.tsx` and `components/landing/footer.tsx`
+5. Remove the `/api/search` route (`app/api/search/`)
+6. Remove `createMDX` from `next.config.ts`
