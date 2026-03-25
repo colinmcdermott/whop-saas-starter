@@ -21,10 +21,10 @@ Edit `lib/constants.ts`:
 ```tsx
 export const PLAN_METADATA = {
   free: { name: "Free", description: "...", priceMonthly: 0, priceYearly: 0, features: [...] },
-  starter: { name: "Starter", description: "...", priceMonthly: 29, priceYearly: 290, features: [...], highlighted: true },
+  starter: { name: "Starter", description: "...", priceMonthly: 0, priceYearly: 0, features: [...], highlighted: true },
   // ↓ Add here — position determines rank
-  business: { name: "Business", description: "...", priceMonthly: 79, priceYearly: 790, features: [...] },
-  pro: { name: "Pro", description: "...", priceMonthly: 199, priceYearly: 1990, features: [...] },
+  business: { name: "Business", description: "...", priceMonthly: 0, priceYearly: 0, features: [...] },
+  pro: { name: "Pro", description: "...", priceMonthly: 0, priceYearly: 0, features: [...] },
 };
 ```
 
@@ -50,8 +50,8 @@ Set via the setup wizard at `/setup` or environment variables.
 |-------|----------|-------------|
 | `name` | Yes | Display name |
 | `description` | Yes | Short description for pricing cards |
-| `priceMonthly` | Yes | Monthly price in dollars (0 for free) |
-| `priceYearly` | Yes | Yearly price in dollars (0 for free) |
+| `priceMonthly` | Yes | Default 0 — real prices are synced from the Whop API |
+| `priceYearly` | Yes | Default 0 — real prices are synced from the Whop API |
 | `features` | Yes | Array of feature strings for pricing cards |
 | `highlighted` | No | Show "Most Popular" badge, accent border |
 | `trialDays` | No | Display only — configure actual trial in Whop |

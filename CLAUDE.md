@@ -40,10 +40,12 @@ pnpm db:migrate   # Run migrations
 - Proxy (`proxy.ts`) checks cookie existence on `/dashboard/*`; full JWT verification in `getSession()`
 
 ### Plan System (data-driven)
-- `PLAN_METADATA` in `lib/constants.ts` is the **single source of truth** for plan tiers
+- `PLAN_METADATA` in `lib/constants.ts` is the **single source of truth** for plan tiers (names, descriptions, features, hierarchy)
+- **Prices are synced from the Whop API** — `priceMonthly`/`priceYearly` default to 0 in constants; `getPlansConfig()` auto-syncs from Whop when plan IDs exist but prices haven't been fetched yet
 - `PlanKey` type is derived from `keyof typeof PLAN_METADATA` (not hardcoded)
 - Key order in `PLAN_METADATA` defines the plan hierarchy (first = lowest, last = highest)
 - `PLAN_RANK`, `PLAN_KEYS`, `DEFAULT_PLAN` are all auto-derived from `PLAN_METADATA`
+- Free plan detection uses `key === DEFAULT_PLAN` (not `priceMonthly === 0`, since all defaults are 0)
 - To add/remove/modify a tier: edit `PLAN_METADATA` — config keys, env vars, setup wizard, pricing page, plan gating all adapt automatically
 - Optional per-plan fields: `trialDays` (display only — configure actual trial in Whop), `billingIntervals` (defaults to `["monthly", "yearly"]`)
 

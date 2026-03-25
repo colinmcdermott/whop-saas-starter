@@ -33,8 +33,8 @@ export const PLAN_METADATA = {
   },
   starter: {
     name: "Starter",
-    priceMonthly: 29,
-    priceYearly: 290,
+    priceMonthly: 0, // Real prices synced from Whop API
+    priceYearly: 0,
     features: ["Unlimited projects", "Priority support"],
     highlighted: true,
     trialDays: 7, // display only — configure the actual trial in Whop
@@ -45,6 +45,8 @@ export const PLAN_METADATA = {
 ```
 
 Key order defines the plan hierarchy (first = lowest tier, last = highest).
+
+**Prices are synced from Whop automatically.** When plan IDs are configured but prices haven't been fetched yet, `getPlansConfig()` fetches them from the Whop API inline. Set prices in your Whop Dashboard — they'll appear on your pricing page after the first render. You can also manually sync prices from **Dashboard → Settings → Pricing**.
 
 ### Dynamic plan IDs — Setup wizard or env vars
 
@@ -89,8 +91,8 @@ Set `billingIntervals: ["monthly"]` on each plan. The yearly toggle disappears f
 ```tsx
 starter: {
   name: "Starter",
-  priceMonthly: 29,
-  priceYearly: 0, // not used
+  priceMonthly: 0,
+  priceYearly: 0,
   billingIntervals: ["monthly"], // ← disables yearly
   features: [...],
   highlighted: true,
@@ -109,16 +111,16 @@ export const PLAN_METADATA = {
   starter: {
     name: "Starter",
     description: "For individuals",
-    priceMonthly: 9,
-    priceYearly: 90,
+    priceMonthly: 0,
+    priceYearly: 0,
     features: ["5 projects", "Basic analytics"],
     highlighted: false,
   },
   pro: {
     name: "Pro",
     description: "For teams",
-    priceMonthly: 29,
-    priceYearly: 290,
+    priceMonthly: 0,
+    priceYearly: 0,
     features: ["Unlimited projects", "Priority support"],
     highlighted: true,
   },
@@ -142,8 +144,8 @@ Two steps — display and configuration:
 ```tsx
 starter: {
   name: "Starter",
-  priceMonthly: 29,
-  priceYearly: 290,
+  priceMonthly: 0,
+  priceYearly: 0,
   trialDays: 7, // ← shows on pricing page
   features: [...],
   highlighted: true,
@@ -169,8 +171,8 @@ export const PLAN_METADATA = {
   starter: {
     name: "Starter",
     description: "Everything you need",
-    priceMonthly: 19,
-    priceYearly: 190,
+    priceMonthly: 0,
+    priceYearly: 0,
     features: ["Unlimited projects", "Priority support", "Advanced analytics"],
     highlighted: true,
   },
@@ -190,8 +192,8 @@ export const PLAN_METADATA = {
   business: { // ← new tier, above starter, below pro
     name: "Business",
     description: "For growing teams",
-    priceMonthly: 79,
-    priceYearly: 790,
+    priceMonthly: 0,
+    priceYearly: 0,
     features: ["Everything in Starter", "Team management", "Dedicated support"],
     highlighted: false,
   },
@@ -223,13 +225,15 @@ pro: { ..., billingIntervals: ["monthly"] },
 
 ## Billing Intervals
 
-Each paid plan supports monthly and yearly billing by default. The pricing page shows a toggle, and yearly prices show the monthly equivalent (e.g., "$24/mo billed annually"). The discount is calculated automatically from your `priceMonthly` and `priceYearly` values.
+Each paid plan supports monthly and yearly billing by default. The pricing page shows a toggle, and yearly prices show the monthly equivalent (e.g., "$24/mo billed annually").
 
 ### How it works:
+- Prices are **synced from the Whop API** based on your plan IDs. Set prices in your Whop Dashboard — they appear on your pricing page automatically.
 - `priceMonthly` → shown when toggle is on "Monthly"
 - `priceYearly` → divided by 12 and shown as "/mo" when toggle is on "Yearly", with "billed annually" subtitle
 - The "Save ~17%" badge appears automatically when yearly is selected
 - Each interval maps to a separate Whop plan ID (`_PLAN_ID` for monthly, `_PLAN_ID_YEARLY` for yearly)
+- If prices haven't been synced yet, the pricing card shows "—" until the first sync completes
 
 ## Free Trials
 
