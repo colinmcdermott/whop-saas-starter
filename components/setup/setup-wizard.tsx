@@ -14,6 +14,7 @@ interface Props {
   initialStep?: number;
   isSignedIn: boolean;
   isAdmin: boolean;
+  repoUrl?: string | null;
   initialConfig?: {
     whopAppId: string;
     planIds: Record<string, string>;
@@ -38,7 +39,7 @@ function getPersistedStep(): number | null {
   return saved ? parseInt(saved, 10) : null;
 }
 
-export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }: Props) {
+export function SetupWizard({ initialStep, isSignedIn, isAdmin, repoUrl, initialConfig }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(initialStep ?? getPersistedStep() ?? 1);
   const [saving, setSaving] = useState(false);
@@ -71,6 +72,11 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
   // Fetched prices from Whop (keyed by config key)
   const [fetchedPrices, setFetchedPrices] = useState<Record<string, FetchedPrice | null>>({});
   const [fetchingPrice, setFetchingPrice] = useState<string | null>(null);
+
+  // Derived repo values for "Start Customizing" section on step 8
+  const repoGitUrl = repoUrl ? `${repoUrl}.git` : "https://github.com/your-username/your-repo.git";
+  const repoName = repoUrl ? repoUrl.split("/").pop()! : "your-repo";
+  const terminalCommands = `git clone ${repoGitUrl}\ncd ${repoName}\npnpm install\nnpx vercel link\nnpx vercel env pull .env.local\npnpm dev`;
 
   const fetchPlanPrice = useCallback(async (planId: string, configKey: string) => {
     if (!planId.trim() || !planId.startsWith("plan_")) return;
@@ -694,7 +700,7 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
             </div>
           )}
 
-          {/* Step 8: Done */}
+          {/* Step 8: Done + Start Customizing */}
           {step === 8 && (
             <>
               <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
@@ -709,6 +715,67 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, initialConfig }:
                 Your SaaS is configured and ready to go.
                 You can update these settings anytime from the dashboard.
               </p>
+
+              {/* Divider */}
+              <div className="relative mt-8">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-[var(--border)]" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-[var(--background)] px-2 text-[11px] text-[var(--muted)]">Start Customizing</span>
+                </div>
+              </div>
+
+              {/* Open in editor buttons */}
+              <div className="mt-6">
+                <p className="text-sm font-medium mb-3">Open in your editor</p>
+                <div className="flex gap-2">
+                  {[
+                    { name: "Cursor", protocol: "cursor" },
+                    { name: "VS Code", protocol: "vscode" },
+                    { name: "Windsurf", protocol: "windsurf" },
+                  ].map((editor) => (
+                    <a
+                      key={editor.protocol}
+                      href={`${editor.protocol}://vscode.git/clone?url=${encodeURIComponent(repoGitUrl)}`}
+                      className="flex-1 rounded-lg border border-[var(--border)] py-2.5 text-center text-sm font-medium text-[var(--foreground)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                    >
+                      {editor.name}
+                    </a>
+                  ))}
+                </div>
+                {!repoUrl && (
+                  <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400">
+                    Could not detect your repo URL. Replace the placeholder with your GitHub repo URL.
+                  </p>
+                )}
+              </div>
+
+              {/* Collapsible terminal commands */}
+              <details className="mt-4 text-left">
+                <summary className="cursor-pointer text-xs text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
+                  Or clone manually via terminal
+                </summary>
+                <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+                  <pre className="text-xs font-mono text-[var(--foreground)] whitespace-pre-wrap leading-relaxed">{terminalCommands}</pre>
+                  <button
+                    type="button"
+                    onClick={() => copyText(terminalCommands, "terminal")}
+                    className="cursor-pointer mt-3 w-full rounded-md border border-[var(--border)] py-2 text-xs font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--foreground)]/20"
+                  >
+                    {copied === "terminal" ? "Copied!" : "Copy all"}
+                  </button>
+                </div>
+              </details>
+
+              {/* Docs link */}
+              <p className="mt-4 text-xs text-[var(--muted)]">
+                Need help?{" "}
+                <a href="/docs" className="text-[var(--accent)] underline underline-offset-2">
+                  Read the docs
+                </a>
+              </p>
+
               <StepButton onClick={handleComplete} disabled={saving}>
                 {saving ? "Finishing\u2026" : "Go to Dashboard"}
               </StepButton>

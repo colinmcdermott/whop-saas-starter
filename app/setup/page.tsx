@@ -46,11 +46,19 @@ export default async function SetupPage({
 
   const initialStep = params.step ? parseInt(params.step, 10) : undefined;
 
+  // Construct repo URL from Vercel's auto-set git env vars (available on Vercel deployments)
+  const repoOwner = process.env.VERCEL_GIT_REPO_OWNER;
+  const repoSlug = process.env.VERCEL_GIT_REPO_SLUG;
+  const repoUrl = repoOwner && repoSlug
+    ? `https://github.com/${repoOwner}/${repoSlug}`
+    : null;
+
   return (
     <SetupWizard
       initialStep={initialStep}
       isSignedIn={!!session}
       isAdmin={session?.isAdmin ?? false}
+      repoUrl={repoUrl}
       initialConfig={{
         whopAppId: whopAppId ?? "",
         planIds: initialPlanIds,
