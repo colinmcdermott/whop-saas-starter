@@ -109,6 +109,9 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, repoUrl, dbStatu
     }
   }, [isSignedIn, isAdmin, step]);
 
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
   const callbackUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/api/auth/callback`
@@ -366,6 +369,12 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, repoUrl, dbStatu
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/10 text-[10px] font-bold text-[var(--accent)]">3</span>
                       <p className="text-xs text-[var(--muted)] leading-relaxed">
                         Run <code className="font-mono text-[10px]">pnpm db:push</code> to create the tables, then restart the dev server
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-[var(--border)]">
+                      <p className="text-xs text-[var(--muted)] leading-relaxed">
+                        <span className="font-medium text-[var(--foreground)]">Already deployed to Vercel?</span>{" "}
+                        Run <code className="font-mono text-[10px]">npx vercel env pull .env.local</code> to pull your environment variables (including <code className="font-mono text-[10px]">DATABASE_URL</code>) and restart the dev server.
                       </p>
                     </div>
                   </div>
@@ -631,6 +640,12 @@ export function SetupWizard({ initialStep, isSignedIn, isAdmin, repoUrl, dbStatu
                     copied={copied === "webhook"}
                     onCopy={() => copyText(webhookUrl, "webhook")}
                   />
+                  {isLocalhost && (
+                    <p className="mt-2 text-[11px] text-amber-600 dark:text-amber-400 leading-relaxed">
+                      Webhooks can&apos;t reach <code className="font-mono">localhost</code> from the internet.
+                      Use a tunnel like <a href="https://ngrok.com" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">ngrok</a> (<code className="font-mono">ngrok http 3000</code>) and use the tunnel URL as your endpoint instead. Or skip this step and set up webhooks after you deploy.
+                    </p>
+                  )}
                 </div>
 
                 <InputField
