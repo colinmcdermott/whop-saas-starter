@@ -37,7 +37,21 @@ The wizard stores all config in your database — no environment variables neede
 
 If you prefer setting things up via environment variables (or for CI/CD), follow these steps.
 
-### Step 1: Create a Whop app
+### Step 1: Set up a PostgreSQL database
+
+You need a PostgreSQL database to store user accounts, sessions, and app config.
+
+1. Create a free database with [Neon](https://neon.tech), [Supabase](https://supabase.com), or [Prisma Postgres](https://www.prisma.io/postgres)
+2. Copy the connection string (starts with `postgresql://...`)
+3. Add it as `DATABASE_URL` in your Vercel project's Environment Variables (or `.env.local` for local dev)
+4. Push the database schema:
+   ```bash
+   pnpm db:push
+   ```
+
+> **Tip:** If you used the Deploy to Vercel button and added a Postgres integration, this is already done — `DATABASE_URL` is set automatically and the schema is pushed during build.
+
+### Step 2: Create a Whop app
 
 1. Go to [whop.com/dashboard/developer](https://whop.com/dashboard/developer)
 2. Click **Create App**
@@ -52,7 +66,7 @@ If you prefer setting things up via environment variables (or for CI/CD), follow
 
 > **Why Public mode?** It uses PKCE (a secure code exchange) instead of a static client secret. This is the recommended approach and what this template is built for.
 
-### Step 2: Create your plans in Whop
+### Step 3: Create your plans in Whop
 
 You need to create plans (pricing tiers) in Whop so users can subscribe.
 
@@ -66,7 +80,7 @@ You need to create plans (pricing tiers) in Whop so users can subscribe.
 
 > **Where to find Plan IDs:** Go to your product → Checkout links → click Details on any pricing option. The Plan ID starts with `plan_`.
 
-### Step 3: Add environment variables in Vercel
+### Step 4: Add environment variables in Vercel
 
 Go to your Vercel project → **Settings** → **Environment Variables** and add these:
 
@@ -89,7 +103,7 @@ Go to your Vercel project → **Settings** → **Environment Variables** and add
 
 After adding the variables, **redeploy** your app (Vercel → Deployments → click the three dots on the latest deployment → Redeploy).
 
-### Step 4: Set up webhooks
+### Step 5: Set up webhooks
 
 Webhooks tell your app when someone subscribes, cancels, or gets refunded.
 
@@ -107,7 +121,7 @@ Webhooks tell your app when someone subscribes, cancels, or gets refunded.
 6. Copy the **Webhook Secret** and add it as `WHOP_WEBHOOK_SECRET` in your Vercel env vars
 7. **Redeploy** again after adding the webhook secret
 
-### Step 5: Test it
+### Step 6: Test it
 
 1. Visit your app URL
 2. Click **Sign in** — you should be redirected to Whop's login page
