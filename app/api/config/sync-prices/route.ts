@@ -43,6 +43,7 @@ export async function POST() {
     after(() => {
       revalidatePath("/");
       revalidatePath("/pricing");
+      revalidatePath("/checkout");
     });
   }
 

@@ -24,7 +24,9 @@ import {
 } from "./constants";
 
 // In-memory cache (per-process, survives across requests within same cold start)
-const cache = new Map<string, string>();
+// Entries expire after CACHE_TTL_MS to prevent stale reads across serverless instances.
+const CACHE_TTL_MS = 30_000; // 30 seconds
+const cache = new Map<string, { value: string; expiresAt: number }>();
 
 // ---------------------------------------------------------------------------
 // Dynamic plan config key → env var mappings
@@ -88,16 +90,17 @@ for (const key of PLAN_KEYS) {
 // ---------------------------------------------------------------------------
 
 export async function getConfig(key: string): Promise<string | null> {
-  // 1. In-memory cache
+  // 1. In-memory cache (with TTL)
   const cached = cache.get(key);
-  if (cached !== undefined) return cached;
+  if (cached !== undefined && Date.now() < cached.expiresAt) return cached.value;
+  if (cached !== undefined) cache.delete(key); // expired
 
   // 2. Env var fallback
   const envKey = ENV_MAP[key];
   if (envKey) {
     const envVal = process.env[envKey];
     if (envVal) {
-      cache.set(key, envVal);
+      cache.set(key, { value: envVal, expiresAt: Date.now() + CACHE_TTL_MS });
       return envVal;
     }
   }
@@ -106,7 +109,7 @@ export async function getConfig(key: string): Promise<string | null> {
   try {
     const row = await prisma.systemConfig.findUnique({ where: { key } });
     if (row) {
-      cache.set(key, row.value);
+      cache.set(key, { value: row.value, expiresAt: Date.now() + CACHE_TTL_MS });
       return row.value;
     }
   } catch {
@@ -124,7 +127,7 @@ export async function setConfig(key: string, value: string): Promise<void> {
     update: { value },
     create: { key, value },
   });
-  cache.set(key, value);
+  cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
 }
 
 /** Bulk set config values */
