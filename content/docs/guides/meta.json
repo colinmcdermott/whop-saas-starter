@@ -1,6 +1,7 @@
 {
   "title": "Guides",
   "pages": [
+    "cli",
     "authentication",
     "plan-gating",
     "payments",

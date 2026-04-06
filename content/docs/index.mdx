@@ -24,9 +24,30 @@ Welcome to the **SaaS Starter** documentation. This template gives you everythin
 | Styling | Tailwind CSS v4 |
 | Database | PostgreSQL + Prisma 7 |
 | Auth & Payments | Whop |
+| Core Library | [whop-kit](https://www.npmjs.com/package/whop-kit) |
 | Docs | Fumadocs + MDX |
 
-## Quick Start
+## Quick Start (Recommended)
+
+The fastest way to get started is with the CLI:
+
+```bash
+npx create-whop-kit my-app
+```
+
+This will:
+1. Scaffold the template
+2. Provision a database (Neon, Supabase, or Prisma Postgres)
+3. Push to GitHub (private repo)
+4. Deploy to Vercel (with auto-deploy on push)
+5. Create your Whop app with OAuth + webhooks
+6. Set up pricing plans
+
+See the [CLI Guide](/docs/guides/cli) for full details.
+
+## Quick Start (Manual)
+
+If you prefer to set things up manually:
 
 ```bash
 # Clone and install
@@ -43,7 +64,19 @@ pnpm db:push
 pnpm dev
 ```
 
-Visit `http://localhost:3000` and the setup wizard will guide you through connecting Whop. If your database isn't connected yet, the wizard will show you how to set it up first.
+Visit `http://localhost:3000` and the setup wizard will guide you through connecting Whop.
+
+## Managing Your Project
+
+After setup, use the `whop-kit` CLI to manage your project:
+
+```bash
+npx whop-kit add plans         # create pricing plans on Whop
+npx whop-kit add email         # add Resend or SendGrid
+npx whop-kit add analytics     # add PostHog, GA, or Plausible
+npx whop-kit status            # check what's configured
+npx whop-kit deploy            # deploy to Vercel + connect Whop
+```
 
 ## Project Structure
 
@@ -72,13 +105,13 @@ db/
 ├── index.ts             # Prisma client singleton
 └── schema.prisma        # User + SystemConfig models
 lib/
-├── auth.ts              # Session + plan gating (requirePlan, hasMinimumPlan)
-├── config.ts            # DB-backed configuration
-├── whop.ts              # Whop OAuth, webhooks, access checks
-├── subscription.ts      # Subscription/membership query helpers
-├── analytics.ts         # Analytics script generation
-├── email.ts             # Transactional email (Resend, SendGrid)
-├── email-templates.ts   # HTML email templates (welcome, payment failed)
+├── adapters/            # Framework adapters (Next.js cookies, Prisma DB)
+├── auth.ts              # Session + plan gating (powered by whop-kit)
+├── config.ts            # DB-backed configuration (powered by whop-kit)
+├── whop.ts              # Whop OAuth, webhooks, access checks (powered by whop-kit)
+├── subscription.ts      # Subscription helpers (powered by whop-kit)
+├── analytics.ts         # Analytics script generation (powered by whop-kit)
+├── email.ts             # Transactional email (powered by whop-kit)
 ├── constants.ts         # Plans, app name, links
 └── source.ts            # Fumadocs content loader
 ```

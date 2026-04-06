@@ -1,0 +1,173 @@
+---
+title: CLI
+description: Use the create-whop-kit CLI to scaffold, deploy, and manage your app
+---
+
+The `create-whop-kit` CLI is the fastest way to get a Whop-powered app up and running. It handles scaffolding, database provisioning, deployment, Whop configuration, and pricing plans — all from the terminal.
+
+## Create a New Project
+
+```bash
+npx create-whop-kit my-app
+```
+
+Or skip the setup questions with flags:
+
+```bash
+npx create-whop-kit my-app --framework nextjs --db neon
+```
+
+### What the CLI Does
+
+1. **Scaffolds** your project from a template (SaaS or Blank)
+2. **Provisions a database** via Neon, Supabase, or Prisma Postgres
+3. **Pushes to GitHub** (private repo)
+4. **Deploys to Vercel** (connected to GitHub for auto-deploy on push)
+5. **Creates your Whop app** with OAuth + webhooks via the Whop API
+6. **Sets up pricing plans** (products + plans created on Whop)
+7. **Opens your editor** (Cursor, VS Code, etc.)
+
+### Presets
+
+The CLI offers presets to skip configuration:
+
+- **SaaS Starter** — Next.js + Neon + GitHub + Vercel + pricing plans
+- **Blank Canvas** — Next.js + Neon + GitHub + Vercel (no plans, build anything)
+- **Custom** — choose framework, database, and options manually
+
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| `--framework` | `nextjs` or `astro` |
+| `--type` | `saas` or `blank` (default: `saas`) |
+| `--db` | `neon`, `prisma-postgres`, `supabase`, `manual`, `later` |
+| `--db-url` | PostgreSQL connection URL (skips provisioning) |
+| `--skip-deploy` | Skip GitHub + Vercel deployment |
+| `-y, --yes` | Skip setup questions, use defaults |
+| `--dry-run` | Preview what would be created |
+
+## Manage Your Project
+
+After creating a project, use `whop-kit` to add features and manage configuration:
+
+### Add Pricing Plans
+
+```bash
+npx whop-kit add plans
+```
+
+Walks you through creating subscription plans on Whop:
+- How many paid tiers (1-3)
+- Free tier included?
+- Monthly + yearly or monthly only
+- Price for each tier
+
+Creates products and plans via the Whop API and writes plan IDs to `.env.local`.
+
+### Add Email
+
+```bash
+npx whop-kit add email
+```
+
+Configure transactional email with Resend or SendGrid. Writes `EMAIL_PROVIDER`, `EMAIL_API_KEY`, and `EMAIL_FROM_ADDRESS` to `.env.local`.
+
+### Add Analytics
+
+```bash
+npx whop-kit add analytics
+```
+
+Add PostHog, Google Analytics, or Plausible. Writes `ANALYTICS_PROVIDER` and `ANALYTICS_ID` to `.env.local`.
+
+### Add Webhook Events
+
+```bash
+npx whop-kit add webhook-event
+```
+
+Scaffolds a new webhook event handler and shows you where to add it.
+
+### Check Status
+
+```bash
+npx whop-kit status
+```
+
+Shows your project's configuration status — what's configured (green), what's missing (red), and what's optional (yellow).
+
+### View Environment Variables
+
+```bash
+npx whop-kit env           # masked values
+npx whop-kit env --reveal  # actual values
+```
+
+### Deploy / Redeploy
+
+```bash
+npx whop-kit deploy
+```
+
+Deploys to Vercel, connects to Whop, pushes all credentials. Use this to redeploy after configuration changes or to set up Whop if you skipped it during init.
+
+### List Available Services
+
+```bash
+npx whop-kit catalog
+```
+
+Shows all available templates, database providers, features, and agent skills.
+
+### Open Dashboards
+
+```bash
+npx whop-kit open whop     # Whop Developer Dashboard
+npx whop-kit open neon     # Neon Console
+npx whop-kit open supabase # Supabase Dashboard
+npx whop-kit open vercel   # Vercel Dashboard
+```
+
+### Update whop-kit
+
+```bash
+npx whop-kit upgrade
+```
+
+Updates the `whop-kit` dependency in your project to the latest version.
+
+## Database Provisioning
+
+The CLI auto-provisions databases — no need to leave the terminal:
+
+| Provider | How it works |
+|----------|-------------|
+| **Neon** | Installs `neonctl` → authenticates → creates project → gets connection string |
+| **Supabase** | Installs CLI → authenticates → creates project → guides connection string |
+| **Prisma Postgres** | Runs `npx create-db` → instant database, no account needed |
+
+## Deployment Flow
+
+When you choose to deploy, the CLI handles:
+
+**GitHub** — Creates a private repo and pushes your code. Every future `git push` auto-deploys.
+
+**Vercel** — Links your project, connects to GitHub, sets environment variables, and deploys.
+
+**Whop** — Guides you through creating a Company API key, then:
+- Creates your Whop app via the API
+- Guides you to set OAuth to Public mode
+- Creates webhook endpoints for payment events
+- Pushes all credentials to Vercel
+- Redeploys with full configuration
+
+## AI Support
+
+The CLI installs agent skills for AI coding assistants:
+
+- **Neon** — `neon-postgres`, `neon-serverless` skills
+- **Supabase** — `supabase-postgres-best-practices` skill
+- **Whop** — `whop-saas-starter`, `whop-dev` skills
+
+A `.whop/project-context.md` file is generated with your project's configuration, so AI assistants understand your setup.
