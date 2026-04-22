@@ -189,18 +189,20 @@ export async function GET(request: NextRequest) {
       await logActivity(user.id, "sign_in", "Signed in");
     }
 
-    // Deferred work — runs after the response is sent
-    after(async () => {
-      // Send welcome email for new users
-      if (!existingUser && user.email) {
-        const emailContent = welcomeEmail(user.name);
-        await sendEmail({ to: user.email, ...emailContent }).catch((err) =>
+    // Send welcome email for new users (deferred — slow external API call)
+    if (!existingUser && user.email) {
+      const { email: userEmail, name: userName } = user;
+      after(async () => {
+        const emailContent = welcomeEmail(userName);
+        await sendEmail({ to: userEmail, ...emailContent }).catch((err) =>
           console.error("[Email] Welcome email failed:", err)
         );
-      }
-      // Clean up the idempotency key (no longer needed)
-      await prisma.systemConfig.delete({ where: { key: idempotencyKey } }).catch(() => {});
-    });
+      });
+    }
+
+    // Note: idempotency key (oauth_cb_*) is intentionally NOT deleted.
+    // It must persist to block duplicate requests. Old keys are tiny
+    // (one row per sign-in) and can be pruned periodically if needed.
 
     return NextResponse.redirect(new URL(next, request.url));
   } catch (err) {
