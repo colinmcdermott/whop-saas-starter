@@ -6,11 +6,11 @@ import { APP_NAME } from "@/lib/constants";
  * To replace: swap the LogoMark SVG below with your own, or use next/image.
  * To change the name: edit APP_NAME in lib/constants.ts.
  */
-export function AppLogo({ className }: { className?: string }) {
+export function AppLogo({ className, iconOnly }: { className?: string; iconOnly?: boolean }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className ?? ""}`}>
       <LogoMark />
-      <span className="text-sm font-semibold tracking-tight">{APP_NAME}</span>
+      {!iconOnly && <span className="text-sm font-semibold tracking-tight">{APP_NAME}</span>}
     </span>
   );
 }

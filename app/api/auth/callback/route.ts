@@ -70,6 +70,19 @@ export async function GET(request: NextRequest) {
   // Clear the OAuth state cookie (always, regardless of outcome)
   cookieStore.delete("oauth_state");
 
+  // Prevent duplicate processing — claim this state as a one-time key.
+  // If a second request arrives with the same state (e.g. infrastructure retry),
+  // the unique constraint on SystemConfig.key rejects it and we just redirect.
+  const idempotencyKey = `oauth_cb_${expectedState}`;
+  try {
+    await prisma.systemConfig.create({
+      data: { key: idempotencyKey, value: new Date().toISOString() },
+    });
+  } catch {
+    // Already processed — redirect to destination without reprocessing
+    return NextResponse.redirect(new URL(next, request.url));
+  }
+
   // Verify state matches to prevent CSRF
   if (returnedState !== expectedState) {
     return NextResponse.redirect(
@@ -176,16 +189,18 @@ export async function GET(request: NextRequest) {
       await logActivity(user.id, "sign_in", "Signed in");
     }
 
-    // Send welcome email for new users (deferred — slow external API call)
-    if (!existingUser && user.email) {
-      const { email: userEmail, name: userName } = user;
-      after(async () => {
-        const emailContent = welcomeEmail(userName);
-        await sendEmail({ to: userEmail, ...emailContent }).catch((err) =>
+    // Deferred work — runs after the response is sent
+    after(async () => {
+      // Send welcome email for new users
+      if (!existingUser && user.email) {
+        const emailContent = welcomeEmail(user.name);
+        await sendEmail({ to: user.email, ...emailContent }).catch((err) =>
           console.error("[Email] Welcome email failed:", err)
         );
-      });
-    }
+      }
+      // Clean up the idempotency key (no longer needed)
+      await prisma.systemConfig.delete({ where: { key: idempotencyKey } }).catch(() => {});
+    });
 
     return NextResponse.redirect(new URL(next, request.url));
   } catch (err) {
