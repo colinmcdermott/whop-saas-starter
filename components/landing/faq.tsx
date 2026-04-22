@@ -11,34 +11,34 @@ import { cn } from "@/lib/utils";
  */
 const faqs = [
   {
-    question: "How does the free plan work?",
+    question: "What do I need to get started?",
     answer:
-      "The free plan gives you full access to the core features with usage limits. No credit card required — just sign in and start building. You can upgrade anytime to unlock higher limits and premium features.",
+      "Just a Whop account and a database. Run the CLI, follow the setup wizard, and you'll have a fully working SaaS with auth, payments, and a dashboard in minutes. Deploy to Vercel for the fastest path to production.",
   },
   {
-    question: "Can I cancel or change my plan at any time?",
+    question: "How does authentication work?",
     answer:
-      "Yes. You can upgrade, downgrade, or cancel your subscription at any time from the billing portal. If you cancel, you'll keep access until the end of your current billing period.",
+      "Users sign in via Whop using OAuth 2.1 with PKCE — no passwords to manage, no auth library to configure. Sessions are stored as signed JWTs in httpOnly cookies with a 7-day TTL.",
   },
   {
-    question: "What payment methods do you accept?",
+    question: "How are payments handled?",
     answer:
-      "We accept all major credit and debit cards through our payment provider, Whop. All payments are processed securely — we never store your card details.",
+      "Payments are processed through Whop. You define your plans in the Whop dashboard, connect them via the setup wizard, and the starter handles checkout, webhooks, plan gating, and billing portal access automatically.",
   },
   {
-    question: "Is there a trial period?",
+    question: "Can I customize the plans and pricing?",
     answer:
-      "The free plan works as an unlimited trial — use it as long as you like. When you're ready for more, paid plans are available with monthly or yearly billing (save with annual plans).",
+      "Yes. Plans are data-driven — edit the definePlans() call in one file and everything adapts: pricing page, plan gating, checkout, webhooks, and the dashboard. Add, remove, or reorder tiers without touching any other code.",
   },
   {
-    question: "How do I get support?",
+    question: "What database can I use?",
     answer:
-      "Free users get community support. Starter and Pro plans include priority support with faster response times. Pro users also get a dedicated support channel.",
+      "Any PostgreSQL provider — Neon, Supabase, Prisma Postgres, or your own. The CLI can auto-provision a database for you, or you can bring your own connection string.",
   },
   {
-    question: "Can I self-host this?",
+    question: "Is this a Whop app or a standalone site?",
     answer:
-      "Yes. This is an open-source Next.js app — you can deploy it anywhere that runs Node.js. We recommend Vercel for the easiest setup, but Railway, Fly.io, and others work too.",
+      "It's a standalone Next.js app on your own domain. It uses Whop for auth and payments but runs independently — no iframes, no Whop proxy. You own the full stack and can deploy it anywhere.",
   },
 ];
 
