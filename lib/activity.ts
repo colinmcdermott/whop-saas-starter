@@ -6,12 +6,8 @@ import { prisma } from "@/db";
 
 export type ActivityType = "sign_in" | "plan_change" | "setting" | "account";
 
-/** Deduplication window — skip if an identical event was logged within this period */
-const DEDUP_WINDOW_MS = 30_000;
-
 /**
  * Log an activity event for a user (by internal user ID).
- * Deduplicates: skips if the same user+type+description exists within 30s.
  * Silently catches errors so it never breaks the calling flow.
  */
 export async function logActivity(
@@ -20,17 +16,6 @@ export async function logActivity(
   description: string,
 ): Promise<void> {
   try {
-    const recent = await prisma.activityEvent.findFirst({
-      where: {
-        userId,
-        type,
-        description,
-        createdAt: { gte: new Date(Date.now() - DEDUP_WINDOW_MS) },
-      },
-      select: { id: true },
-    });
-    if (recent) return;
-
     await prisma.activityEvent.create({
       data: { userId, type, description },
     });

@@ -169,20 +169,23 @@ export async function GET(request: NextRequest) {
 
     await setSessionCookie(session);
 
-    // Log activity + send welcome email (runs after response is sent)
-    after(async () => {
-      if (!existingUser) {
-        await logActivity(user.id, "account", "Account created");
-        if (user.email) {
-          const emailContent = welcomeEmail(user.name);
-          await sendEmail({ to: user.email, ...emailContent }).catch((err) =>
-            console.error("[Email] Welcome email failed:", err)
-          );
-        }
-      } else {
-        await logActivity(user.id, "sign_in", "Signed in");
-      }
-    });
+    // Log activity inline (fast DB insert, no need to defer)
+    if (!existingUser) {
+      await logActivity(user.id, "account", "Account created");
+    } else {
+      await logActivity(user.id, "sign_in", "Signed in");
+    }
+
+    // Send welcome email for new users (deferred — slow external API call)
+    if (!existingUser && user.email) {
+      const { email: userEmail, name: userName } = user;
+      after(async () => {
+        const emailContent = welcomeEmail(userName);
+        await sendEmail({ to: userEmail, ...emailContent }).catch((err) =>
+          console.error("[Email] Welcome email failed:", err)
+        );
+      });
+    }
 
     return NextResponse.redirect(new URL(next, request.url));
   } catch (err) {

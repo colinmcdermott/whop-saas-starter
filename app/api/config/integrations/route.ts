@@ -1,4 +1,4 @@
-import { after, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { setConfig, getConfig } from "@/lib/config";
@@ -75,6 +75,6 @@ export async function POST(request: Request) {
   );
 
   revalidatePath("/", "layout");
-  after(() => logActivity(session.userId, "setting", "Updated integrations"));
+  await logActivity(session.userId, "setting", "Updated integrations");
   return NextResponse.json({ saved: true });
 }

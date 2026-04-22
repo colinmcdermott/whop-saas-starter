@@ -1,4 +1,4 @@
-import { after, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { setConfig, getConfig } from "@/lib/config";
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
   await setConfig("accent_color", color);
   revalidatePath("/", "layout");
-  after(() => logActivity(session.userId, "setting", "Updated accent color"));
+  await logActivity(session.userId, "setting", "Updated accent color");
   return NextResponse.json({ saved: true });
 }
 
