@@ -18,13 +18,17 @@ interface PlanGateProps {
  *
  * The plan is passed as a prop from a server component (always fresh from DB).
  *
+ * Prefer the positional constants (FIRST_PAID_PLAN, TOP_PLAN) or your own
+ * literal keys from definePlans() — positional references survive tier
+ * renames and CLI-regenerated plan structures.
+ *
  * @example
- * <PlanGate plan={session.plan} minimum="pro">
+ * <PlanGate plan={session.plan} minimum={TOP_PLAN}>
  *   <ProFeatureWidget />
  * </PlanGate>
  *
  * @example
- * <PlanGate plan={session.plan} minimum="pro" fallback={<UpgradeBanner />}>
+ * <PlanGate plan={session.plan} minimum={FIRST_PAID_PLAN} fallback={<UpgradeBanner />}>
  *   <AdvancedAnalytics />
  * </PlanGate>
  */

@@ -90,6 +90,14 @@ export const PLAN_KEYS = plans.keys;
 export const PLAN_RANK = plans.ranks as Record<string, number>;
 export const DEFAULT_PLAN = plans.defaultPlan;
 
+// Positional tier references — use these in app code instead of hardcoding
+// plan keys like "starter", so renaming or regenerating tiers (e.g. via the
+// whop-kit CLI) never breaks gating.
+/** First paid tier — the key right above the default plan */
+export const FIRST_PAID_PLAN: PlanKey = PLAN_KEYS[1] ?? DEFAULT_PLAN;
+/** Highest tier in the hierarchy */
+export const TOP_PLAN: PlanKey = PLAN_KEYS[PLAN_KEYS.length - 1];
+
 export const getPlanBillingIntervals = plans.getBillingIntervals;
 export const planConfigKey = plans.configKey;
 export const planConfigKeyYearly = plans.configKeyYearly;

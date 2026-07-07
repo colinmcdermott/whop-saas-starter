@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireSession, hasMinimumPlan } from "@/lib/auth";
-import { DEFAULT_PLAN, type PlanKey } from "@/lib/constants";
+import { PLAN_METADATA, FIRST_PAID_PLAN, TOP_PLAN } from "@/lib/constants";
 import { PlanGate } from "@/components/plan-gate";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
  * within the dashboard layout.
  *
  * This page shows:
- * - Plan-gated limits (free = 3 projects, starter+ = unlimited)
+ * - Plan-gated limits (free = 3 projects, first paid tier+ = unlimited)
  * - A project list with empty state
  * - How to add your own product pages to the dashboard
  *
@@ -35,7 +35,7 @@ const DEMO_PROJECTS = [
 
 export default async function ProjectsPage() {
   const session = await requireSession();
-  const isPaid = hasMinimumPlan(session.plan, "starter" as PlanKey);
+  const isPaid = hasMinimumPlan(session.plan, FIRST_PAID_PLAN);
   const limit = isPaid ? Infinity : FREE_PROJECT_LIMIT;
   const projects = DEMO_PROJECTS; // Replace with: await prisma.project.findMany({ where: { userId: session.userId } })
   const canCreate = projects.length < limit;
@@ -68,7 +68,7 @@ export default async function ProjectsPage() {
             <div>
               <h3 className="text-sm font-semibold">Project limit reached</h3>
               <p className="mt-1 text-xs text-[var(--muted)]">
-                Upgrade to Starter for unlimited projects and advanced features.
+                Upgrade to {PLAN_METADATA[FIRST_PAID_PLAN].name} for unlimited projects and advanced features.
               </p>
             </div>
             <Link
@@ -110,9 +110,9 @@ export default async function ProjectsPage() {
       {/* Pro-only feature example */}
       <PlanGate
         plan={session.plan}
-        minimum="pro"
+        minimum={TOP_PLAN}
         fallback={
-          hasMinimumPlan(session.plan, "starter" as PlanKey) ? (
+          hasMinimumPlan(session.plan, FIRST_PAID_PLAN) ? (
             <div className="animate-slide-up delay-200 rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)] p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -123,7 +123,7 @@ export default async function ProjectsPage() {
                     <h3 className="text-sm font-semibold text-[var(--muted)]">Team Collaboration</h3>
                   </div>
                   <p className="mt-1 text-xs text-[var(--muted)]">
-                    Upgrade to Pro to invite team members and collaborate on projects.
+                    Upgrade to {PLAN_METADATA[TOP_PLAN].name} to invite team members and collaborate on projects.
                   </p>
                 </div>
                 <Link

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { requireSession } from "@/lib/auth";
+import { requireSession, hasMinimumPlan } from "@/lib/auth";
 import { getPlansConfig } from "@/lib/config";
-import { DEFAULT_PLAN, PLAN_KEYS, type PlanKey } from "@/lib/constants";
+import { DEFAULT_PLAN, PLAN_KEYS, PLAN_METADATA, FIRST_PAID_PLAN, TOP_PLAN, type PlanKey } from "@/lib/constants";
 import { PlanGate } from "@/components/plan-gate";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { ReactivateBanner } from "@/components/dashboard/reactivate-banner";
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
       <div className="animate-slide-up delay-300 space-y-4">
         <PlanGate
           plan={session.plan}
-          minimum="starter"
+          minimum={FIRST_PAID_PLAN}
           fallback={
             <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)] p-5">
               <div className="flex items-start justify-between gap-4">
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
                     <h3 className="text-sm font-semibold text-[var(--muted)]">Advanced Analytics</h3>
                   </div>
                   <p className="mt-1 text-xs text-[var(--muted)]">
-                    Upgrade to Starter or above to unlock analytics, integrations, and more.
+                    Upgrade to {PLAN_METADATA[FIRST_PAID_PLAN].name} or above to unlock analytics, integrations, and more.
                   </p>
                 </div>
                 <Link
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
             <h3 className="text-sm font-semibold">Advanced Analytics</h3>
             <p className="mt-1 text-xs text-[var(--muted)]">
-              Replace this with your analytics dashboard, reports, or any Starter+ feature.
+              Replace this with your analytics dashboard, reports, or any {PLAN_METADATA[FIRST_PAID_PLAN].name}+ feature.
             </p>
             <div className="mt-4 grid gap-px overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
               <div className="bg-[var(--card)] p-4">
@@ -118,9 +118,9 @@ export default async function DashboardPage() {
 
         <PlanGate
           plan={session.plan}
-          minimum="pro"
+          minimum={TOP_PLAN}
           fallback={
-            PLAN_KEYS.indexOf(session.plan) >= PLAN_KEYS.indexOf("starter" as PlanKey) ? (
+            hasMinimumPlan(session.plan, FIRST_PAID_PLAN) ? (
               <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)] p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
                       <h3 className="text-sm font-semibold text-[var(--muted)]">API Access</h3>
                     </div>
                     <p className="mt-1 text-xs text-[var(--muted)]">
-                      Upgrade to Pro to unlock API access, SSO, and dedicated support.
+                      Upgrade to {PLAN_METADATA[TOP_PLAN].name} to unlock API access, SSO, and dedicated support.
                     </p>
                   </div>
                   <Link
@@ -148,7 +148,7 @@ export default async function DashboardPage() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
             <h3 className="text-sm font-semibold">API Access</h3>
             <p className="mt-1 text-xs text-[var(--muted)]">
-              Replace this with your API dashboard, key management, or any Pro-only feature.
+              Replace this with your API dashboard, key management, or any {PLAN_METADATA[TOP_PLAN].name}-only feature.
             </p>
             <div className="mt-4 rounded-lg bg-[var(--surface)] p-3 font-mono text-xs text-[var(--muted)]">
               <span className="text-emerald-500">GET</span> /api/v1/data <span className="text-[var(--muted)]/60">→ 200 OK</span>
